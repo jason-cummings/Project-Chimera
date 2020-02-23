@@ -27,7 +27,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -std=c++17" )
 find_package( OpenGL REQUIRED )
 
 
-set( SDL2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/SDL/include/ )
+set( SDL2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/SDL2/include/ )
 set( SDL2_LIBRARY SDL2 )
 
 set( BULLET_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/bullet3/src/ )
