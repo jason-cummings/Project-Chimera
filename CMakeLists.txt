@@ -35,6 +35,7 @@ set( BULLET_LIBRARY BulletDynamics BulletCollision LinearMath )
 
 set( STB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb/ )
 
+set( GLM_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm/ )
 
 set( GAME_LIBS
 	${OPENGL_LIBRARY}
@@ -45,6 +46,7 @@ set( GAME_INCLUDES
 	${SDL2_INCLUDE_DIR}
 	${BULLET_INCLUDE_DIRS}
 	${STB_INCLUDE_DIR}
+	${GLM_INCLUDE_DIRS}
 )
 
 include_directories( ${GAME_INCLUDES} )
