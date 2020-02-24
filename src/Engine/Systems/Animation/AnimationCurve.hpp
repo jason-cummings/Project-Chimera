@@ -1,0 +1,10 @@
+#ifndef ANIMATIONCURVE_HPP
+#define ANIMATIONCURVE_HPP
+
+
+
+
+
+
+
+#endif
