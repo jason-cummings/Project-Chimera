@@ -5,7 +5,8 @@
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include <SDL_opengl.h>
+
+#include "Systems/Rendering/RenderSystem.hpp"
 
 class Window {
 private:
@@ -14,18 +15,19 @@ private:
 
 	SDL_Window *window;
 	SDL_GLContext gl_context;
+	RenderSystem *rs; // Should only ever tell the render system to reshape
 
-	bool init();
 	bool initGL();
-	void testGLError(const char* loc = "default");
+	void handleKeys( SDL_Event e );
 
 public:
-	Window( int w, int h );
+	Window( int w, int h, RenderSystem *rs_ );
+	bool init();
+
 	bool getQuit();
-	void handleKeys(SDL_Event e);
 	void close();
-	void tick();
-	void render();
+	void handleEvents();
+	void postRender();
 };
 
 #endif

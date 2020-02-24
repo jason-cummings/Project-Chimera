@@ -1,16 +1,16 @@
 #include "Window.hpp"
 
-Window::Window( int w, int h ) {
+Window::Window( int w, int h, RenderSystem *rs_ ) {
 	w_width = w;
 	w_height = h;
 	quit = false;
-	bool success = init();
-	if( !success )
-		std::cout << "Failure on SDL window initialization" << std::endl;
+
+	rs = rs_;
 }
 
 bool Window::getQuit() { return quit; }
 
+// Initialize the SDL window and OpenGL and return success
 bool Window::init() {
 	bool success = true;
 
@@ -50,6 +50,9 @@ bool Window::init() {
 	return success;
 }
 
+// "Initialize" OpenGL
+// Attempts basic operations to test that OpenGL context was properly created
+// Returns true if no errors occur, else false
 bool Window::initGL() {
 	bool success = true;
 	GLenum error = GL_NO_ERROR;
@@ -86,7 +89,8 @@ void Window::close() {
 	SDL_Quit();
 }
 
-void Window::tick() {
+// Test for any window events and handle them appropriately
+void Window::handleEvents() {
 	SDL_Event e;
 	while( SDL_PollEvent(&e) != 0 ) {
 		if( e.type == SDL_QUIT )
@@ -94,7 +98,7 @@ void Window::tick() {
 		else if( e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED ) {
 			w_width = e.window.data1;
 			w_height = e.window.data2;
-			// state->reshape(SCREEN_WIDTH, SCREEN_HEIGHT);
+			rs->reshape( w_width, w_height );
 		}
 		else if( e.type == SDL_KEYDOWN || e.type == SDL_KEYUP ) {
 			handleKeys(e);
@@ -103,42 +107,9 @@ void Window::tick() {
 		//     handleMouse( e );
 		// }
 	}
+}
 
-	render();
-
+// Perform any necessary operations after rendering
+void Window::postRender() {
 	SDL_GL_SwapWindow( window );
-	testGLError();
-}
-
-void Window::render() {
-	glClearColor(0.f, 0.f, 0.f, 0.f);
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	glViewport(0, 0, w_width, w_height);
-
-	glLoadIdentity();
-	glBegin(GL_QUADS);
-	glColor3f(1.f, 1.f, 1.f);
-	glVertex2f(-0.5f, -0.5f);
-	glVertex2f(0.5f, -0.5f);
-	glVertex2f(0.5f, 0.5f);
-	glVertex2f(-0.5f, 0.5f);
-	glEnd();
-
-	glDisable(GL_DEPTH_TEST);
-
-	testGLError("render");
-}
-
-void Window::testGLError(const char* loc) {
-	int err;
-	if( (err = glGetError()) != GL_NO_ERROR )
-		std::cout << "OpenGL error at " << loc << ": " << err << std::endl;
 }
