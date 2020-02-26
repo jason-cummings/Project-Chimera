@@ -3,8 +3,8 @@
 
 GameObject::GameObject(int id) {
 	identifier = id;
-	transform = glm::mat4();
-	world_transform = glm::mat4();
+	transform = glm::mat4(1.0);
+	world_transform = glm::mat4(1.0);
 	parent = NULL;
 }
 
@@ -141,13 +141,13 @@ bool testSetTransform() {
 	GameObject * g1 = new GameObject(1);
 	GameObject * g2 = new GameObject(2);
 	g1->addChild(g2);
-	g1->setTransform( glm::translate(g1->getWorldTransform(),glm::vec3(1.0,0.0,0.0)) );
+	g1->setTransform( glm::translate(g1->getTransform(),glm::vec3(1.0,0.0,0.0)) );
 	g2->setTransform( glm::translate(glm::mat4(1.0),glm::vec3(1.0,0.0,0.0)) );
 
 	glm::mat4 total = glm::translate(glm::mat4(1.0),glm::vec3(2.0,0.0,0.0));
 
-	//std::cout << "total: " << glm::to_string(total) << std::endl;
-	//std::cout << "g2: " << glm::to_string(g2->getWorldTransform()) << std::endl;
+	// std::cout << "total: " << glm::to_string(total) << std::endl;
+	// std::cout << "g2: " << glm::to_string(g2->getWorldTransform()) << std::endl;
 	bool equal = total == g2->getWorldTransform();
 	delete g1; 
 	delete g2;
@@ -173,9 +173,9 @@ bool testRemove() {
 	return g1.getNumChildren() == 0;
 }
 
-// int main() {
-// 	std::cout << "Transform tests: " << (testSetTransform()?"pass":"fail") << std::endl;
-// 	std::cout << "Search tests: " << (testSearch()?"pass":"fail") << std::endl;
-// 	std::cout << "Remove tests: " << (testRemove()?"pass":"fail") << std::endl;
-// 	return 0;
-// }
+int main() {
+	std::cout << "Transform tests: " << (testSetTransform()?"pass":"fail") << std::endl;
+	std::cout << "Search tests: " << (testSearch()?"pass":"fail") << std::endl;
+	std::cout << "Remove tests: " << (testRemove()?"pass":"fail") << std::endl;
+	return 0;
+}
