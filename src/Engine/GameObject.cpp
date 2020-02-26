@@ -173,9 +173,9 @@ bool testRemove() {
 	return g1.getNumChildren() == 0;
 }
 
-int main() {
-	std::cout << "Transform tests: " << (testSetTransform()?"pass":"fail") << std::endl;
-	std::cout << "Search tests: " << (testSearch()?"pass":"fail") << std::endl;
-	std::cout << "Remove tests: " << (testRemove()?"pass":"fail") << std::endl;
-	return 0;
-}
+// int main() {
+// 	std::cout << "Transform tests: " << (testSetTransform()?"pass":"fail") << std::endl;
+// 	std::cout << "Search tests: " << (testSearch()?"pass":"fail") << std::endl;
+// 	std::cout << "Remove tests: " << (testRemove()?"pass":"fail") << std::endl;
+// 	return 0;
+// }
