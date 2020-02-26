@@ -17,17 +17,18 @@ private:
 	SDL_GLContext gl_context;
 	RenderSystem *rs; // Should only ever tell the render system to reshape
 
-	bool initGL();
 	void handleKeys( SDL_Event e );
 
 public:
-	Window( int w, int h, RenderSystem *rs_ );
+	Window( int w, int h );
 	bool init();
 
 	bool getQuit();
 	void close();
 	void handleEvents();
 	void postRender();
+
+	void setRS( RenderSystem *rs_ );
 };
 
 #endif

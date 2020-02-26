@@ -3,8 +3,8 @@
 Engine *Engine::engine = nullptr;
 
 Engine::Engine() {
-    rs = new RenderSystem( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT );
-    window = new Window( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, rs );
+    window = nullptr;
+    rs = nullptr;
 }
 
 Engine::~Engine() {
@@ -30,10 +30,14 @@ bool Engine::init() {
     bool success = true;
 
     // Attempt to initialize the window
+    window = new Window( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT );
     if( !window->init() ) {
         std::cout << "Error in window initialization" << std::endl;
         success = false;
     }
+
+    rs = new RenderSystem( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT );
+    window->setRS(rs);
 
     return success;
 }
