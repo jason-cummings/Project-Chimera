@@ -36,7 +36,9 @@ bool Engine::init() {
         success = false;
     }
 
-    rs = new RenderSystem( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT );
+    // Create the rendersystem with the window size
+    glm::vec2 window_size = window->getDisplaySize();
+    rs = new RenderSystem( window_size.x, window_size.y );
     window->setRS(rs);
 
     return success;

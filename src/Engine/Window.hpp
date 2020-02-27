@@ -5,6 +5,8 @@
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
+#include <GL/glew.h>
+#include <glm/vec2.hpp>
 
 #include "Systems/Rendering/RenderSystem.hpp"
 
@@ -29,6 +31,8 @@ public:
 	void postRender();
 
 	void setRS( RenderSystem *rs_ );
+
+	glm::vec2 getDisplaySize();
 };
 
 #endif

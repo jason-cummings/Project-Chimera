@@ -5,6 +5,14 @@ set( SDL_STATIC OFF CACHE BOOL "Build the static SDL2 library" )
 set( SDL_SHARED ON CACHE BOOL "Build the shared SDL2 library" )
 add_subdirectory( SDL2 )
 
+# glew
+set( glew-cmake_BUILD_SHARED ON CACHE BOOL "Build the shared glew library" )
+set( glew-cmake_BUILD_STATIC OFF CACHE BOOL "Build the static glew library" )
+set( glew-cmake_BUILD_SINGLE_CONTEXT ON CACHE BOOL "Build the single context glew library" )
+set( glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "Build the multi context glew library" )
+
+add_subdirectory( glew )
+
 # bullet3
 # Do this last
 set( USE_MSVC_RUNTIME_LIBRARY_DLL ON )

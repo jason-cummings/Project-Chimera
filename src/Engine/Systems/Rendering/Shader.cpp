@@ -47,7 +47,8 @@ bool Shader::getProgErr() const { return prog_err; }
 
 // Read the shader from file fname (will append path to Shaders directory)
 // shader_src will be allocated and assigned the contents of the file
-void Shader::readShaderSource( const char *fname, char **shader_src ) {
+// Returns true iff the file's contents were successfully copied to *shader_src, else false
+bool Shader::readShaderSource( const char *fname, char **shader_src ) {
     // Get the full path to the shader
     const char* fullfname = (std::string("./Assets/Shaders/") + std::string(fname)).c_str();
 
@@ -57,7 +58,7 @@ void Shader::readShaderSource( const char *fname, char **shader_src ) {
         // Couldn't open the file
 		std::cerr << "Could not open file: " << fname << std::endl;
 	    prog_err = true;
-        return;
+        return false;
 	}
 
     // Get the number of bytes in the sile and allocate a char buffer
@@ -68,7 +69,7 @@ void Shader::readShaderSource( const char *fname, char **shader_src ) {
         // Couldn't allocate the buffer
         std::cerr << "Unable to allocate " << nbytes+1 << " bytes for file " << fname << std::endl;
         prog_err = true;
-        return;
+        return false;
     }
 
     // Attempt to read in the file to shader_src
@@ -76,11 +77,12 @@ void Shader::readShaderSource( const char *fname, char **shader_src ) {
         std::cerr << "Error reading file " << fname << std::endl;
         prog_err = true;
         free(shader_src);
-        return;
+        return false;
     }
 
     // Done, close the file
     std::fclose( file );
+    return true;
 }
 
 // Add a shader to the program
@@ -88,21 +90,22 @@ void Shader::readShaderSource( const char *fname, char **shader_src ) {
 void Shader::addShader( const char *fname, GLuint shader_type ) {
     // Get the shader source code
     char *shader_src;
-    readShaderSource( fname, &shader_src );
-    // if( prog_err ) {
-    //     return;
-    // }
+    if( !readShaderSource( fname, &shader_src ) ) {
+        // Could not get the shader source code
+        return;
+    }
 
     // Create a shader program with the source code and compile it
     GLuint sh_prog = glCreateShader( shader_type );
     glShaderSource( sh_prog, 1, &shader_src, nullptr );
     glCompileShader( sh_prog );
-    free( shader_src );
+    free( shader_src ); // Done with source code, free it
 
     // Check if compilation was successful
     GLint comp_success;
     glGetShaderiv( sh_prog, GL_COMPILE_STATUS, &comp_success );
     if( comp_success == GL_FALSE ) {
+        // Compilation failed, get the info and print it to stderr
         char shader_err[1024];
         int err_len;
         glGetShaderInfoLog( sh_prog, 1024, &err_len, shader_err );
@@ -113,8 +116,10 @@ void Shader::addShader( const char *fname, GLuint shader_type ) {
 
     // Attach the shader to the program and flag it to be deleted when the program is deleted
     glAttachShader( program, sh_prog );
-    // glDeleteShader( sh_prog );
+    glDeleteShader( sh_prog );
 
+    // Record the shader program id
+    // Might not actually be necessary
     if( shader_type == GL_VERTEX_SHADER ) {
         vert_prog = sh_prog;
     }

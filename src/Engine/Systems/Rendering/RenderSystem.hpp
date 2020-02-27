@@ -1,9 +1,11 @@
 #ifndef RENDERSYSTEM_HPP
 #define RENDERSYSTEM_HPP
 
-#define GL_GLEXT_PROTOTYPES 1
-#include <SDL_opengl.h>
+// #define GL_GLEXT_PROTOTYPES 1
+// #include <SDL_opengl.h>
 #include <iostream>
+
+#include <GL/glew.h>
 
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>

@@ -38,6 +38,13 @@ bool Window::init() {
 				if( SDL_GL_SetSwapInterval( 1 ) < 0 )
 					printf( "Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError() );
 				
+				// Initialize GLEW
+				glewExperimental = GL_TRUE;
+				GLenum glewstatus = glewInit();
+				if( glewstatus != GLEW_OK ) {
+					std::cerr << "GLEW failed to initialize: " << glewGetErrorString(glewstatus) << std::endl;
+				}
+				
 				SDL_StartTextInput();
 			}
 		}
@@ -86,4 +93,10 @@ void Window::postRender() {
 
 void Window::setRS( RenderSystem *rs_ ) {
 	rs = rs_;
+}
+
+glm::vec2 Window::getDisplaySize() {
+	int w, h;
+	SDL_GetWindowSize( window, &w, &h );
+	return glm::vec2( w, h );
 }

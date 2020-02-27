@@ -1,8 +1,11 @@
 #ifndef TEMPCUBE_H
 #define TEMPCUBE_H
 
-#define GL_GLEXT_PROTOTYPES 1
-#include <SDL_opengl.h>
+// #define GL_GLEXT_PROTOTYPES 1
+// #include <SDL_opengl.h>
+
+#include <GL/glew.h>
+
 #include "Shader.hpp"
 
 #define N_VERTEX_VALUES 19

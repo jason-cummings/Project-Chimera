@@ -1,8 +1,11 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#define GL_GLEXT_PROTOTYPES 1
-#include <SDL_opengl.h>
+// #define GL_GLEXT_PROTOTYPES 1
+// #include <SDL_opengl.h>
+
+#include <GL/glew.h>
+
 #include <map>
 #include <string>
 #include <iostream>
@@ -34,7 +37,7 @@ private:
     std::map<std::string, GLuint> uniform_locations;
     
     // Read the shader from file fname (will append path to Shaders directory)
-    void readShaderSource( const char *fname, char **ret );
+    bool readShaderSource( const char *fname, char **ret );
 
     // Add a shader to the program
     void addShader( const char *fname, GLuint shader_type ); 
