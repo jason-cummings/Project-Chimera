@@ -11,3 +11,6 @@
 [submodule "dependencies/glew"]
 	path = dependencies/glew
 	url = https://github.com/Perlmint/glew-cmake
+[submodule "dependencies/whereami"]
+	path = dependencies/whereami
+	url = https://github.com/gpakosz/whereami

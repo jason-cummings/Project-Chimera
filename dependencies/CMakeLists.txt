@@ -1,5 +1,12 @@
 execute_process( COMMAND git submodule update --init --recursive )
 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/whereami/src/ )
+IF( WIN32 )
+add_library( whereami STATIC ${CMAKE_CURRENT_SOURCE_DIR}/whereami/src/whereami.c ${CMAKE_CURRENT_SOURCE_DIR}/whereami/src/whereami.h )
+ELSE()
+add_library( whereami SHARED ${CMAKE_CURRENT_SOURCE_DIR}/whereami/src/whereami.c ${CMAKE_CURRENT_SOURCE_DIR}/whereami/src/whereami.h )
+ENDIF()
+
 # SDL2 
 set( SDL_STATIC OFF CACHE BOOL "Build the static SDL2 library" )
 set( SDL_SHARED ON CACHE BOOL "Build the shared SDL2 library" )

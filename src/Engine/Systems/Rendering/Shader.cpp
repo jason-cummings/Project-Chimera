@@ -45,53 +45,17 @@ Shader::~Shader() {
 
 bool Shader::getProgErr() const { return prog_err; }
 
-// Read the shader from file fname (will append path to Shaders directory)
-// shader_src will be allocated and assigned the contents of the file
-// Returns true iff the file's contents were successfully copied to *shader_src, else false
-bool Shader::readShaderSource( const char *fname, char **shader_src ) {
-    // Get the full path to the shader
-    const char* fullfname = (std::string("./Assets/Shaders/") + std::string(fname)).c_str();
-
-    // Attempt to open the file for reading
-    FILE* file = std::fopen( fullfname, "r" );
-    if( file == nullptr ) {
-        // Couldn't open the file
-		std::cerr << "Could not open file: " << fname << std::endl;
-	    prog_err = true;
-        return false;
-	}
-
-    // Get the number of bytes in the sile and allocate a char buffer
-	std::fseek( file, 0, SEEK_END );
-	size_t nbytes = std::ftell( file );
-	std::fseek( file, 0, SEEK_SET );
-    if( (*shader_src = (char *)calloc(nbytes+1, sizeof(char))) == NULL ) {
-        // Couldn't allocate the buffer
-        std::cerr << "Unable to allocate " << nbytes+1 << " bytes for file " << fname << std::endl;
-        prog_err = true;
-        return false;
-    }
-
-    // Attempt to read in the file to shader_src
-    if( std::fread( *shader_src, nbytes, 1, file ) != 1 ) {
-        std::cerr << "Error reading file " << fname << std::endl;
-        prog_err = true;
-        free(shader_src);
-        return false;
-    }
-
-    // Done, close the file
-    std::fclose( file );
-    return true;
-}
 
 // Add a shader to the program
 // shader_type is one of GL_VERTEX_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER
 void Shader::addShader( const char *fname, GLuint shader_type ) {
     // Get the shader source code
-    char *shader_src;
-    if( !readShaderSource( fname, &shader_src ) ) {
-        // Could not get the shader source code
+    const char *shader_path = ("Shaders/" + std::string(fname)).c_str();
+    Asset shader_asset( shader_path );
+    char *shader_src = shader_asset.getBuffer();
+    if( shader_src == nullptr ) {
+        // Could not read the shader asset
+        prog_err = true;
         return;
     }
 
@@ -99,7 +63,6 @@ void Shader::addShader( const char *fname, GLuint shader_type ) {
     GLuint sh_prog = glCreateShader( shader_type );
     glShaderSource( sh_prog, 1, &shader_src, nullptr );
     glCompileShader( sh_prog );
-    free( shader_src ); // Done with source code, free it
 
     // Check if compilation was successful
     GLint comp_success;
@@ -159,7 +122,6 @@ void Shader::bind() const {
 // Get and store a uniform location
 void Shader::addUniform( const std::string &uniform_name ) {
     uniform_locations[uniform_name] = glGetUniformLocation(program, uniform_name.c_str());
-    GLuint err;
 }
 
 // Return a uniform location

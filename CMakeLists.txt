@@ -36,6 +36,9 @@ set( STB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/stb/ )
 
 set( GLM_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm/ )
 
+set( WHEREAMI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/whereami/src/ )
+set( WHEREAMI_LIBRARY whereami )
+
 
 set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -Wall -std=c++17" )
 find_package( OpenGL REQUIRED )
@@ -45,6 +48,7 @@ set( GAME_LIBS
 	${GLEW_LIBRARIES}
 	${SDL2_LIBRARY}
 	${BULLET_LIBRARY}
+	${WHEREAMI_LIBRARY}
 )
 set( GAME_INCLUDES
 	${SDL2_INCLUDE_DIR}
@@ -52,6 +56,7 @@ set( GAME_INCLUDES
 	${BULLET_INCLUDE_DIRS}
 	${STB_INCLUDE_DIR}
 	${GLM_INCLUDE_DIRS}
+	${WHEREAMI_INCLUDE_DIRS}
 )
 
 include_directories( ${GAME_INCLUDES} )

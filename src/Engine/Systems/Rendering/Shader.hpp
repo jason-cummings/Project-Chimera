@@ -15,6 +15,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "../../Asset.hpp"
+
 enum ShaderAttrib {
     Vertex = 0,
     Color = 1,
@@ -35,9 +37,6 @@ private:
 
     std::string shader_name;
     std::map<std::string, GLuint> uniform_locations;
-    
-    // Read the shader from file fname (will append path to Shaders directory)
-    bool readShaderSource( const char *fname, char **ret );
 
     // Add a shader to the program
     void addShader( const char *fname, GLuint shader_type ); 
