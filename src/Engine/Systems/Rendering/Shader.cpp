@@ -50,7 +50,7 @@ bool Shader::getProgErr() const { return prog_err; }
 // shader_type is one of GL_VERTEX_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER
 void Shader::addShader( const char *fname, GLuint shader_type ) {
     // Get the shader source code
-    const char *shader_path = ("Shaders/" + std::string(fname)).c_str();
+    std::string shader_path = "Shaders/" + std::string(fname);
     Asset shader_asset( shader_path );
     char *shader_src = shader_asset.getBuffer();
     if( shader_src == nullptr ) {

@@ -6,14 +6,16 @@
 
 #include <whereami.h>
 #include <iostream>
+#include <string>
+#include <fstream>
 
 class Asset {
 private:
     char *buffer;
-    bool readInAsset( const char *fpath );
+    bool readInAsset( std::string fpath );
 
 public:
-    Asset( const char *fname );
+    Asset( std::string fname );
     ~Asset();
     char * getBuffer();
 };

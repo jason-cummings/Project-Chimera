@@ -26,8 +26,8 @@ add_subdirectory( dependencies )
 set( SDL2_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/SDL2/include/ )
 set( SDL2_LIBRARY SDL2 )
 
-set ( GLEW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glew/include/ )
-set ( GLEW_LIBRARIES libglew_shared )
+set( GLEW_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glew/include/ )
+set( GLEW_LIBRARIES glewd ) #libglew_shared
 
 set( BULLET_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/bullet3/src/ )
 set( BULLET_LIBRARY BulletDynamics BulletCollision LinearMath )
@@ -45,18 +45,18 @@ find_package( OpenGL REQUIRED )
 
 set( GAME_LIBS
 	${OPENGL_LIBRARY}
-	${GLEW_LIBRARIES}
 	${SDL2_LIBRARY}
-	${BULLET_LIBRARY}
+	${GLEW_LIBRARIES}
 	${WHEREAMI_LIBRARY}
+	${BULLET_LIBRARY}
 )
 set( GAME_INCLUDES
+	${GLM_INCLUDE_DIRS}
+	${STB_INCLUDE_DIR}
 	${SDL2_INCLUDE_DIR}
 	${GLEW_INCLUDE_DIRS}
-	${BULLET_INCLUDE_DIRS}
-	${STB_INCLUDE_DIR}
-	${GLM_INCLUDE_DIRS}
 	${WHEREAMI_INCLUDE_DIRS}
+	${BULLET_INCLUDE_DIRS}
 )
 
 include_directories( ${GAME_INCLUDES} )
