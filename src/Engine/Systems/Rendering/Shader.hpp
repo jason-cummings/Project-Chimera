@@ -1,14 +1,10 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-// #define GL_GLEXT_PROTOTYPES 1
-// #include <SDL_opengl.h>
-
-#include <GL/glew.h>
-
 #include <map>
 #include <string>
 #include <iostream>
+#include <GL/glew.h>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
@@ -40,7 +36,9 @@ private:
 
     // Add a shader to the program
     void addShader( const char *fname, GLuint shader_type ); 
-    void link(); // Link the program
+    
+    // Link the program
+    void link(); 
 
 public:
     // Default - shouldn't be needed
@@ -68,7 +66,13 @@ public:
     GLuint getUniformLocation( const std::string &uniform_name );
 
     // Functions to set uniform values
+    // <shader>.bind() must be called before any of these are called
     void setUniformMat4( const std::string &uniform_name, const glm::mat4 &mat );
+    void setUniformMat3( const std::string &uniform_name, const glm::mat3 &mat );
+    void setUniformFloat( const std::string &uniform_name, const float &val );
+    void setUniformVec2( const std::string &uniform_name, const glm::vec2 &vec );
+    void setUniformVec3( const std::string &uniform_name, const glm::vec3 &vec );
+    void setUniformVec4( const std::string &uniform_name, const glm::vec4 &vec );
 };
 
 #endif
