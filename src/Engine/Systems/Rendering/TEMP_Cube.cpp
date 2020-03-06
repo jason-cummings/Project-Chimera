@@ -71,17 +71,27 @@ TempCube::TempCube() {
 void TempCube::render() {
     glEnableVertexAttribArray( ShaderAttrib::Vertex );
     glEnableVertexAttribArray( ShaderAttrib::Color );
+    glEnableVertexAttribArray( ShaderAttrib::Normal );
+    glEnableVertexAttribArray( ShaderAttrib::Tangent );
+    glEnableVertexAttribArray( ShaderAttrib::Bitangent );
+    glEnableVertexAttribArray( ShaderAttrib::Texture );
 
     glBindBuffer( GL_ARRAY_BUFFER, vbo );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
 
-    glVertexAttribPointer( ShaderAttrib::Vertex, 4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(0) );
-    glVertexAttribPointer( ShaderAttrib::Color,  4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(4*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Vertex,    4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(0) );
+    glVertexAttribPointer( ShaderAttrib::Color,     4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(4*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Normal,    3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(8*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Tangent,   3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(11*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Bitangent, 3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(14*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Texture,   2, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(17*sizeof(GLfloat)) );
 
     glDrawElements( GL_TRIANGLES, n_vertices, GL_UNSIGNED_INT, 0 );
 
     glDisableVertexAttribArray( ShaderAttrib::Vertex );
-    glDisableVertexAttribArray( ShaderAttrib::Color );
-
-    
+    glDisableVertexAttribArray( ShaderAttrib::Color );  
+    glDisableVertexAttribArray( ShaderAttrib::Normal );
+    glDisableVertexAttribArray( ShaderAttrib::Tangent );
+    glDisableVertexAttribArray( ShaderAttrib::Bitangent );
+    glDisableVertexAttribArray( ShaderAttrib::Texture );  
 }

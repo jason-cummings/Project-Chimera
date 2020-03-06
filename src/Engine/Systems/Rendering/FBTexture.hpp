@@ -14,6 +14,8 @@ public:
 
     // Bind this texture to the specified texture unit
     void bind( GLenum texture_unit );
+
+    inline GLuint getID() { return id; }
 };
 
 #endif

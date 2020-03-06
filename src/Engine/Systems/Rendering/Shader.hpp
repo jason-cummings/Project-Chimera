@@ -22,6 +22,11 @@ enum ShaderAttrib {
     Texture = 5
 };
 
+enum ShaderAttrib2D {
+    Vertex2D = 0,
+    Texture2D = 1
+};
+
 class Shader {
 private:
     GLuint program;
@@ -69,6 +74,7 @@ public:
     // <shader>.bind() must be called before any of these are called
     void setUniformMat4( const std::string &uniform_name, const glm::mat4 &mat );
     void setUniformMat3( const std::string &uniform_name, const glm::mat3 &mat );
+    void setUniformInt( const std::string &uniform_name, const int &val );
     void setUniformFloat( const std::string &uniform_name, const float &val );
     void setUniformVec2( const std::string &uniform_name, const glm::vec2 &vec );
     void setUniformVec3( const std::string &uniform_name, const glm::vec3 &vec );

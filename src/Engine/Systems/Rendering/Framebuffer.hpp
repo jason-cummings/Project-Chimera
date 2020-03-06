@@ -4,14 +4,17 @@
 #include <GL/glew.h>
 #include <string>
 #include <map>
+#include <vector>
+#include <iostream>
 
 #include "FBTexture.hpp"
 
 class Framebuffer {
 private:
-    GLuint framebufferID;
+    GLuint framebuffer_id;
+    GLuint depth_buffer;
     std::map<std::string, FBTexture*> textures;
-    std::map<std::string, GLenum> colorAttachments;
+    std::vector<GLenum> color_attachments;
 
 public:
     Framebuffer();
@@ -19,7 +22,10 @@ public:
 
     // Set this framebuffer as the active framebuffer
     void bind();
-    FBTexture * addColorTexture( std::string texture_name, int width, int height );
+    void addColorTexture( std::string texture_name, int width, int height );
+    void addDepthBuffer( int width, int height );
+
+    FBTexture * getTexture( std::string texture_name );
 };
 
 #endif

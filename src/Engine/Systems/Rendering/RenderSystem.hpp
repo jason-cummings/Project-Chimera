@@ -24,7 +24,7 @@ private:
     GLuint quad_vbo;
 
     // The deferred rendering framebuffer
-    Framebuffer deferredBuffer;
+    Framebuffer deferred_buffer;
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;
@@ -47,20 +47,26 @@ private:
     // Use for testing to pinpoint OpenGL errors
 	void testGLError( const char *loc = "default" );
 
+    // Create the necessary matrices for rendering
+    void createMatrices();
+
+    // Set up the framebuffers necessary for the rendering process
+    void createFramebuffers();
+
+    // Default style of rendering
+    void basicRender();
+
+    // Do the deferred rendering step
+    void deferredRenderStep();
+
     // Draw a quad that takes up the whole viewport
-    void drawQuad();
+    void drawQuad( GLuint tex );
 
 public:
     RenderSystem( int width, int height );
 
     // Update render systems view variables
     void reshape( int new_width, int new_height );
-
-    // Create the necessary matrices for rendering
-    void createMatrices();
-
-    // Set up the framebuffers necessary for the rendering process
-    void createFramebuffers();
 
     // RENDER
     void render( double dt );

@@ -14,8 +14,8 @@ in mat3 toWorld;
 in vec2 texCoords;
 in float shininess;
 
-// uniform sampler2D colorTexture;
-// uniform sampler2D emissiveTexture;
+uniform sampler2D colorTexture;
+uniform sampler2D emissiveTexture;
 
 void main() {
 	position = fragPos;
@@ -23,7 +23,7 @@ void main() {
     // diffuse.rgb = texture(colorTexture, texCoords).rgb;
 	// diffuse.a = shininess;
 	diffuse = fragCol;
-	// emissive = texture(emissiveTexture, texCoords);
-	emissive = vec4(0.0); 
+	emissive = texture(emissiveTexture, texCoords);
+	emissive = vec4(0.0);
 	occlusion = vec4(vec3(0.0), 1.0);
 }

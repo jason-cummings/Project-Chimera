@@ -139,6 +139,11 @@ void Shader::setUniformMat3( const std::string &uniform_name, const glm::mat3 &m
     glUniformMatrix3fv( getUniformLocation( uniform_name ), 1, GL_FALSE, glm::value_ptr(mat) );
 }
 
+// Load an int to the shader
+void Shader::setUniformInt( const std::string &uniform_name, const int &val ) {
+    glUniform1i( getUniformLocation( uniform_name ), val );
+}
+
 // Load a float to the shader
 void Shader::setUniformFloat( const std::string &uniform_name, const float &val ) {
     glUniform1f( getUniformLocation( uniform_name ), val );
