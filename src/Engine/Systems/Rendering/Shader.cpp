@@ -131,10 +131,40 @@ GLuint Shader::getUniformLocation( const std::string &uniform_name ) {
 
 // Load a 4x4 matrix uniform to the shader
 void Shader::setUniformMat4( const std::string &uniform_name, const glm::mat4 &mat ) {
-    bind();
     glUniformMatrix4fv( getUniformLocation( uniform_name ), 1, GL_FALSE, glm::value_ptr(mat) );
 }
 
+// Load a 3x3 matrix uniform to the shader
+void Shader::setUniformMat3( const std::string &uniform_name, const glm::mat3 &mat ) {
+    glUniformMatrix3fv( getUniformLocation( uniform_name ), 1, GL_FALSE, glm::value_ptr(mat) );
+}
+
+// Load an int to the shader
+void Shader::setUniformInt( const std::string &uniform_name, const int &val ) {
+    glUniform1i( getUniformLocation( uniform_name ), val );
+}
+
+// Load a float to the shader
+void Shader::setUniformFloat( const std::string &uniform_name, const float &val ) {
+    glUniform1f( getUniformLocation( uniform_name ), val );
+}
+
+// Load a vec2 to the shader
+void Shader::setUniformVec2( const std::string &uniform_name, const glm::vec2 &vec ) {
+    glUniform2fv( getUniformLocation( uniform_name ), 1, glm::value_ptr(vec) );
+}
+
+// Load a vec3 to the shader
+void Shader::setUniformVec3( const std::string &uniform_name, const glm::vec3 &vec ) {
+    glUniform3fv( getUniformLocation( uniform_name ), 1, glm::value_ptr(vec) );
+}
+
+// Load a vec4 to the shader
+void Shader::setUniformVec4( const std::string &uniform_name, const glm::vec4 &vec ) {
+    glUniform4fv( getUniformLocation( uniform_name ), 1, glm::value_ptr(vec) );
+}
+
+// Return the name of the shader program
 std::string Shader::getName() {
-    return shader_name + std::string("   <- that ting");
+    return shader_name;
 }

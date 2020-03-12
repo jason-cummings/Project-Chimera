@@ -16,14 +16,27 @@ ShaderManager * ShaderManager::getShaderManager() {
 
 void ShaderManager::loadShaders() {
     // The default shader
-    Shader *defaultShader = new Shader( "default", "default.vert", "default.frag" );
-    defaultShader->addUniform("Model");
-    defaultShader->addUniform("View");
-    defaultShader->addUniform("Projection");
-    shaders["default"] = defaultShader;
+    Shader *default_shader = new Shader( "default", "Default.vert", "Default.frag" );
+    default_shader->addUniform( "Model" );
+    default_shader->addUniform( "View" );
+    default_shader->addUniform( "Projection" );
+    shaders["default"] = default_shader;
+    
+    // The basic deferred rendering shader
+    Shader *basic_deferred_shader = new Shader( "basic-deferred", "BasicDeferredShading.vert", "BasicDeferredShading.frag" );
+    basic_deferred_shader->addUniform( "Model" );
+    basic_deferred_shader->addUniform( "NormalMatrix" );
+    basic_deferred_shader->addUniform( "View" );
+    basic_deferred_shader->addUniform( "Projection" );
+    basic_deferred_shader->addUniform( "materialShininess" );
+    shaders["basic-deferred"] = basic_deferred_shader;
+
+    Shader *quad_shader = new Shader( "quad", "DrawQuad.vert", "DrawQuad.frag" );
+    quad_shader->addUniform( "colorTexture" );
+    shaders["quad"] = quad_shader;
 }
 
-Shader * ShaderManager::getShader( std::string shader_name) {
+Shader * ShaderManager::getShader( std::string shader_name ) {
     return shaders[shader_name];
 }
 

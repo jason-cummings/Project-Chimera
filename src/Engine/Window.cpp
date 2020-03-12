@@ -97,6 +97,6 @@ void Window::setRS( RenderSystem *rs_ ) {
 
 glm::vec2 Window::getDisplaySize() {
 	int w, h;
-	SDL_GetWindowSize( window, &w, &h );
+	SDL_GL_GetDrawableSize( window, &w, &h );
 	return glm::vec2( w, h );
 }

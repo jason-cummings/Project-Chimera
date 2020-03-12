@@ -1,50 +1,32 @@
 #include "RenderSystem.hpp"
 
 RenderSystem::RenderSystem( int width, int height ) {
+	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
 	glBindVertexArray( BASE_VAO );
+	
+	// Create the VBO for the quad
+	glGenBuffers( 1 , &quad_vbo );
+	glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
+	glBufferData( GL_ARRAY_BUFFER, sizeof(float) * 30, &quad_vbo_data, GL_STATIC_DRAW );
 
+	// Get the shader manager
 	sm = ShaderManager::getShaderManager();
 	reshape( width, height );
+
+	// Setup the necessary framebuffers for rendering
+	createFramebuffers();
 }
 
 void RenderSystem::reshape( int new_width, int new_height ) {
 	view_width = new_width;
 	view_height = new_height;
 	aspect_ratio = view_width / (float)view_height;
+
+	texture_width = 2048;
+	texture_height = 1024;
+
 	createMatrices();
-}
-
-void RenderSystem::render( double dt ) {
-
-	testGLError("Before");
-	// Clear the screen
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
-
-	glViewport(0, 0, view_width, view_height);
-
-	testGLError("Clear");
-
-	// Load the matrices to the shader
-	Shader *ds = sm->getShader("default");
-	ds->bind();
-	testGLError("Shader");
-
-	ds->setUniformMat4( "Model", model_mat );
-	ds->setUniformMat4( "View", view_mat );
-	ds->setUniformMat4( "Projection", proj_mat );
-	testGLError("Mats");
-
-	TEMP_cube.render();
-
-	testGLError("Render");
-
-	// End render
-	glUseProgram(0);
-	glDisable(GL_DEPTH_TEST);
-
-	testGLError("EndRender");
 }
 
 void RenderSystem::createMatrices() {
@@ -53,6 +35,118 @@ void RenderSystem::createMatrices() {
 	model_mat = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
 	model_mat = glm::rotate(model_mat, glm::radians(TEMP_ph), glm::vec3(1.0f, 0.0f, 0.0f));
 	model_mat = glm::rotate(model_mat, glm::radians(TEMP_th), glm::vec3(0.0f, 1.0f, 0.0f));
+	norm_mat = glm::transpose(glm::inverse(glm::mat3(model_mat)));
+}
+
+void RenderSystem::createFramebuffers() {
+	// Add the color textures to render to in the deffered rendering step
+	deferred_buffer.addColorTexture( "position", texture_width, texture_height );
+	deferred_buffer.addColorTexture( "normal", texture_width, texture_height );
+	deferred_buffer.addColorTexture( "diffuse", texture_width, texture_height );
+	deferred_buffer.addColorTexture( "emissive", texture_width, texture_height );
+	deferred_buffer.addColorTexture( "occlusion", texture_width, texture_height );
+	deferred_buffer.addDepthBuffer( texture_width, texture_height );
+	testGLError( "Framebuffer Setup" );
+}
+
+void RenderSystem::basicRender() {
+	// Bind the appropriate framebuffer
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+	// Clear the screen
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+	glViewport( 0, 0, view_width, view_height );
+
+	// Bind the shader
+	Shader *default_shader = sm->getShader("default");
+	default_shader->bind();
+	testGLError("Shader");
+
+	// Load the matrices to the shader
+	default_shader->setUniformMat4( "Model", model_mat );
+	default_shader->setUniformMat4( "View", view_mat );
+	default_shader->setUniformMat4( "Projection", proj_mat );
+	testGLError("Mats");
+
+	// Render the cube
+	TEMP_cube.render();
+	testGLError("Render");
+
+	// End render
+	glUseProgram(0);
+	glDisable( GL_DEPTH_TEST );
+	testGLError("EndRender");
+}
+
+void RenderSystem::deferredRenderStep() {
+	// Bind the shader and framebuffer for deferred rendering
+	Shader *deferred_shader = sm->getShader("basic-deferred");
+	deferred_shader->bind();
+	deferred_buffer.bind();
+
+	// Load the matrices to the shader
+	deferred_shader->setUniformMat4( "Model", model_mat );
+	deferred_shader->setUniformMat3( "NormalMatrix", norm_mat );
+	deferred_shader->setUniformMat4( "View", view_mat );
+	deferred_shader->setUniformMat4( "Projection", proj_mat );
+
+	// Set additional uniforms for the shader
+	deferred_shader->setUniformFloat( "materialShininess", 0.f );
+
+	// Clear the framebuffer
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+	glViewport( 0, 0, texture_width, texture_height );
+
+	// Perform rendering
+	TEMP_cube.render();
+
+	// Return to default framebuffer and program
+	glDisable( GL_DEPTH_TEST );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	testGLError("Deferred Rendering");
+}
+
+void RenderSystem::drawQuad( GLuint tex ) {
+	// Bind the quad program
+	Shader *quad_shader = sm->getShader( "quad" );
+	quad_shader->bind();
+	quad_shader->setUniformInt( "colorTexture", 0 );
+
+	// Bind the texture to render
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, tex );
+
+	// Enable the 2D vertex attributes and bind the vbo data
+    glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
+    glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
+    glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
+    glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
+    glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
+
+	// Draw
+    glDrawArrays( GL_TRIANGLES, 0, 6 );
+
+	// Disable everything
+    glDisableVertexAttribArray( ShaderAttrib2D::Vertex2D );
+    glDisableVertexAttribArray( ShaderAttrib2D::Texture2D );
+	glUseProgram(0);
+	testGLError("Quad");
+}
+
+void RenderSystem::render( double dt ) {
+	// basicRender();
+
+	// Do the deferred rendering
+	deferredRenderStep();
+
+	// Display the diffuse texture for now
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	GLuint color_tex = deferred_buffer.getTexture( "diffuse" )->getID();
+	glViewport( 0, 0, view_width, view_height );
+	drawQuad(color_tex);
 }
 
 void RenderSystem::testGLError( const char *loc ) {
