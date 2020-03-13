@@ -44,13 +44,39 @@ bool Engine::init() {
     return success;
 }
 
+void Engine::handleInputs(){
+    char inputValue = window->inputs[0].key.keysym.sym;
+    if(inputValue == 'w'){
+        rs->setTempPH(rs->getTempPH()+2);
+    }
+    else if(inputValue == 's'){
+        rs->setTempPH(rs->getTempPH()-2);
+    }
+    else if(inputValue == 'a'){
+        rs->setTempTH(rs->getTempTH()+2);
+    }
+    else if(inputValue == 'd'){
+        rs->setTempTH(rs->getTempTH()-2);
+    }
+    std::cout<<"TempPh = " << rs->getTempPH() <<", TempTh = "<< rs->getTempTH()<<std::endl;
+
+
+    window->inputs.erase(window->inputs.begin());
+    if(window->inputs.empty()){
+        window->buttonPressed = false;
+    }
+}
+
+
 void Engine::tick( double dt ) {
     // Test for input events
     window->handleEvents();
+    if(window->buttonPressed){
+        handleInputs();
+    }
 
     // Render all
     rs->render(dt);
-
     // Tell the window to handle any post rendering necessicities
     window->postRender();
 }

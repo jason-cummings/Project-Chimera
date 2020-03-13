@@ -62,6 +62,7 @@ private:
     // Draw a quad that takes up the whole viewport
     void drawQuad( GLuint tex );
 
+
 public:
     RenderSystem( int width, int height );
 
@@ -70,6 +71,11 @@ public:
 
     // RENDER
     void render( double dt );
+
+    float getTempPH();
+    float getTempTH();
+    void setTempPH(int in);
+    void setTempTH(int in);
 };
 
 // The VBO for rendering a quad over the whole viewport

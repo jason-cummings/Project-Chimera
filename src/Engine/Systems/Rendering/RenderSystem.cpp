@@ -145,6 +145,7 @@ void RenderSystem::render( double dt ) {
 	// Display the diffuse texture for now
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	GLuint color_tex = deferred_buffer.getTexture( "diffuse" )->getID();
+	createMatrices();
 	glViewport( 0, 0, view_width, view_height );
 	drawQuad(color_tex);
 }
@@ -153,4 +154,18 @@ void RenderSystem::testGLError( const char *loc ) {
 	int err;
 	if( (err = glGetError()) != GL_NO_ERROR )
 		std::cout << "OpenGL error at " << loc << ": " << err << std::endl;
+}
+
+
+float RenderSystem::getTempPH(){
+	return TEMP_ph;
+}
+float RenderSystem::getTempTH(){
+	return TEMP_th;
+}
+void RenderSystem::setTempPH(int in){
+	TEMP_ph = in;
+}
+void RenderSystem::setTempTH(int in){
+	TEMP_th = in;
 }

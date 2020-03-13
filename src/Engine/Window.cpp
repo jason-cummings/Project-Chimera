@@ -56,6 +56,10 @@ bool Window::init() {
 void Window::handleKeys(SDL_Event e) {
 	if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q )
 		quit = true;
+	else if(e.type == SDL_KEYDOWN){
+		inputs.push_back(e);
+		buttonPressed = true;
+	}
 }
 
 void Window::close() {

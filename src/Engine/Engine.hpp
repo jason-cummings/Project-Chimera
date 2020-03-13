@@ -36,6 +36,9 @@ public:
 
     // Step the Engine based on time
     void tick( double dt );
+
+    //Handles inputs given by user.
+    void handleInputs();
 };
 
 #endif

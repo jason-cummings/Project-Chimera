@@ -33,6 +33,8 @@ public:
 	void setRS( RenderSystem *rs_ );
 
 	glm::vec2 getDisplaySize();
+	bool buttonPressed;
+	std::vector<SDL_Event> inputs;
 };
 
 #endif
