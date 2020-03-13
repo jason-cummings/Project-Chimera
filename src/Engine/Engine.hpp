@@ -3,6 +3,7 @@
 
 #include "Systems/Rendering/RenderSystem.hpp"
 #include "Window.hpp"
+#include "StandardTimer.hpp"
 
 #define DEFAULT_WINDOW_WIDTH 640
 #define DEFAULT_WINDOW_HEIGHT 480
@@ -17,6 +18,7 @@ private:
 
     // Engine systems
     RenderSystem *rs;
+    Timer *timer;
 
     // Private constructor for singleton instance
     Engine();
@@ -41,7 +43,7 @@ public:
     bool init();
 
     // Step the Engine based on time
-    void tick( double dt );
+    void tick();
 };
 
 #endif

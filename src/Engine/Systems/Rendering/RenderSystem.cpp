@@ -139,6 +139,8 @@ void RenderSystem::drawQuad( GLuint tex ) {
 void RenderSystem::render( double dt ) {
 	// basicRender();
 
+	TEMP_th += 45 * dt;
+
 	// Do the deferred rendering
 	deferredRenderStep();
 

@@ -5,10 +5,12 @@ Engine *Engine::engine = nullptr;
 Engine::Engine() {
     rs = nullptr;
     quit = false;
+    timer = new StandardTimer();
 }
 
 Engine::~Engine() {
-    delete rs;
+    if( rs ) delete rs;
+    if( timer ) delete timer;
 }
 
 Engine * Engine::getEngine() {
@@ -95,7 +97,9 @@ void Engine::quitEngine() {
     window.close();
 }
 
-void Engine::tick( double dt ) {
+void Engine::tick() {
+    double dt = timer->getLastTickTime();
+
     // Test for input events
     handleSDLEvents();
     
