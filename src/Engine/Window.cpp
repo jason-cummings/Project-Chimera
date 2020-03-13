@@ -1,17 +1,15 @@
 #include "Window.hpp"
 
-Window::Window( int w, int h ) {
-	w_width = w;
-	w_height = h;
-	quit = false;
-	rs = nullptr;
+Window::Window() {
+	w_width = 0;
+	w_height = 0;
 }
 
-bool Window::getQuit() { return quit; }
-
 // Initialize the SDL window and OpenGL and return success
-bool Window::init() {
+bool Window::init( int w, int h ) {
 	bool success = true;
+	w_width = w;
+	w_height = h;
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
@@ -53,41 +51,28 @@ bool Window::init() {
 	return success;
 }
 
-void Window::handleKeys(SDL_Event e) {
-	if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q )
-		quit = true;
-	else if(e.type == SDL_KEYDOWN){
-		inputs.push_back(e);
-		buttonPressed = true;
-	}
-}
-
+// Quit SDL and destroy the window
 void Window::close() {
 	SDL_StopTextInput();
 	SDL_DestroyWindow(window);
-	window = NULL;
+	window = nullptr;
 	SDL_Quit();
 }
 
-// Test for any window events and handle them appropriately
-void Window::handleEvents() {
+// Return all events that occurred in the last tick
+std::vector<SDL_Event> Window::getSDLEvents() {
+	std::vector<SDL_Event> events;
 	SDL_Event e;
 	while( SDL_PollEvent(&e) != 0 ) {
-		if( e.type == SDL_QUIT )
-			quit = true;
-		else if( e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED ) {
-			w_width = e.window.data1;
-			w_height = e.window.data2;
-			if( rs != nullptr )
-				rs->reshape( w_width, w_height );
-		}
-		else if( e.type == SDL_KEYDOWN || e.type == SDL_KEYUP ) {
-			handleKeys(e);
-		}
-		// else if( e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP ||  e.type == SDL_MOUSEMOTION ) {
-		//     handleMouse( e );
-		// }
+		events.push_back(e);
 	}
+	return events;
+}
+
+// Reshape the window
+void Window::reshape( int new_width, int new_height ) {
+	w_width = new_width;
+	w_height = new_height;
 }
 
 // Perform any necessary operations after rendering
@@ -95,11 +80,8 @@ void Window::postRender() {
 	SDL_GL_SwapWindow( window );
 }
 
-void Window::setRS( RenderSystem *rs_ ) {
-	rs = rs_;
-}
-
-glm::vec2 Window::getDisplaySize() {
+// Get the actual drawable size of the window
+glm::vec2 Window::getDrawableSize() {
 	int w, h;
 	SDL_GL_GetDrawableSize( window, &w, &h );
 	return glm::vec2( w, h );

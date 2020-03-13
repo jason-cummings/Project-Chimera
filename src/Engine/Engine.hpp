@@ -12,7 +12,8 @@ private:
     // Singleton Engine instance
     static Engine *engine;
 
-    Window *window;
+    bool quit;
+    Window window;
 
     // Engine systems
     RenderSystem *rs;
@@ -20,6 +21,11 @@ private:
     // Private constructor for singleton instance
     Engine();
 
+    // Quit the program
+    void quitEngine();
+
+    // Handles inputs given by user.
+    void handleSDLEvents();
 
 public:
     // Destructor - needs to be updated
@@ -36,9 +42,6 @@ public:
 
     // Step the Engine based on time
     void tick( double dt );
-
-    //Handles inputs given by user.
-    void handleInputs();
 };
 
 #endif
