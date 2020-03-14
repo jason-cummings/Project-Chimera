@@ -12,27 +12,33 @@
 
 class Window {
 private:
+	// These variables might not actually be necessary
 	int w_width, w_height;
-	bool quit;
 
+	// The Window and GL context
 	SDL_Window *window;
 	SDL_GLContext gl_context;
-	RenderSystem *rs; // Should only ever tell the render system to reshape
-
-	void handleKeys( SDL_Event e );
 
 public:
-	Window( int w, int h );
-	bool init();
+	Window();
 
-	bool getQuit();
+	// Initializes the window, OpenGL, and GLEW
+	bool init( int w, int h );
+
+	// Stop SDL and destroy the window
 	void close();
-	void handleEvents();
+
+	// Return a vector of all events that occured in the last tick
+	std::vector<SDL_Event> getSDLEvents();
+
+	// Reshape the window
+	void reshape( int new_width, int new_height );
+	
+	// Perform any necessary window operations after rendering
 	void postRender();
 
-	void setRS( RenderSystem *rs_ );
-
-	glm::vec2 getDisplaySize();
+	// Return the drawable size of the window
+	glm::vec2 getDrawableSize();
 };
 
 #endif

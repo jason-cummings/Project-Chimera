@@ -8,7 +8,7 @@ int main( int argc, char *argv[] )
 	Engine *engine = Engine::getEngine();
 	engine->init();
 	while( !engine->getQuit() ) {
-		engine->tick( 0.f );
+		engine->tick();
 	}
 
 	return 0;

@@ -146,7 +146,10 @@ void RenderSystem::render( double dt/*, GameObject * sceneGraph*/) {
 	populateRenderLists((GameObject*)&TEMP_cube/*sceneGraph*/);
 	// basicRender();
 
+
 	createMatrices();
+
+	TEMP_th += 45 * dt;
 
 	// Do the deferred rendering
 	deferredRenderStep();
@@ -154,6 +157,7 @@ void RenderSystem::render( double dt/*, GameObject * sceneGraph*/) {
 	// Display the diffuse texture for now
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	GLuint color_tex = deferred_buffer.getTexture( "diffuse" )->getID();
+	createMatrices();
 	glViewport( 0, 0, view_width, view_height );
 	drawQuad(color_tex);
 }
@@ -175,6 +179,7 @@ void RenderSystem::createMatrices() {
 	// model_mat = glm::rotate(model_mat, glm::radians(TEMP_th), glm::vec3(0.0f, 1.0f, 0.0f));
 	// norm_mat = glm::transpose(glm::inverse(glm::mat3(model_mat)));
 }
+
 
 void RenderSystem::deferredRenderStep() {
 	// Bind the shader and framebuffer for deferred rendering
@@ -210,7 +215,15 @@ void RenderSystem::deferredRenderStep() {
 }
 
 
-
-
-
-
+float RenderSystem::getTempPH(){
+	return TEMP_ph;
+}
+float RenderSystem::getTempTH(){
+	return TEMP_th;
+}
+void RenderSystem::setTempPH(int in){
+	TEMP_ph = in;
+}
+void RenderSystem::setTempTH(int in){
+	TEMP_th = in;
+}

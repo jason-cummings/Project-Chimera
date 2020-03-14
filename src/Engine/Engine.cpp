@@ -3,12 +3,14 @@
 Engine *Engine::engine = nullptr;
 
 Engine::Engine() {
-    window = nullptr;
     rs = nullptr;
+    quit = false;
+    timer = new StandardTimer();
 }
 
 Engine::~Engine() {
-    delete rs;
+    if( rs ) delete rs;
+    if( timer ) delete timer;
 }
 
 Engine * Engine::getEngine() {
@@ -16,12 +18,11 @@ Engine * Engine::getEngine() {
     if( engine == nullptr ) {
         engine = new Engine();
     }
-
     return engine;
 }
 
 bool Engine::getQuit() {
-    return window->getQuit();
+    return quit;
 }
 
 // Perform any initialization necessary for the engine
@@ -30,27 +31,83 @@ bool Engine::init() {
     bool success = true;
 
     // Attempt to initialize the window
-    window = new Window( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT );
-    if( !window->init() ) {
+    if( !window.init( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT ) ) {
         std::cout << "Error in window initialization" << std::endl;
         success = false;
     }
 
     // Create the rendersystem with the window size
-    glm::vec2 window_size = window->getDisplaySize();
+    glm::vec2 window_size = window.getDrawableSize();
     rs = new RenderSystem( window_size.x, window_size.y );
-    window->setRS(rs);
 
     return success;
 }
 
-void Engine::tick( double dt ) {
+void Engine::handleSDLEvents() {
+    std::vector<SDL_Event> events = window.getSDLEvents();
+    SDL_Event e;
+
+    while( events.size() != 0 ) {
+        // Get the last event in the vector
+        e = events.back();
+
+        if( e.type == SDL_QUIT ) {
+            // Quit the engine
+            quitEngine();
+        }
+        else if( e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED ) {
+            // Resize everything
+            int w_width = e.window.data1;
+            int w_height = e.window.data2;
+            window.reshape( w_width, w_height );
+            glm::vec2 draw_size = window.getDrawableSize();
+            rs->reshape( draw_size.x, draw_size.y );
+        }
+        else if( e.type == SDL_KEYDOWN ) {
+            // Handle any keydown events
+            SDL_Keycode inputValue = e.key.keysym.sym;
+            if(inputValue == SDLK_q){
+                quitEngine();
+            }
+            if(inputValue == SDLK_w){
+                rs->setTempPH(rs->getTempPH()+2);
+            }
+            else if(inputValue == SDLK_s){
+                rs->setTempPH(rs->getTempPH()-2);
+            }
+            else if(inputValue == SDLK_a){
+                rs->setTempTH(rs->getTempTH()+2);
+            }
+            else if(inputValue == SDLK_d){
+                rs->setTempTH(rs->getTempTH()-2);
+            }
+            std::cout<<"TempPh = " << rs->getTempPH() <<", TempTh = "<< rs->getTempTH()<<std::endl;
+        }
+        else if( e.type == SDL_KEYUP ) {
+            // Placeholder
+        }
+
+        // Remove the event just handled
+        events.pop_back();
+    }
+}
+
+void Engine::quitEngine() {
+    quit = true;
+    window.close();
+}
+
+void Engine::tick() {
+    double dt = timer->getLastTickTime();
+
     // Test for input events
-    window->handleEvents();
+    handleSDLEvents();
+    
+    if( !quit ) {
+        // Render all
+        rs->render(dt);
 
-    // Render all
-    rs->render(dt);
-
-    // Tell the window to handle any post rendering necessicities
-    window->postRender();
+        // Tell the window to handle any post rendering necessicities
+        window.postRender();
+    }
 }
