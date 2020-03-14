@@ -34,6 +34,21 @@ void ShaderManager::loadShaders() {
     Shader *quad_shader = new Shader( "quad", "DrawQuad.vert", "DrawQuad.frag" );
     quad_shader->addUniform( "colorTexture" );
     shaders["quad"] = quad_shader;
+
+    Shader *cartoon_shading = new Shader("cartoon", "CartoonShading.vert", "CartoonShading.frag");
+    cartoon_shading->addUniform("positionTexture");
+    cartoon_shading->addUniform("normalTexture");
+    cartoon_shading->addUniform("diffuseTexture");
+    cartoon_shading->addUniform("emissiveTexture");
+    cartoon_shading->addUniform("cameraLoc");
+    cartoon_shading->addUniform("light.location");
+    cartoon_shading->addUniform("light.diffuse");
+    cartoon_shading->addUniform("light.specular");
+    cartoon_shading->addUniform("light.linearAttenuation");
+    cartoon_shading->addUniform("light.quadraticAttenuation");
+    cartoon_shading->addUniform("light.directional");
+    cartoon_shading->addUniform("ambientAmount");
+    shaders["cartoon"] = cartoon_shading;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

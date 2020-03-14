@@ -21,7 +21,7 @@ out vec2 texCoords;
 out float shininess;
 
 void main() {
-	vec3 worldspaceNormal = normalize(Normal * NormalMatrix);
+	vec3 worldspaceNormal = normalize( NormalMatrix * Normal);
 
 	vec4 worldVertexPosition = Model * Vertex;
 	fragPos = worldVertexPosition / worldVertexPosition.w;

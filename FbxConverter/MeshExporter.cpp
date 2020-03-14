@@ -33,7 +33,7 @@ void MeshExporter<T>::addVertex(T vertex) {
 		int index = VBO.size();
 		VBO.push_back(vertex);
 		IBO.push_back(index);
-		VboMap[vertex] = index;
+		//VboMap[vertex] = index;
 	}
 
 	// // check if vertex is already in map

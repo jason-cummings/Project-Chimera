@@ -19,8 +19,12 @@ struct VertexHasher
 
 struct Vertex {
 	glm::vec4 position;
+	glm::vec4 rgba = glm::vec4(0.3f,0.3f,0.3f,1.0f);
 	glm::vec3 normal;
+	glm::vec3 tangent;
+	glm::vec3 bitangent;
 	glm::vec2 uv;
+
 
 	bool operator<(const Vertex& v2) const{
 		//return *this == v2;

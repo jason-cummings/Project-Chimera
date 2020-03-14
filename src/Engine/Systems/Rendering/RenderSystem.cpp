@@ -58,7 +58,7 @@ void RenderSystem::createFramebuffers() {
 **/
 
 
-void RenderSystem::drawQuad( GLuint tex ) {
+void RenderSystem::drawTexture( GLuint tex ) {
 	// Bind the quad program
 	Shader *quad_shader = sm->getShader( "quad" );
 	quad_shader->bind();
@@ -68,6 +68,10 @@ void RenderSystem::drawQuad( GLuint tex ) {
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
+	drawQuad();
+}
+
+void RenderSystem::drawQuad() {
 	// Enable the 2D vertex attributes and bind the vbo data
     glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
     glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
@@ -112,12 +116,14 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Do the deferred rendering
 	deferredRenderStep();
 
+	shadingStep();
+
 	// Display the diffuse texture for now
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	GLuint color_tex = deferred_buffer.getTexture( "diffuse" )->getID();
-	createMatrices();
-	glViewport( 0, 0, view_width, view_height );
-	drawQuad(color_tex);
+	// glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	// GLuint color_tex = deferred_buffer.getTexture( "normal" )->getID();
+	// createMatrices();
+	// glViewport( 0, 0, view_width, view_height );
+	// drawTexture(color_tex);
 }
 
 void RenderSystem::populateRenderLists( GameObject * gameObject ) {
@@ -131,7 +137,7 @@ void RenderSystem::populateRenderLists( GameObject * gameObject ) {
 
 void RenderSystem::createMatrices() {
 	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 100.f);
-	view_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -10.0f));
+	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 10.0f)));
 }
 
 
@@ -146,11 +152,12 @@ void RenderSystem::deferredRenderStep() {
 	deferred_shader->setUniformMat4( "Projection", proj_mat );
 
 	// Set additional uniforms for the shader
-	deferred_shader->setUniformFloat( "materialShininess", 0.f );
+	deferred_shader->setUniformFloat( "materialShininess", 32.f );
 
 	// Clear the framebuffer
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
+	glEnable(GL_CULL_FACE);
 	glViewport( 0, 0, texture_width, texture_height );
 
 	// Perform rendering
@@ -163,4 +170,43 @@ void RenderSystem::deferredRenderStep() {
 	testGLError("Deferred Rendering");
 
 	meshList.clear();
+}
+
+void RenderSystem::shadingStep() {
+
+	glViewport( 0, 0, view_width, view_height );
+	Shader *cartoon_shading = sm->getShader("cartoon");
+	cartoon_shading->bind();
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+	cartoon_shading->setUniformInt("positionTexture",0);
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "position" )->getID());
+
+	cartoon_shading->setUniformInt("normalTexture",1);
+	glActiveTexture( GL_TEXTURE1 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "normal" )->getID());
+
+	cartoon_shading->setUniformInt("diffuseTexture",2);
+	glActiveTexture( GL_TEXTURE2 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "diffuse" )->getID());
+
+	cartoon_shading->setUniformInt("emissiveTexture",3);
+	glActiveTexture( GL_TEXTURE3 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "emissive" )->getID());
+
+	cartoon_shading->setUniformVec3("cameraLoc",glm::vec3(0.0f,0.0f,10.0f));
+
+	cartoon_shading->setUniformFloat("ambientAmount", .2);
+
+	cartoon_shading->setUniformVec3("light.location",glm::vec3(10.0f,0.0f,10.0f));
+	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
+	cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
+	cartoon_shading->setUniformFloat("light.linearAttenuation",0.1f);
+	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
+	//cartoon_shading->setUniformFloat("light.directional",0.0f);
+
+	testGLError("shading");
+
+	drawQuad();
 }

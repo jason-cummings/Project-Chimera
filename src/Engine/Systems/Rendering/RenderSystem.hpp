@@ -63,8 +63,11 @@ private:
          - functions that are used multiple times throughout the rendering pipeline
     **/
 
-    // Draw a quad that takes up the whole viewport
-    void drawQuad( GLuint tex );
+    // Draw a quad with texture tex that takes up the whole viewport
+    void drawTexture( GLuint tex );
+
+    // Draw a quad that tatkes up viewport
+    void drawQuad();
 
     // draws the meshList
     void drawMeshList(bool useMaterials, Shader * shader);
@@ -87,6 +90,7 @@ private:
     // shadows
 
     // shading step
+    void shadingStep();
 
     // bloom
 

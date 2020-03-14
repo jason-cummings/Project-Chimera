@@ -2,6 +2,7 @@
 
 InGameState::InGameState() {
     Obstacle *o1 = new Obstacle();
+    o1->setTransform(glm::scale( glm::mat4(1.0), glm::vec3(.05f, .05f, .05f) ));
 
     Obstacle *o2 = new Obstacle();
     glm::mat4 o2trans = glm::scale( glm::translate( o2->getTransform(), glm::vec3(2.f, 3.f, 0.f) ), glm::vec3(.5f, .5f, .5f) );
@@ -25,10 +26,10 @@ void InGameState::update( double dt ) {
 
     int thdiff = (d-a)*90;
     int phdiff = (s-w)*90;
-    TEMP_th += (double)(thdiff+45) * dt;
-    TEMP_ph += (double)phdiff * dt;
+    TEMP_th = (double)(thdiff+45) * dt;
+    TEMP_ph = (double)phdiff * dt;
 
-    glm::mat4 newTrans = glm::rotate( glm::rotate( glm::mat4(1.f), (float)glm::radians(TEMP_ph), glm::vec3(1.f, 0.f, 0.f) ), (float)glm::radians(TEMP_th), glm::vec3(0.f, 1.f, 0.f) );
+    glm::mat4 newTrans = glm::rotate( glm::rotate( scene->getTransform(), (float)glm::radians(TEMP_ph), glm::vec3(1.f, 0.f, 0.f) ), (float)glm::radians(TEMP_th), glm::vec3(0.f, 1.f, 0.f) );
     scene->setTransform( newTrans );
 }
 
