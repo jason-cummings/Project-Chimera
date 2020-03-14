@@ -1,6 +1,6 @@
 
 #include "MeshFactory.hpp"
-//namespace fs = std::filesystem;
+
 
 MeshFactory::MeshFactory(){
 }
@@ -13,12 +13,12 @@ Mesh* MeshFactory::createBasicMesh( std::string input_directory ) {
 	std::string iboInput = input_directory + "/IBO";
 	Asset* newIBOAsset = new Asset(iboInput);
 
-		// Create VBO
+	// Create VBO
 	GLuint vbo;
 
 	glGenBuffers( 1, &vbo  );
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBufferData( GL_ARRAY_BUFFER, newVBOAsset->getSize(), newVBOAsset->getBuffer(), GL_STATIC_DRAW ); // 4 * n_vertices * sizeof(GLfloat)
+	glBufferData( GL_ARRAY_BUFFER, newVBOAsset->getSize(), newVBOAsset->getBuffer(), GL_STATIC_DRAW );
 
 	// Create IBO
 	GLuint ibo;
