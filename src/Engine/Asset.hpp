@@ -12,12 +12,14 @@
 class Asset {
 private:
     char *buffer;
+    int length;
     bool readInAsset( std::string fpath );
 
 public:
     Asset( std::string fname );
     ~Asset();
     char * getBuffer();
+    int getSize(){return length;}
 };
 
 #endif

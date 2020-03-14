@@ -55,19 +55,7 @@ const GLint TEMP_ibo_data[] = {
 };
 
 Obstacle::Obstacle(): GameObject(123) {
-    GLuint vbo, ibo;
-    glGenBuffers( 1, &vbo );
-	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBufferData( GL_ARRAY_BUFFER, sizeof(TEMP_vbo_data), TEMP_vbo_data, GL_STATIC_DRAW );
-
-	// Create IBO
-	glGenBuffers( 1, &ibo );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(TEMP_ibo_data), TEMP_ibo_data, GL_STATIC_DRAW );
-
-    int n_vertices = sizeof(TEMP_vbo_data) / sizeof(GLfloat) / 19;
-
-    mesh = new Mesh( vbo, ibo, n_vertices );
+    mesh = MeshFactory::createBasicMesh("Level");
 }
 
 Obstacle::~Obstacle() {

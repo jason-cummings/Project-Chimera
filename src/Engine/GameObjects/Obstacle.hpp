@@ -5,6 +5,7 @@
 
 #include "../GameObject.hpp"
 #include "../Systems/Rendering/Mesh.hpp"
+#include "../Systems/Rendering/MeshFactory.hpp"
 
 class Obstacle: public GameObject {
 private:
