@@ -2,39 +2,71 @@
 
 PhysicsSystem::PhysicsSystem() {
 	// Collision configuration contains default setup for memory, collision setup
-	btDefaultCollisionConfiguration* collision_configuration = new btDefaultCollisionConfiguration();
-	btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collision_configuration); // Use the default collision dispatcher
-	btBroadphaseInterface* overlapping_pair_cache = new btDbvtBroadphase(); // btDbvtBroadphase is a good general purpose broadphase
-	btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver; // The default constraint solver
+	collision_configuration = new btDefaultCollisionConfiguration();
+	dispatcher = new btCollisionDispatcher(collision_configuration); // Use the default collision dispatcher
+	overlapping_pair_cache = new btDbvtBroadphase(); // btDbvtBroadphase is a good general purpose broadphase
+    solver = new btSequentialImpulseConstraintSolver; // The default constraint solver
 
     // Set up the world and add some gravity
-	btDiscreteDynamicsWorld* dynamics_world = new btDiscreteDynamicsWorld(dispatcher, overlapping_pair_cache, solver, collision_configuration);
+	dynamics_world = new btDiscreteDynamicsWorld(dispatcher, overlapping_pair_cache, solver, collision_configuration);
 	dynamics_world->setGravity(btVector3(0, DEFAULT_GRAVITY, 0));
 
-    //btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
-    btCollisionShape* colShape = new btSphereShape(btScalar(1.));
 
-    /// Create Dynamic Objects
-    btTransform startTransform;
-    startTransform.setIdentity();
+    // bullet 3 HelloWorld example
+    {
+		btCollisionShape* groundShape = new btBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
 
-    btScalar mass(1.f);
+		collisionShapes.push_back(groundShape);
 
-    //rigidbody is dynamic if and only if mass is non zero, otherwise static
-    bool isDynamic = (mass != 0.f);
+		btTransform groundTransform;
+		groundTransform.setIdentity();
+		groundTransform.setOrigin(btVector3(0, -56, 0));
 
-    btVector3 localInertia(0, 0, 0);
-    if (isDynamic)
-        colShape->calculateLocalInertia(mass, localInertia);
+		btScalar mass(0.);
 
-    startTransform.setOrigin(btVector3(2, 10, 0));
+		//rigidbody is dynamic if and only if mass is non zero, otherwise static
+		bool isDynamic = (mass != 0.f);
 
-    //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
-    btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
-    btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
-    btRigidBody* body = new btRigidBody(rbInfo);
+		btVector3 localInertia(0, 0, 0);
+		if (isDynamic)
+			groundShape->calculateLocalInertia(mass, localInertia);
 
-    dynamics_world->addRigidBody(body);
+		//using motionstate is optional, it provides interpolation capabilities, and only synchronizes 'active' objects
+		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, groundShape, localInertia);
+		btRigidBody* body = new btRigidBody(rbInfo);
+
+		//add the body to the dynamics world
+		dynamics_world->addRigidBody(body);
+	}
+
+    {
+        //btCollisionShape* colShape = new btBoxShape(btVector3(1,1,1));
+        btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+		collisionShapes.push_back(colShape);
+
+        /// Create Dynamic Objects
+        btTransform startTransform;
+        startTransform.setIdentity();
+
+        btScalar mass(1.f);
+
+        //rigidbody is dynamic if and only if mass is non zero, otherwise static
+        bool isDynamic = (mass != 0.f);
+
+        btVector3 localInertia(0, 0, 0);
+        if (isDynamic)
+            colShape->calculateLocalInertia(mass, localInertia);
+
+        startTransform.setOrigin(btVector3(2, 10, 0));
+
+        //using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
+        btDefaultMotionState* myMotionState = new btDefaultMotionState(startTransform);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, myMotionState, colShape, localInertia);
+        btRigidBody* body = new btRigidBody(rbInfo);
+
+        dynamics_world->addRigidBody(body);
+    }
 }
 
 PhysicsSystem::~PhysicsSystem() {
@@ -78,5 +110,5 @@ void PhysicsSystem::addSceneComponents( GameObject *obj ) {
 
 // Step the physics simulation by time dt
 void PhysicsSystem::stepPhysics( double dt ) {
-    // dynamics_world->stepSimulation( btScalar(dt), 10 );
+    dynamics_world->stepSimulation( btScalar(dt), 10 );
 }

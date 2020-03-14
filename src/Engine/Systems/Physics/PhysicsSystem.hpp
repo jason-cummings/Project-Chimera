@@ -12,6 +12,8 @@
 
 class PhysicsSystem {
 private:
+	btAlignedObjectArray<btCollisionShape*> collisionShapes;
+
 	// Bullet setup variables
 	btDefaultCollisionConfiguration* collision_configuration;  // Contains default memory and collision setup
 	btCollisionDispatcher* dispatcher;                  	   // Collision dispatcher
