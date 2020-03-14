@@ -16,6 +16,12 @@ RenderSystem::RenderSystem( int width, int height ) {
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
+
+	GameObject * child = new TempCube();
+	child->setTransform(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0f, 0.0f)),glm::vec3(.25)));
+
+	TEMP_cube.addChild(child);
+	TEMP_cube.setTransform(glm::rotate(glm::mat4(1.0),glm::radians(45.0f),glm::vec3(0.0,1.0,0.0)));
 }
 
 void RenderSystem::reshape( int new_width, int new_height ) {
@@ -29,14 +35,17 @@ void RenderSystem::reshape( int new_width, int new_height ) {
 	createMatrices();
 }
 
-void RenderSystem::createMatrices() {
-	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 100.f);
-	view_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -2.0f));
-	model_mat = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
-	model_mat = glm::rotate(model_mat, glm::radians(TEMP_ph), glm::vec3(1.0f, 0.0f, 0.0f));
-	model_mat = glm::rotate(model_mat, glm::radians(TEMP_th), glm::vec3(0.0f, 1.0f, 0.0f));
-	norm_mat = glm::transpose(glm::inverse(glm::mat3(model_mat)));
+/**
+	Rendering Pipeline Setup
+**/
+
+
+void RenderSystem::testGLError( const char *loc ) {
+	int err;
+	if( (err = glGetError()) != GL_NO_ERROR )
+		std::cout << "OpenGL error at " << loc << ": " << err << std::endl;
 }
+
 
 void RenderSystem::createFramebuffers() {
 	// Add the color textures to render to in the deffered rendering step
@@ -48,6 +57,12 @@ void RenderSystem::createFramebuffers() {
 	deferred_buffer.addDepthBuffer( texture_width, texture_height );
 	testGLError( "Framebuffer Setup" );
 }
+
+
+/**
+	Rendering Pipeline Util Functions
+**/
+
 
 void RenderSystem::basicRender() {
 	// Bind the appropriate framebuffer
@@ -70,43 +85,13 @@ void RenderSystem::basicRender() {
 	testGLError("Mats");
 
 	// Render the cube
-	TEMP_cube.render();
+	//TEMP_cube.render();
 	testGLError("Render");
 
 	// End render
 	glUseProgram(0);
 	glDisable( GL_DEPTH_TEST );
 	testGLError("EndRender");
-}
-
-void RenderSystem::deferredRenderStep() {
-	// Bind the shader and framebuffer for deferred rendering
-	Shader *deferred_shader = sm->getShader("basic-deferred");
-	deferred_shader->bind();
-	deferred_buffer.bind();
-
-	// Load the matrices to the shader
-	deferred_shader->setUniformMat4( "Model", model_mat );
-	deferred_shader->setUniformMat3( "NormalMatrix", norm_mat );
-	deferred_shader->setUniformMat4( "View", view_mat );
-	deferred_shader->setUniformMat4( "Projection", proj_mat );
-
-	// Set additional uniforms for the shader
-	deferred_shader->setUniformFloat( "materialShininess", 0.f );
-
-	// Clear the framebuffer
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	glEnable( GL_DEPTH_TEST );
-	glViewport( 0, 0, texture_width, texture_height );
-
-	// Perform rendering
-	TEMP_cube.render();
-
-	// Return to default framebuffer and program
-	glDisable( GL_DEPTH_TEST );
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glUseProgram(0);
-	testGLError("Deferred Rendering");
 }
 
 void RenderSystem::drawQuad( GLuint tex ) {
@@ -136,8 +121,32 @@ void RenderSystem::drawQuad( GLuint tex ) {
 	testGLError("Quad");
 }
 
-void RenderSystem::render( double dt ) {
+void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
+	for(int i = 0; i < meshList.size(); i++) {
+		glm::mat4 transform = meshList[i]->getWorldTransform();
+		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(model_mat)));
+		shader->setUniformMat4( "Model", transform );
+		shader->setUniformMat3( "NormalMatrix", normal_matrix );
+		// if(i == 0)
+		// 	meshList[i]->getMesh()->setUpDraw();
+		meshList[i]->getMesh()->slowDraw();
+		// if(i == meshList.size() - 1)
+		// 	meshList[i]->getMesh()->cleanUpDraw();
+	}
+}
+
+
+/**
+	Rendering Pipeling
+**/
+
+void RenderSystem::render( double dt/*, GameObject * sceneGraph*/) {
+	//clear rendering lists
+
+	populateRenderLists((GameObject*)&TEMP_cube/*sceneGraph*/);
 	// basicRender();
+
+	createMatrices();
 
 	// Do the deferred rendering
 	deferredRenderStep();
@@ -149,8 +158,59 @@ void RenderSystem::render( double dt ) {
 	drawQuad(color_tex);
 }
 
-void RenderSystem::testGLError( const char *loc ) {
-	int err;
-	if( (err = glGetError()) != GL_NO_ERROR )
-		std::cout << "OpenGL error at " << loc << ": " << err << std::endl;
+void RenderSystem::populateRenderLists( GameObject * gameObject ) {
+	if(gameObject->hasMesh()) {
+		meshList.push_back(gameObject);
+	}
+	for(int i = 0; i < gameObject->getNumChildren(); i++) {
+		populateRenderLists(gameObject->getChild(i));
+	}
 }
+
+void RenderSystem::createMatrices() {
+	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 100.f);
+	view_mat = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -10.0f));
+	// model_mat = glm::scale(glm::mat4(1.0f), glm::vec3(0.25f));
+	// model_mat = glm::rotate(model_mat, glm::radians(TEMP_ph), glm::vec3(1.0f, 0.0f, 0.0f));
+	// model_mat = glm::rotate(model_mat, glm::radians(TEMP_th), glm::vec3(0.0f, 1.0f, 0.0f));
+	// norm_mat = glm::transpose(glm::inverse(glm::mat3(model_mat)));
+}
+
+void RenderSystem::deferredRenderStep() {
+	// Bind the shader and framebuffer for deferred rendering
+	Shader *deferred_shader = sm->getShader("basic-deferred");
+	deferred_shader->bind();
+	deferred_buffer.bind();
+
+	// Load the matrices to the shader
+	//deferred_shader->setUniformMat4( "Model", model_mat );
+	//deferred_shader->setUniformMat3( "NormalMatrix", norm_mat );
+	deferred_shader->setUniformMat4( "View", view_mat );
+	deferred_shader->setUniformMat4( "Projection", proj_mat );
+
+	// Set additional uniforms for the shader
+	deferred_shader->setUniformFloat( "materialShininess", 0.f );
+
+	// Clear the framebuffer
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+	glViewport( 0, 0, texture_width, texture_height );
+
+	// Perform rendering
+	//TEMP_cube.render();
+	drawMeshList(true,deferred_shader);
+
+	// Return to default framebuffer and program
+	glDisable( GL_DEPTH_TEST );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	testGLError("Deferred Rendering");
+
+	meshList.clear();
+}
+
+
+
+
+
+

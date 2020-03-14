@@ -56,7 +56,7 @@ const GLint TempCube::ibo_data[] = {
 
 const int TempCube::n_vertices = sizeof(vbo_data)/sizeof(GLfloat)/N_VERTEX_VALUES;
 
-TempCube::TempCube() {
+TempCube::TempCube() : GameObject(1) {
 	// Create VBO
 	glGenBuffers( 1, &vbo );
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
@@ -66,6 +66,8 @@ TempCube::TempCube() {
 	glGenBuffers( 1, &ibo );
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
 	glBufferData( GL_ELEMENT_ARRAY_BUFFER, sizeof(ibo_data), ibo_data, GL_STATIC_DRAW );
+
+    mesh = Mesh(vbo,ibo,n_vertices);
 }
 
 void TempCube::render() {

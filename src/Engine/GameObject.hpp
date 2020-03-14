@@ -6,6 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
+#include "Systems/Rendering/Mesh.hpp"
 
 
 class GameObject {
@@ -20,6 +21,9 @@ public:
 	//constructor
 	GameObject(int id);
 	virtual ~GameObject();
+
+	virtual bool hasMesh() {return false;}
+	virtual Mesh * getMesh() {return (Mesh *) NULL;}
 
 	//transformation management
 	glm::mat4 getTransform();

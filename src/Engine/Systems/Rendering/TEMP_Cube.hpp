@@ -7,11 +7,14 @@
 #include <GL/glew.h>
 
 #include "Shader.hpp"
+#include "../../GameObject.hpp"
+#include "Mesh.hpp"
 
 #define N_VERTEX_VALUES 19
 
-class TempCube {
+class TempCube : public GameObject{
 private:
+	Mesh mesh;
     GLuint vbo, ibo;
 
     static const GLfloat vbo_data[];
@@ -21,6 +24,10 @@ private:
 public:
     TempCube();
     void render();
+
+    bool hasMesh() {return true;}
+	Mesh * getMesh() {return &mesh;}
+
 };
 
 #endif

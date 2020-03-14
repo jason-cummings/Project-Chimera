@@ -2,6 +2,7 @@
 #define RENDERSYSTEM_HPP
 
 #include <iostream>
+#include <vector>
 
 #include <GL/glew.h>
 
@@ -14,6 +15,8 @@
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
 #include "TEMP_Cube.hpp"
+#include "../../GameObject.hpp"
+#include "Mesh.hpp"
 
 class RenderSystem {
 private:
@@ -44,23 +47,63 @@ private:
     glm::mat4 model_mat, view_mat, proj_mat;
     glm::mat3 norm_mat;
 
+    // vectors for lists of different types of geometry. This will be used to optimize the rendering pipeline by reducing 
+    // how often the shader is switched during rendering
+    std::vector<GameObject*> meshList;
+
+
+    /**
+        Rendering Pipeline Setup
+    **/
+
     // Use for testing to pinpoint OpenGL errors
 	void testGLError( const char *loc = "default" );
-
-    // Create the necessary matrices for rendering
-    void createMatrices();
 
     // Set up the framebuffers necessary for the rendering process
     void createFramebuffers();
 
+
+
+    /**
+        Rendering Pipeline Util functions
+         - functions that are used multiple times throughout the rendering pipeline
+    **/
+
     // Default style of rendering
     void basicRender();
+
+    // Draw a quad that takes up the whole viewport
+    void drawQuad( GLuint tex );
+
+    // draws the meshList
+    void drawMeshList(bool useMaterials, Shader * shader);
+
+
+
+    /**
+        Rendering pipeline
+    **/
+
+    // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
+    void populateRenderLists(GameObject * gameObject);
+
+    // Create the necessary matrices for rendering
+    void createMatrices();
 
     // Do the deferred rendering step
     void deferredRenderStep();
 
-    // Draw a quad that takes up the whole viewport
-    void drawQuad( GLuint tex );
+    // shadows
+
+    // shading step
+
+    // bloom
+
+    // volumetric light scattering
+
+    
+
+
 
 public:
     RenderSystem( int width, int height );
@@ -69,7 +112,7 @@ public:
     void reshape( int new_width, int new_height );
 
     // RENDER
-    void render( double dt );
+    void render( double dt/*, GameObject * sceneGraph */);
 };
 
 // The VBO for rendering a quad over the whole viewport
