@@ -5,27 +5,40 @@
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
-#include <SDL_opengl.h>
+#include <GL/glew.h>
+#include <glm/vec2.hpp>
+
+#include "Systems/Rendering/RenderSystem.hpp"
 
 class Window {
 private:
+	// These variables might not actually be necessary
 	int w_width, w_height;
-	bool quit;
 
+	// The Window and GL context
 	SDL_Window *window;
 	SDL_GLContext gl_context;
 
-	bool init();
-	bool initGL();
-	void testGLError(const char* loc = "default");
-
 public:
-	Window( int w, int h );
-	bool getQuit();
-	void handleKeys(SDL_Event e);
+	Window();
+
+	// Initializes the window, OpenGL, and GLEW
+	bool init( int w, int h );
+
+	// Stop SDL and destroy the window
 	void close();
-	void tick();
-	void render();
+
+	// Return a vector of all events that occured in the last tick
+	std::vector<SDL_Event> getSDLEvents();
+
+	// Reshape the window
+	void reshape( int new_width, int new_height );
+	
+	// Perform any necessary window operations after rendering
+	void postRender();
+
+	// Return the drawable size of the window
+	glm::vec2 getDrawableSize();
 };
 
 #endif
