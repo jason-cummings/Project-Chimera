@@ -8,6 +8,7 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include "Systems/Rendering/Mesh.hpp"
+#include "Systems/Physics/PhysicsComponent.hpp"
 
 
 class GameObject {
@@ -23,8 +24,10 @@ public:
 	GameObject(int id);
 	virtual ~GameObject();
 
-	virtual bool hasMesh() {return false;}
-	virtual Mesh * getMesh() {return (Mesh *) NULL;}
+	virtual bool hasMesh() { return false; }
+	virtual Mesh * getMesh() { return (Mesh *) nullptr; }
+	virtual bool hasPhysicsComponent() { return false; }
+	virtual PhysicsComponent * getPhysicsComponent() { return (PhysicsComponent *) nullptr; }
 
 	//transformation management
 	glm::mat4 getTransform();
