@@ -3,13 +3,15 @@
 Engine *Engine::engine = nullptr;
 
 Engine::Engine() {
-    rs = nullptr;
+    render_system = nullptr;
+    physics_system = nullptr;
     quit = false;
     timer = new StandardTimer();
 }
 
 Engine::~Engine() {
-    if( rs ) delete rs;
+    if( render_system ) delete render_system;
+    if( physics_system ) delete physics_system;
     if( timer ) delete timer;
     if( state ) delete state;
 }
@@ -22,29 +24,29 @@ Engine * Engine::getEngine() {
     return engine;
 }
 
-bool Engine::getQuit() {
-    return quit;
-}
-
 // Perform any initialization necessary for the engine
 // Returns true if all initialization was successful, else false
 bool Engine::init() {
-    bool success = true;
-
     // Attempt to initialize the window
     if( !window.init( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT ) ) {
         std::cout << "Error in window initialization" << std::endl;
-        success = false;
+        return false;
     }
 
     // Create the rendersystem with the window size
     glm::vec2 window_size = window.getDrawableSize();
-    rs = new RenderSystem( window_size.x, window_size.y );
+    render_system = new RenderSystem( window_size.x, window_size.y );
+
+    // Create the physics system
+    physics_system = new PhysicsSystem();
 
     // Create a new state
     state = new InGameState();
 
-    return success;
+    // Add all of states physics components to the physics system (THIS WILL LIKELY CHANGE)
+    physics_system->addSceneComponents( state->getScene() );
+
+    return true;
 }
 
 void Engine::handleSDLEvents() {
@@ -65,7 +67,7 @@ void Engine::handleSDLEvents() {
             int w_height = e.window.data2;
             window.reshape( w_width, w_height );
             glm::vec2 draw_size = window.getDrawableSize();
-            rs->reshape( draw_size.x, draw_size.y );
+            render_system->reshape( draw_size.x, draw_size.y );
         }
         else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q ) {
             // Temporary quit button
@@ -95,8 +97,11 @@ void Engine::tick() {
         // Update the game state
         state->update(dt);
 
+        // Step physics
+        physics_system->stepPhysics(dt);
+
         // Render all
-        rs->render( dt, state->getScene() );
+        render_system->render( dt, state->getScene() );
 
         // Tell the window to handle any post rendering necessicities
         window.postRender();
