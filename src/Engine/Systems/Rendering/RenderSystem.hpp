@@ -14,7 +14,6 @@
 
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
-#include "TEMP_Cube.hpp"
 #include "../../GameObject.hpp"
 #include "Mesh.hpp"
 
@@ -39,13 +38,8 @@ private:
     int view_width, view_height;
     float aspect_ratio, fov = 55.f;
 
-    // TEMPORARY for test rendering
-    float TEMP_ph = 30, TEMP_th = 30;
-    TempCube TEMP_cube;
-    
     // Model, View, and Projection matrices for the program
-    glm::mat4 model_mat, view_mat, proj_mat;
-    glm::mat3 norm_mat;
+    glm::mat4 view_mat, proj_mat;
 
     // vectors for lists of different types of geometry. This will be used to optimize the rendering pipeline by reducing 
     // how often the shader is switched during rendering
@@ -68,9 +62,6 @@ private:
         Rendering Pipeline Util functions
          - functions that are used multiple times throughout the rendering pipeline
     **/
-
-    // Default style of rendering
-    void basicRender();
 
     // Draw a quad that takes up the whole viewport
     void drawQuad( GLuint tex );
@@ -113,12 +104,7 @@ public:
     void reshape( int new_width, int new_height );
 
     // RENDER
-    void render( double dt/*, GameObject * sceneGraph */);
-
-    float getTempPH();
-    float getTempTH();
-    void setTempPH(int in);
-    void setTempTH(int in);
+    void render( double dt, GameObject * sceneGraph );
 };
 
 // The VBO for rendering a quad over the whole viewport

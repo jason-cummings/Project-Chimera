@@ -11,6 +11,7 @@ Engine::Engine() {
 Engine::~Engine() {
     if( rs ) delete rs;
     if( timer ) delete timer;
+    if( state ) delete state;
 }
 
 Engine * Engine::getEngine() {
@@ -40,6 +41,9 @@ bool Engine::init() {
     glm::vec2 window_size = window.getDrawableSize();
     rs = new RenderSystem( window_size.x, window_size.y );
 
+    // Create a new state
+    state = new InGameState();
+
     return success;
 }
 
@@ -63,28 +67,12 @@ void Engine::handleSDLEvents() {
             glm::vec2 draw_size = window.getDrawableSize();
             rs->reshape( draw_size.x, draw_size.y );
         }
-        else if( e.type == SDL_KEYDOWN ) {
-            // Handle any keydown events
-            SDL_Keycode inputValue = e.key.keysym.sym;
-            if(inputValue == SDLK_q){
-                quitEngine();
-            }
-            if(inputValue == SDLK_w){
-                rs->setTempPH(rs->getTempPH()+2);
-            }
-            else if(inputValue == SDLK_s){
-                rs->setTempPH(rs->getTempPH()-2);
-            }
-            else if(inputValue == SDLK_a){
-                rs->setTempTH(rs->getTempTH()+2);
-            }
-            else if(inputValue == SDLK_d){
-                rs->setTempTH(rs->getTempTH()-2);
-            }
-            std::cout<<"TempPh = " << rs->getTempPH() <<", TempTh = "<< rs->getTempTH()<<std::endl;
+        else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q ) {
+            // Temporary quit button
+            quitEngine();
         }
-        else if( e.type == SDL_KEYUP ) {
-            // Placeholder
+        else {
+            state->handleSDLEvent(e);
         }
 
         // Remove the event just handled
@@ -104,8 +92,11 @@ void Engine::tick() {
     handleSDLEvents();
     
     if( !quit ) {
+        // Update the game state
+        state->update(dt);
+
         // Render all
-        rs->render(dt);
+        rs->render( dt, state->getScene() );
 
         // Tell the window to handle any post rendering necessicities
         window.postRender();
