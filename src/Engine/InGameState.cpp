@@ -15,6 +15,9 @@ InGameState::InGameState() {
     o2->addChild(o3);
     scene = o1;
 
+    TEMP_th = 0;
+    TEMP_ph = 0;
+
     w = false;
     a = false;
     s = false;
