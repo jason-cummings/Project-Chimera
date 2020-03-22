@@ -41,8 +41,10 @@ public:
             trans = collision_object->getWorldTransform();
         }
         
-        glm::mat4 mat4_trans;
-        trans.getOpenGLMatrix(glm::value_ptr(mat4_trans));
+        btScalar trans_values[16];
+        trans.getOpenGLMatrix( &trans_values[0] ); //&glm::value_ptr(mat4_trans)[0]
+        glm::mat4 mat4_trans = glm::make_mat4( trans_values );
+
         return mat4_trans;
     }
 };
