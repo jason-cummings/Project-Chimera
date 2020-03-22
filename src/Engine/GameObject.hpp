@@ -24,18 +24,26 @@ public:
 	GameObject(int id);
 	virtual ~GameObject();
 
-	virtual bool hasMesh() { return false; }
-	virtual Mesh * getMesh() { return (Mesh *) nullptr; }
-	virtual bool hasPhysicsComponent() { return false; }
-	virtual PhysicsComponent * getPhysicsComponent() { return (PhysicsComponent *) nullptr; }
+	virtual bool hasMesh() const { return false; }
+	virtual Mesh * getMesh() const { return (Mesh *) nullptr; }
+	virtual bool hasPhysicsComponent() const { return false; }
+	virtual PhysicsComponent * getPhysicsComponent() const { return (PhysicsComponent *) nullptr; }
+
+	// Update function
+	// This should only ever be used for updating or retrieving data
+	// GameObjects should not be controlling or modifying themselves otherwise
+	// virtual void update();
 
 	//transformation management
-	glm::mat4 getTransform();
-	glm::mat4 getWorldTransform();
+	glm::mat4 getTransform() const { return transform; }
+	glm::mat4 getWorldTransform() const { return world_transform; }
 
 	void setTransform(glm::mat4 in);
 	virtual void compileTransforms(glm::mat4 parent_transform); //compiles tranformation matrices into world_transform
+	virtual void updateTransformFromPhysics(glm::mat4 parent_transform); // Gets worldspace transform from physics engine and converts to local space
+	virtual void setBulletTransforms() const;
 
+	int getID() const { return identifier; }
 
 	// scenegraph / child object management
 	GameObject * getParent();

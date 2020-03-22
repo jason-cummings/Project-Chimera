@@ -7,6 +7,7 @@
 #define PHYSICS_COMPONENT_H
 
 #include <btBulletDynamicsCommon.h>
+#include <glm/mat4x4.hpp>
 
 class PhysicsComponent {
 private:
@@ -24,9 +25,26 @@ public:
     ~PhysicsComponent() {}
 
     // Getters
-    int getID() { return id; }
-    btCollisionShape * getCollisionShape() { return collision_shape; }
-    btCollisionObject * getCollisionObject() { return collision_object; }
+    int getID() const { return id; }
+    btCollisionShape * getCollisionShape() const { return collision_shape; }
+    btCollisionObject * getCollisionObject() const { return collision_object; }
+
+    // Return the collision object's transform as a glm::mat4 to sync with graphics.
+    glm::mat4 getTransformAsMat4() const {
+        btRigidBody *body = btRigidBody::upcast(collision_object);
+        btTransform trans;
+
+        if( body->getMotionState() ) {
+            body->getMotionState()->getWorldTransform(trans);
+        }
+        else {
+            trans = collision_object->getWorldTransform();
+        }
+        
+        glm::mat4 mat4_trans;
+        trans.getOpenGLMatrix(glm::value_ptr(mat4_trans));
+        return mat4_trans;
+    }
 };
 
 #endif

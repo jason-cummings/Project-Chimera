@@ -73,6 +73,10 @@ void Engine::handleSDLEvents() {
             // Temporary quit button
             quitEngine();
         }
+        else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE ) {
+            // Temporary mouse lock toggle button
+            window.toggleMouseLock();
+        }
         else {
             state->handleSDLEvent(e);
         }
@@ -84,6 +88,8 @@ void Engine::quitEngine() {
     window.close();
 }
 
+// Tick the engine
+// Update all systems and states, then render
 void Engine::tick() {
     double dt = timer->getLastTickTime();
 
@@ -94,8 +100,17 @@ void Engine::tick() {
         // Update the game state
         state->update(dt);
 
+        // Perform necessary updates just before the physics step
+        state->prePhysics();
+
         // Step physics
         physics_system->stepPhysics(dt);
+
+        // Perform post physics scenegraph updates
+        state->postPhysics();
+
+        // Update the state's scene graph to reflect all changes from the other systems
+        // state->updateScene();
 
         // Render all
         render_system->render( dt, state->getScene() );
