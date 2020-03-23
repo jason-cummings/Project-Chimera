@@ -11,8 +11,6 @@
 
 class MeshFactory{
 public:
-	//Constructor for MeshFactory
-	MeshFactory();
 	//Takes directory as parameter creates assets for the meshes.
 	static Mesh* createBasicMesh(std::string input_directory);
 private:

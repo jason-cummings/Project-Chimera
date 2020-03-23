@@ -6,7 +6,7 @@
 #include <btBulletDynamicsCommon.h>
 
 #include "../../GameObject.hpp"
-#include "PhysicsComponent.hpp"
+#include "RigidBodyPhysicsComponent.hpp"
 
 #define DEFAULT_GRAVITY -9.8 // m/s ideally
 
@@ -22,14 +22,14 @@ private:
 	btDiscreteDynamicsWorld* dynamics_world;                   // The dynamics world to be stepped
 
     // Components
-    std::map<int, PhysicsComponent*> components;
+    std::map<int, RigidBodyPhysicsComponent*> components;
 
 public:
     PhysicsSystem();
     ~PhysicsSystem();
 
     // Add a component if one does not already exist with the same ID
-    void addComponent( PhysicsComponent *new_comp );
+    void addRigidBody( RigidBodyPhysicsComponent *new_comp );
 
     // Step through GameObject hierarchy and add all physics components
     void addSceneComponents( GameObject *obj );

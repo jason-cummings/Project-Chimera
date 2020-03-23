@@ -14,13 +14,6 @@ GameObject::~GameObject() {
 	// }
 }
 
-// // Tell the children of this game object to update
-// void GameObject::update() {
-// 	for( int i=0; i<children.size(); i++ ) {
-// 		children[i]->update();
-// 	}
-// }
-
 
 // Transformation management
 

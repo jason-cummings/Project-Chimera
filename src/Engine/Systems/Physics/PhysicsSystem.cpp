@@ -31,21 +31,20 @@ PhysicsSystem::~PhysicsSystem() {
 }
 
 // Add a component if one does not already exist with the same ID
-void PhysicsSystem::addComponent( PhysicsComponent *new_comp ) {
+void PhysicsSystem::addRigidBody( RigidBodyPhysicsComponent *new_comp ) {
     // if( components.count( new_comp->getID() ) > 0 ) {
     //     std::cerr << "Could not add Physics Component: A PhysicsComponent with id " << new_comp->getID() << " already exists in PhysicsSystem" << std::endl;
     // } 
     // else { 
         components[new_comp->getID()] = new_comp;
-        dynamics_world->addRigidBody( (btRigidBody *)new_comp->getCollisionObject() );
-        // dynamics_world->addCollisionObject( new_comp->getCollisionObject() );
+        dynamics_world->addRigidBody( new_comp->getCollisionObject() );
     // }
 }
 
 // Step through GameObject hierarchy and add all physics components
 void PhysicsSystem::addSceneComponents( GameObject *obj ) {
     if( obj->hasPhysicsComponent() ) {
-        addComponent( obj->getPhysicsComponent() );
+        addRigidBody( obj->getPhysicsComponent() );
     }
     for( int i=0; i<obj->getNumChildren(); i++ ) {
         addSceneComponents( obj->getChild(i) );

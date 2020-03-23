@@ -1,10 +1,4 @@
-
 #include "MeshFactory.hpp"
-
-
-MeshFactory::MeshFactory(){
-}
-
 
 Mesh* MeshFactory::createBasicMesh( std::string input_directory ) {
 	std::string vboInput = input_directory + "/VBO";
@@ -27,5 +21,9 @@ Mesh* MeshFactory::createBasicMesh( std::string input_directory ) {
 	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
 	glBufferData( GL_ELEMENT_ARRAY_BUFFER, newIBOAsset->getSize(), newIBOAsset->getBuffer(), GL_STATIC_DRAW );
 	Mesh* mesh = new Mesh(vbo,ibo,newIBOAsset->getSize()/sizeof(int));
+
+	delete newVBOAsset;
+	delete newIBOAsset;
+
 	return mesh;
 }
