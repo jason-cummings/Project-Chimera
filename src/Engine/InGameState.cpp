@@ -16,7 +16,7 @@ InGameState::InGameState() {
     o3->setTransform(o3trans);
     
     StaticCubeObstacle *sc = new StaticCubeObstacle();
-    glm::mat4 sctrans = glm::scale( glm::translate( sc->getTransform(), glm::vec3(0.f, -7.f, 0.f) ), glm::vec3(10.f, 10.f, 10.f) );
+    glm::mat4 sctrans = glm::scale( glm::translate( sc->getTransform(), glm::vec3(0.f, -2.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) );
     sc->setTransform(sctrans);
 
     // Add the created obstacles to the screen

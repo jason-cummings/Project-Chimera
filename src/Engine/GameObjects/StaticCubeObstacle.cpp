@@ -2,14 +2,26 @@
 
 StaticCubeObstacle::StaticCubeObstacle(): GameObject(2) {
     mesh = MeshFactory::createBasicMesh("StaticCube");
-    physics = RigidBodyFactory::createCube( identifier, 10.f, 0.f );
-    glm::mat4 trans = glm::translate( glm::mat4(1.f), glm::vec3(0.f, -7.f, 0.f) );
-    btTransform bt_in;
-    bt_in.setFromOpenGLMatrix( &glm::value_ptr(trans)[0] );
-    physics->getCollisionObject()->setWorldTransform( bt_in );
+    physics = RigidBodyFactory::createBvhTriangleMeshFromFiles( identifier, "StaticCube" );
 }
 
 StaticCubeObstacle::~StaticCubeObstacle() {
     if( mesh ) delete mesh;
     if( physics ) delete physics;
+}
+
+// Update the transforms of the physics component just before the physics step
+void StaticCubeObstacle::setBulletTransforms() const {
+    if( physics ) {
+        // Convert the worldspace transform and pass it to bullet
+        btTransform bt_in;
+        bt_in.setFromOpenGLMatrix( &glm::value_ptr(world_transform)[0] );
+        btRigidBody * obj = (btRigidBody *)physics->getCollisionObject();
+        
+        // obj->getMotionState()->setWorldTransform( bt_in );
+        obj->setWorldTransform(bt_in);
+
+        // Call the super method to step through children
+        GameObject::setBulletTransforms();
+    }
 }

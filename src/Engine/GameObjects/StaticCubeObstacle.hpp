@@ -21,6 +21,7 @@ public:
     bool hasPhysicsComponent() const { return physics != nullptr; }
     RigidBodyPhysicsComponent * getPhysicsComponent() const { return physics; }
 
+    void setBulletTransforms() const;
 };
 
 #endif

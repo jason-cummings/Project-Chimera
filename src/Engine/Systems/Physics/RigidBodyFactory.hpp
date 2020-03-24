@@ -5,6 +5,7 @@
 #include <iostream>
 #include <btBulletDynamicsCommon.h>
 #include "RigidBodyPhysicsComponent.hpp"
+#include "../../Asset.hpp"
 
 class RigidBodyFactory {
 private:
@@ -12,10 +13,14 @@ private:
     static std::map<std::string, btCollisionShape*> collision_shapes;
 
     // Return the collision shape with name if it exists, else nullptr
-    static btCollisionShape* findCollisionShape( std::string name );
+    static btCollisionShape * findCollisionShape( std::string name );
+
+    static btRigidBody * createRigidBody( btCollisionShape *collision_shape, float mass );
 
 public:
     static RigidBodyPhysicsComponent * createCube( int id, float side_length, float mass );
+    
+    static RigidBodyPhysicsComponent * createBvhTriangleMeshFromFiles( int id, std::string directory_name );
 };
 
 #endif
