@@ -2,10 +2,10 @@
 
 Asset::Asset( std::string fname ) {
     // Get the path to the executable, then add the file name
-    int length = wai_getExecutablePath( NULL, 0, NULL );
-    char *loc = (char *)calloc( length+1, sizeof(char) );
-    wai_getExecutablePath( loc, length, &length );
-    loc[length] = '\0';
+    int path_len = wai_getExecutablePath( NULL, 0, NULL );
+    char *loc = (char *)calloc( path_len+1, sizeof(char) );
+    wai_getExecutablePath( loc, path_len, &path_len );
+    loc[path_len] = '\0';
     std::string fpath = std::string(loc) + "/Assets/" + std::string(fname);
 
     // Read in the asset with the full file path
@@ -30,16 +30,21 @@ bool Asset::readInAsset( std::string fpath ) {
     }
 
     file.seekg( 0, std::ios::end );
-    length = file.tellg();
+    n_bytes = file.tellg();
     file.seekg( 0, std::ios::beg );
-    buffer = new char[length+1];
-    file.read( buffer, length );
+    buffer = new char[n_bytes/sizeof(char)+1];
+    file.read( buffer, n_bytes );
     file.close();
-    buffer[length] = '\0';
+    buffer[n_bytes] = '\0';
 
     return true;
 }
 
-char * Asset::getBuffer() {
-    return buffer;
+// Use if you need to maintain the buffer data after the Asset instance has been destroyed
+char * Asset::copyBuffer() {
+    char *retbuffer = (char *)calloc( n_bytes+1, sizeof(char) );
+    for( int i=0; i<n_bytes; i++ ) {
+        retbuffer[i] = buffer[i];
+    }
+    return retbuffer;
 }

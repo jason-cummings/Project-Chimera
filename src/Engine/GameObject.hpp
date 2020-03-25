@@ -8,6 +8,7 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include "Systems/Rendering/Mesh.hpp"
+#include "Systems/Physics/RigidBodyPhysicsComponent.hpp"
 
 
 class GameObject {
@@ -23,16 +24,23 @@ public:
 	GameObject(int id);
 	virtual ~GameObject();
 
-	virtual bool hasMesh() {return false;}
-	virtual Mesh * getMesh() {return (Mesh *) NULL;}
+	int getID() const { return identifier; }
+
+	virtual bool hasMesh() const { return false; }
+	virtual Mesh * getMesh() const { return (Mesh *) nullptr; }
+	virtual bool hasPhysicsComponent() const { return false; }
+	virtual RigidBodyPhysicsComponent * getPhysicsComponent() const { return nullptr; }
 
 	//transformation management
-	glm::mat4 getTransform();
-	glm::mat4 getWorldTransform();
+	glm::mat4 getTransform() const { return transform; }
+	glm::mat4 getWorldTransform() const { return world_transform; }
 
 	void setTransform(glm::mat4 in);
 	virtual void compileTransforms(glm::mat4 parent_transform); //compiles tranformation matrices into world_transform
 
+	// Physics related transform management
+	virtual void updateTransformFromPhysics(glm::mat4 parent_transform); // Gets worldspace transform from physics engine and converts to local space
+	virtual void setBulletTransforms() const; // Update physics body transforms just before physics step
 
 	// scenegraph / child object management
 	GameObject * getParent();

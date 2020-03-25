@@ -12,14 +12,17 @@
 class Asset {
 private:
     char *buffer;
-    int length;
+    int n_bytes;
     bool readInAsset( std::string fpath );
 
 public:
     Asset( std::string fname );
     ~Asset();
-    char * getBuffer();
-    int getSize(){return length;}
+    char * getBuffer() { return buffer; }
+    int getBytes() { return n_bytes; }
+
+    // Use if you need to maintain the buffer data after the Asset instance has been destroyed
+    char * copyBuffer();
 };
 
 #endif

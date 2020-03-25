@@ -2,6 +2,7 @@
 #define ENGINE_HPP
 
 #include "Systems/Rendering/RenderSystem.hpp"
+#include "Systems/Physics/PhysicsSystem.hpp"
 #include "Window.hpp"
 #include "StandardTimer.hpp"
 #include "InGameState.hpp"
@@ -18,7 +19,8 @@ private:
     Window window;
 
     // Engine systems
-    RenderSystem *rs;
+    RenderSystem *render_system;
+    PhysicsSystem *physics_system;
     Timer *timer;
 
     GameState *state;
@@ -39,14 +41,14 @@ public:
     // Create the singleton instance if necessary and return it
     static Engine * getEngine();
 
-    // Test if the engine should quit
-    bool getQuit();
-
     // Initialize the engine and return success
     bool init();
 
     // Step the Engine based on time
     void tick();
+
+    // Test if the engine should quit
+    bool getQuit() { return quit; }
 };
 
 #endif
