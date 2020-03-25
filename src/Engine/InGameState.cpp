@@ -113,5 +113,5 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
     // For captured mode, get relative mouse motion, not absolute position
     int dx = e.motion.xrel;
     int dy = e.motion.yrel;
-    std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
+    // std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
 }

@@ -71,17 +71,14 @@ RigidBodyPhysicsComponent * RigidBodyFactory::createBvhTriangleMeshFromFiles( in
         Asset indices( directory_name + "/IBO" );
 
         // Get the necessary data to create the 
-        int num_vertices = indices.getBytes() / sizeof(int);
-        int num_triangles = num_vertices / 3;
-
         // Create an indexed mesh with all of the read in data
         btIndexedMesh indexed_mesh;
-        indexed_mesh.m_numTriangles = num_triangles;
-        indexed_mesh.m_triangleIndexBase = (const unsigned char*)(indices.copyBuffer());
-        indexed_mesh.m_triangleIndexStride = 3 * sizeof(int);
-        indexed_mesh.m_numVertices = num_vertices;
-        indexed_mesh.m_vertexBase = (const unsigned char*)(vertices.copyBuffer());
-        indexed_mesh.m_vertexStride = 19*sizeof(float); // Ehhhhhh this might work (seems to anyways)
+        indexed_mesh.m_numTriangles =         indices.getBytes() / sizeof(int) / 3; // 3 indices for a triangle
+        indexed_mesh.m_triangleIndexBase =    (const unsigned char*)(indices.copyBuffer());
+        indexed_mesh.m_triangleIndexStride =  3 * sizeof(int);
+        indexed_mesh.m_numVertices =          vertices.getBytes() / (19 * sizeof(float)); // 19 data points per vertex
+        indexed_mesh.m_vertexBase =           (const unsigned char*)(vertices.copyBuffer());
+        indexed_mesh.m_vertexStride =         19 * sizeof(float); // 19 data points per vertex
 
         // Create a triangle vertex array with the indexed mesh
         btTriangleIndexVertexArray *mesh_data = new btTriangleIndexVertexArray();
