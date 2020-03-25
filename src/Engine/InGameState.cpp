@@ -65,49 +65,53 @@ void InGameState::postPhysics() {
     scene->updateTransformFromPhysics( glm::mat4(1.f) );
 }
 
-void InGameState::handleSDLEvent( SDL_Event e ) {
-    if( e.type == SDL_KEYDOWN ) {
-        // Handle any keydown events
-        SDL_Keycode inputValue = e.key.keysym.sym;
-        if(inputValue == SDLK_w){
-            w = true;
-        }
-        else if(inputValue == SDLK_s){
-            s = true;
-        }
-        else if(inputValue == SDLK_a){
-            a = true;
-        }
-        else if(inputValue == SDLK_d){
-            d = true;
-        }
-        else if(inputValue == SDLK_SPACE){
-            space = true;
-        }
-        else if(inputValue == SDLK_LSHIFT){
-            shift = true;
-        }
+void InGameState::handleKeyDown( SDL_Event e ) {
+    SDL_Keycode key = e.key.keysym.sym;
+    if( key == SDLK_w ) {
+        w = true;
     }
-    else if( e.type == SDL_KEYUP ) {
-        // Handle any keyup events
-        SDL_Keycode inputValue = e.key.keysym.sym;
-        if(inputValue == SDLK_w){
-            w = false;
-        }
-        else if(inputValue == SDLK_s){
-            s = false;
-        }
-        else if(inputValue == SDLK_a){
-            a = false;
-        }
-        else if(inputValue == SDLK_d){
-            d = false;
-        }
-        else if(inputValue == SDLK_SPACE){
-            space = false;
-        }
-        else if(inputValue == SDLK_LSHIFT){
-            shift = false;
-        }
+    else if( key == SDLK_s ) {
+        s = true;
     }
+    else if( key == SDLK_a ) {
+        a = true;
+    }
+    else if( key == SDLK_d ) {
+        d = true;
+    }
+    else if( key == SDLK_SPACE ) {
+        space = true;
+    }
+    else if( key == SDLK_LSHIFT ) {
+        shift = true;
+    }
+}
+
+void InGameState::handleKeyUp( SDL_Event e ) {
+    SDL_Keycode key = e.key.keysym.sym;
+    if( key == SDLK_w ) {
+        w = false;
+    }
+    else if( key == SDLK_s ) {
+        s = false;
+    }
+    else if( key == SDLK_a ) {
+        a = false;
+    }
+    else if( key == SDLK_d ) {
+        d = false;
+    }
+    else if( key == SDLK_SPACE ) {
+        space = false;
+    }
+    else if( key == SDLK_LSHIFT ) {
+        shift = false;
+    }
+}
+
+void InGameState::handleMouseMotion( SDL_Event e ) {
+    // For captured mode, get relative mouse motion, not absolute position
+    int dx = e.motion.xrel;
+    int dy = e.motion.yrel;
+    std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
 }
