@@ -95,11 +95,11 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(transform)));
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
-		// if(i == 0)
-		// 	meshList[i]->getMesh()->setUpDraw();
-		meshList[i]->getMesh()->slowDraw();
-		// if(i == meshList.size() - 1)
-		// 	meshList[i]->getMesh()->cleanUpDraw();
+		if(i == 0)
+			meshList[i]->getMesh()->setUpDraw();
+		meshList[i]->getMesh()->quickDraw();
+		if(i == meshList.size() - 1)
+			meshList[i]->getMesh()->cleanUpDraw();
 	}
 }
 
