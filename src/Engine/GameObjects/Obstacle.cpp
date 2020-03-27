@@ -1,8 +1,15 @@
 #include "Obstacle.hpp"
 
-Obstacle::Obstacle(): GameObject(1) {
+namespace fs = std::filesystem;
+
+Obstacle::Obstacle(): GameObject("obstacle") {
     mesh = MeshFactory::createBasicMesh("Level");
     physics = RigidBodyFactory::createCube( identifier, 1.f, 1.f );
+}
+
+Obstacle::Obstacle( std::string id, Mesh *mesh_in, RigidBodyPhysicsComponent *physics_in ): GameObject(id) {
+    mesh = mesh_in;
+    physics = physics_in;
 }
 
 Obstacle::~Obstacle() {

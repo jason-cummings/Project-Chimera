@@ -13,7 +13,7 @@
 class RigidBodyPhysicsComponent {
 private:
     // ID of the associated GameObject
-    int id;
+    std::string id;
 
     // Keep track of the shape and object
     // Shape should be in common between instances of PhysicsComponent whenever possible
@@ -21,12 +21,12 @@ private:
     btRigidBody *collision_object;
 
 public:
-    RigidBodyPhysicsComponent( int obj_id, btCollisionShape *col_sh, btRigidBody *col_obj ):
+    RigidBodyPhysicsComponent( std::string obj_id, btCollisionShape *col_sh, btRigidBody *col_obj ):
         id(obj_id), collision_shape(col_sh), collision_object(col_obj) {}
     ~RigidBodyPhysicsComponent() {}
 
     // Getters
-    int getID() const { return id; }
+    std::string getID() const { return id; }
     btCollisionShape * getCollisionShape() const { return collision_shape; }
     btRigidBody * getCollisionObject() const { return collision_object; }
 

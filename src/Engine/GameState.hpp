@@ -4,6 +4,7 @@
 #include <SDL.h>
 
 #include "GameObject.hpp"
+#include "LevelLoader.hpp"
 
 class GameState {
 protected:

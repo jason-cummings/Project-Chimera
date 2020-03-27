@@ -1,7 +1,7 @@
 #include "GameObject.hpp"
 
 
-GameObject::GameObject(int id) {
+GameObject::GameObject(std::string id) {
 	identifier = id;
 	transform = glm::mat4(1.0);
 	world_transform = glm::mat4(1.0);
@@ -124,7 +124,7 @@ bool GameObject::deleteChild(int child_index){
 // Scene graph searching
 
 
-GameObject * GameObject::getGameObject(int id) {
+GameObject * GameObject::getGameObject(std::string id) {
 	if(id == identifier) {
 		return this;
 	}
@@ -144,8 +144,8 @@ GameObject * GameObject::getGameObject(int id) {
 // tests
 
 bool testSetTransform() {
-	GameObject * g1 = new GameObject(1);
-	GameObject * g2 = new GameObject(2);
+	GameObject * g1 = new GameObject("1");
+	GameObject * g2 = new GameObject("2");
 	g1->addChild(g2);
 	g1->setTransform( glm::translate(g1->getTransform(),glm::vec3(1.0,0.0,0.0)) );
 	g2->setTransform( glm::translate(glm::mat4(1.0),glm::vec3(1.0,0.0,0.0)) );
@@ -162,16 +162,16 @@ bool testSetTransform() {
 
 
 bool testSearch() {
-	GameObject g1 = GameObject(1);
-	GameObject g2 = GameObject(2);
+	GameObject g1 = GameObject("1");
+	GameObject g2 = GameObject("2");
 	g1.addChild(&g2);
-	return g1.getGameObject(2) == &g2;
+	return g1.getGameObject("2") == &g2;
 }
 
 bool testRemove() {
-	GameObject g1 = GameObject(1);
-	GameObject g2 = GameObject(2);
-	GameObject g3 = GameObject(3);
+	GameObject g1 = GameObject("1");
+	GameObject g2 = GameObject("2");
+	GameObject g3 = GameObject("3");
 	g1.addChild(&g2);
 	g1.addChild(&g3);
 	g1.removeChild(&g2);

@@ -2,6 +2,7 @@
 #define INGAMESTATE_H
 
 #include "GameState.hpp"
+#include "GameObject.hpp"
 #include "GameObjects/Obstacle.hpp"
 #include "GameObjects/StaticCubeObstacle.hpp"
 #include "./Systems/PlayerMovement/PlayerMovementSystem.hpp"

@@ -1,7 +1,7 @@
 #include "Player.hpp"
 
 
-Player::Player(): GameObject(3){
+Player::Player(): GameObject("Player"){
     mesh = MeshFactory::createBasicMesh("Player");
 }
 

@@ -1,6 +1,6 @@
 #include "StaticCubeObstacle.hpp"
 
-StaticCubeObstacle::StaticCubeObstacle(): GameObject(2) {
+StaticCubeObstacle::StaticCubeObstacle(): GameObject("StaticCube") {
     mesh = MeshFactory::createBasicMesh("StaticCube");
     physics = RigidBodyFactory::createBvhTriangleMeshFromFiles( identifier, "StaticCube" );
 }

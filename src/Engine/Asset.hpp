@@ -4,10 +4,13 @@
 #ifndef ASSET_H
 #define ASSET_H
 
-#include <whereami.h>
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <filesystem>
+namespace fs = std::filesystem;
+
+#include "WAIWrapper.hpp"
 
 class Asset {
 private:
@@ -16,7 +19,12 @@ private:
     bool readInAsset( std::string fpath );
 
 public:
+    // Use to read in from the Assets folder
     Asset( std::string fname );
+
+    // Use to read in from an absolute path
+    Asset( fs::path fpath );
+    
     ~Asset();
     char * getBuffer() { return buffer; }
     int getBytes() { return n_bytes; }

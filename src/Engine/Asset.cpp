@@ -2,19 +2,21 @@
 
 Asset::Asset( std::string fname ) {
     // Get the path to the executable, then add the file name
-    int path_len = wai_getExecutablePath( NULL, 0, NULL );
-    char *loc = (char *)calloc( path_len+1, sizeof(char) );
-    wai_getExecutablePath( loc, path_len, &path_len );
-    loc[path_len] = '\0';
-    std::string fpath = std::string(loc) + "/Assets/" + std::string(fname);
+    std::string fpath = WAIWrapper::getExecutablePath() + "/Assets/" + std::string(fname);
 
     // Read in the asset with the full file path
     if( !readInAsset( fpath ) ) {
         std::cerr << "Could not read asset " << fname << std::endl;
         buffer = nullptr;
     }
-    
-    free( loc );
+}
+
+Asset::Asset( fs::path fpath ) {
+    // Read in the asset with the full file path
+    if( !readInAsset( fpath.string() ) ) {
+        std::cerr << "Could not read asset " << fpath.string() << std::endl;
+        buffer = nullptr;
+    }
 }
 
 Asset::~Asset() {

@@ -2,7 +2,7 @@
 
 InGameState::InGameState() {
     // Create the scene and some obstacles
-    scene = new GameObject(0);
+    scene = new GameObject("0");
 
     Obstacle *o1 = new Obstacle();
     o1->setTransform( glm::scale( glm::translate( glm::mat4(1.0), glm::vec3(0.f, 0.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) ) );
@@ -38,7 +38,9 @@ InGameState::InGameState() {
     playerMovement = new PlayerMovementSystem(player);
 
     scene->setBulletTransforms();
-    
+
+    LevelLoader loader("BasicLevel");
+
     // Initialize keyboard controls variables
     w = false;
     a = false;

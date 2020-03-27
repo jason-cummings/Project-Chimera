@@ -13,7 +13,7 @@
 
 class GameObject {
 protected:
-	int identifier; // use to reconstruct scenegraph from file
+	std::string identifier; // use to reconstruct scenegraph from file
 	std::vector<GameObject *> children;
 	GameObject * parent; // this can be null
 	glm::mat4 transform; // transform from parent space
@@ -21,10 +21,10 @@ protected:
 
 public:
 	//constructor
-	GameObject(int id);
+	GameObject(std::string id);
 	virtual ~GameObject();
 
-	int getID() const { return identifier; }
+	std::string getID() const { return identifier; }
 
 	virtual bool hasMesh() const { return false; }
 	virtual Mesh * getMesh() const { return (Mesh *) nullptr; }
@@ -61,7 +61,7 @@ public:
 
 	// searching the scenegraph
 
-	virtual GameObject * getGameObject(int id); // used for searching scene graph for a given identifier
+	virtual GameObject * getGameObject(std::string id); // used for searching scene graph for a given identifier
 
 };
 
