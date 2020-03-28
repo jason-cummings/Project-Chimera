@@ -22,6 +22,9 @@ private:
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
 
+    //VAO for simple quad
+    GLuint quad_vao;
+
     // VBO object for a simple quad
     GLuint quad_vbo;
 
