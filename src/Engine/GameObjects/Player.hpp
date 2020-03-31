@@ -13,8 +13,8 @@ public:
     Player();
     ~Player();
 
-    bool hasMesh() {return true;}
-	Mesh * getMesh() {return mesh;}
+    bool hasMesh() const { return true; }
+	Mesh * getMesh() const { return mesh; }
 };
 
 

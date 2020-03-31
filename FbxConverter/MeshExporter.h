@@ -7,14 +7,14 @@
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include <fstream>
+#include <boost/filesystem.hpp>
+#include <exception>
 
-template <class T>
-struct VertexHasher
-{
-  std::size_t operator()(const T& k) const
-  {
-    return 1;
-  }
+
+struct MinimalVertex {
+	glm::vec3 position;
+
+	friend bool operator==(const MinimalVertex& v1, const MinimalVertex& v2);
 };
 
 struct Vertex {
@@ -35,7 +35,7 @@ struct Vertex {
 	friend std::ostream &operator<<( std::ostream &output, const Vertex &v ) { 
         output << "Position : " << glm::to_string(v.position) << ", Normal : " << glm::to_string(v.normal) << ", UV : " << glm::to_string(v.uv);
         return output;            
-    }    
+    }
 };
 
 struct NormalMappedVertex {
@@ -53,7 +53,6 @@ class MeshExporter {
 public:
 	std::vector<T> VBO;
 	std::vector<int> IBO;
-	std::unordered_map<T, int, VertexHasher<T> > VboMap; // contains new indexing of vertices for polygons
 
 public:
 	MeshExporter();

@@ -35,7 +35,7 @@ bool Engine::init() {
 
     // Create the rendersystem with the window size
     glm::vec2 window_size = window.getDrawableSize();
-    render_system = new RenderSystem( window_size.x, window_size.y );
+    render_system = new RenderSystem( (int)window_size.x, (int)window_size.y );
 
     // Create the physics system
     physics_system = new PhysicsSystem();
@@ -53,9 +53,9 @@ void Engine::handleSDLEvents() {
     std::vector<SDL_Event> events = window.getSDLEvents();
     SDL_Event e;
 
-    while( events.size() != 0 ) {
+    for( int i=0; i<events.size(); i++ ) {
         // Get the last event in the vector
-        e = events.back();
+        e = events[i];
 
         if( e.type == SDL_QUIT ) {
             // Quit the engine
@@ -67,18 +67,19 @@ void Engine::handleSDLEvents() {
             int w_height = e.window.data2;
             window.reshape( w_width, w_height );
             glm::vec2 draw_size = window.getDrawableSize();
-            render_system->reshape( draw_size.x, draw_size.y );
+            render_system->reshape( (int)draw_size.x, (int)draw_size.y );
         }
         else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q ) {
             // Temporary quit button
             quitEngine();
         }
+        else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE ) {
+            // Temporary mouse lock toggle button
+            window.toggleMouseLock();
+        }
         else {
             state->handleSDLEvent(e);
         }
-
-        // Remove the event just handled
-        events.pop_back();
     }
 }
 
@@ -87,6 +88,8 @@ void Engine::quitEngine() {
     window.close();
 }
 
+// Tick the engine
+// Update all systems and states, then render
 void Engine::tick() {
     double dt = timer->getLastTickTime();
 
@@ -97,8 +100,17 @@ void Engine::tick() {
         // Update the game state
         state->update(dt);
 
+        // Perform necessary updates just before the physics step
+        state->prePhysics();
+
         // Step physics
         physics_system->stepPhysics(dt);
+
+        // Perform post physics scenegraph updates
+        state->postPhysics();
+
+        // Update the state's scene graph to reflect all changes from the other systems
+        // state->updateScene();
 
         // Render all
         render_system->render( dt, state->getScene() );

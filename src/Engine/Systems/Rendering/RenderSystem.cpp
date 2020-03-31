@@ -4,13 +4,26 @@ RenderSystem::RenderSystem( int width, int height ) {
 	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
 	glBindVertexArray( BASE_VAO );
+
+	//set up quad vao
+	glGenVertexArrays( 1, &quad_vao );
+	glBindVertexArray( quad_vao );
 	
 	// Create the VBO for the quad
 	glGenBuffers( 1 , &quad_vbo );
 	glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof(float) * 30, &quad_vbo_data, GL_STATIC_DRAW );
 
+	glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
+    glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
+	glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
+    glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
+
+    glBindVertexArray(0);
+    
+
 	// Get the shader manager
+	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
 	reshape( width, height );
 
@@ -72,20 +85,10 @@ void RenderSystem::drawTexture( GLuint tex ) {
 }
 
 void RenderSystem::drawQuad() {
-	// Enable the 2D vertex attributes and bind the vbo data
-    glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
-    glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
-    glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
-    glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
-    glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
 
-	// Draw
-    glDrawArrays( GL_TRIANGLES, 0, 6 );
-
-	// Disable everything
-    glDisableVertexAttribArray( ShaderAttrib2D::Vertex2D );
-    glDisableVertexAttribArray( ShaderAttrib2D::Texture2D );
-	glUseProgram(0);
+	glBindVertexArray(quad_vao);
+	glDrawArrays( GL_TRIANGLES, 0, 6 );
+	glBindVertexArray( 0 );
 	testGLError("Quad");
 }
 
@@ -95,11 +98,8 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(transform)));
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
-		// if(i == 0)
-		// 	meshList[i]->getMesh()->setUpDraw();
-		meshList[i]->getMesh()->slowDraw();
-		// if(i == meshList.size() - 1)
-		// 	meshList[i]->getMesh()->cleanUpDraw();
+
+		meshList[i]->getMesh()->draw();
 	}
 }
 
@@ -142,6 +142,7 @@ void RenderSystem::createMatrices() {
 
 
 void RenderSystem::deferredRenderStep() {
+	
 	// Bind the shader and framebuffer for deferred rendering
 	Shader *deferred_shader = sm->getShader("basic-deferred");
 	deferred_shader->bind();
@@ -169,7 +170,7 @@ void RenderSystem::deferredRenderStep() {
 	glUseProgram(0);
 	testGLError("Deferred Rendering");
 
-	meshList.clear();
+	meshList.clear(); // this probably should be moved
 }
 
 void RenderSystem::shadingStep() {

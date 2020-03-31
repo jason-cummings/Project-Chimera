@@ -17,16 +17,6 @@ GameObject::~GameObject() {
 
 // Transformation management
 
-
-
-glm::mat4 GameObject::getTransform() {
-	return transform;
-}
-
-glm::mat4 GameObject::getWorldTransform() {
-	return world_transform;
-}
-
 void GameObject::setTransform(glm::mat4 in) {
 	transform = in;
 	if(parent != NULL)
@@ -39,6 +29,22 @@ void GameObject::compileTransforms(glm::mat4 parent_transform) {
 	world_transform = parent_transform * transform;
 	for(int i = 0; i < children.size(); i++) {
 		children[i]->compileTransforms(world_transform);
+	}
+}
+
+// Gets worldspace transform from physics engine if applicable and converts to local space
+void GameObject::updateTransformFromPhysics(glm::mat4 parent_transform) {
+	// Nothing to be done by default, step through children
+	for( int i=0; i<children.size(); i++ ) {
+		children[i]->updateTransformFromPhysics(world_transform);
+	}
+}
+
+// Update relevant bullet transforms as necessary (to be done just before physics update)
+void GameObject::setBulletTransforms() const {
+	// Nothing to be done by default, step through children
+	for( int i=0; i<children.size(); i++ ) {
+		children[i]->setBulletTransforms();
 	}
 }
 

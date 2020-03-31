@@ -10,6 +10,7 @@ bool Window::init( int w, int h ) {
 	bool success = true;
 	w_width = w;
 	w_height = h;
+	mouse_lock = false;
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
 		printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
@@ -43,7 +44,11 @@ bool Window::init( int w, int h ) {
 					std::cerr << "GLEW failed to initialize: " << glewGetErrorString(glewstatus) << std::endl;
 				}
 				
+				// Start receiving keyboard input
 				SDL_StartTextInput();
+
+				// Turn on mouse lock by default
+				toggleMouseLock();
 			}
 		}
 	}
@@ -85,4 +90,10 @@ glm::vec2 Window::getDrawableSize() {
 	int w, h;
 	SDL_GL_GetDrawableSize( window, &w, &h );
 	return glm::vec2( w, h );
+}
+
+// Either capture or release the mouse in the window
+void Window::toggleMouseLock() {
+	mouse_lock = !mouse_lock;
+	SDL_SetRelativeMouseMode( mouse_lock ? SDL_TRUE : SDL_FALSE );
 }

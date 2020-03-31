@@ -15,6 +15,9 @@ private:
 	// These variables might not actually be necessary
 	int w_width, w_height;
 
+	// Control variable for locking the mouse in the window
+	bool mouse_lock;
+
 	// The Window and GL context
 	SDL_Window *window;
 	SDL_GLContext gl_context;
@@ -39,6 +42,9 @@ public:
 
 	// Return the drawable size of the window
 	glm::vec2 getDrawableSize();
+
+	// Toggle whether or not the mouse is locked in the window
+	void toggleMouseLock();
 };
 
 #endif

@@ -7,6 +7,10 @@ bool operator==(const Vertex& v1, const Vertex& v2) {
 		(v1.uv == v2.uv);
 }
 
+bool operator==(const MinimalVertex& v1, const MinimalVertex& v2) {
+	return (v1.position == v2.position);
+}
+
 template <class T>
 MeshExporter<T>::MeshExporter(){}
 
@@ -33,32 +37,20 @@ void MeshExporter<T>::addVertex(T vertex) {
 		int index = VBO.size();
 		VBO.push_back(vertex);
 		IBO.push_back(index);
-		//VboMap[vertex] = index;
 	}
 
-	// // check if vertex is already in map
-	// if(VboMap.find(vertex) != VboMap.end()) {
-	// 	// if key found, add index of vertex to IBO
-	// 	IBO.push_back(VboMap[vertex]);
-	// }
-	// else {
-	// 	//if key not found, add vertex to VBO, then add vertex and index to VboMap and IBO
-	// 	int index = VBO.size();
-	// 	VBO.push_back(vertex);
-	// 	IBO.push_back(index);
-	// 	VboMap[vertex] = index;
-	// }
+	
 }
 
 template <class T>
 void MeshExporter<T>::exportMesh(std::string directory) {
-	std::ofstream vboFile (directory + "VBO", std::ios::out | std::ios::binary);
-	vboFile.write((const char *)&VBO[0],VBO.size() * sizeof(T));
-	vboFile.close();
+		std::ofstream vboFile (directory + "/VBO", std::ios::out | std::ios::binary);
+		vboFile.write((const char *)&VBO[0],VBO.size() * sizeof(T));
+		vboFile.close();
 
-	std::ofstream iboFile (directory + "IBO", std::ios::out | std::ios::binary);
-	iboFile.write((const char *)&IBO[0],IBO.size() * sizeof(int));
-	iboFile.close();
+		std::ofstream iboFile (directory + "/IBO", std::ios::out | std::ios::binary);
+		iboFile.write((const char *)&IBO[0],IBO.size() * sizeof(int));
+		iboFile.close();
 }
 
 
@@ -75,6 +67,7 @@ std::ostream &operator<<( std::ostream &output, const MeshExporter<Vertex> &me )
 
 // tell compiler to create versions of MeshExporter for the different types of Vertex
 template class MeshExporter<Vertex>;
+template class MeshExporter<MinimalVertex>;
 
 
 
