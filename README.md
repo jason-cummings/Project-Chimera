@@ -31,7 +31,7 @@ make -j8
 Using the CMake GUI, enter ```[full path to project]``` in the "Where is the source code:" field, and enter ```[full path to project]/bin``` in the "Where to build the binaries:" field. Then press the "Configure" and "Generate" buttons to generate a Visual Studio project. The game can then be built and run from Visual Studio.
 
 #### Option 2 - NMAKE Makefiles
-If you have Visual Studio Developer Tools with NMAKE installed, you can build the project from cmd using:
+If you have the "Desktop development with C++" workload installed in Visual Studio, you can build the project from cmd using the following*:
 ```
 scripts\cmake-nmake.bat
 ```
@@ -45,3 +45,7 @@ To rebuild without rerunning cmake, cd to the .\bin\ directory and run:
 ```
 nmake
 ```
+
+Note however that if you open a new terminal, you will have to rerun cmake-nmake.bat or manually navigate to and run vcvarsall.bat to enable use of nmake again.
+
+\*The path to vcvarsall.bat is hardcoded in the cmake-nmake.bat script and may need to be modified depending on your version of Visual Studio or its installation location.
