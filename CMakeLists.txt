@@ -66,7 +66,7 @@ set( GAME_INCLUDES
 # Only include boost on Mac
 if( APPLE )
 	find_package( Boost COMPONENTS filesystem REQUIRED )
-	set( GAME_LIBS ${Boost_LIBRARIES} )
+	set( GAME_LIBS ${GAME_LIBS} ${Boost_LIBRARIES} )
 	set( GAME_INCLUDES ${GAME_INCLUDES} ${Boost_INCLUDE_DIRS} )
 endif()
 

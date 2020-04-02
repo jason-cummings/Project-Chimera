@@ -3,10 +3,10 @@
 
 // A simple wrapper to control whether to use boost or std::filesystem
 #if __APPLE__
-    #include <boost::filesystem.hpp>
+    #include <boost/filesystem.hpp>
     namespace fs = boost::filesystem;
     namespace fswrapper {
-        inline bool is_dir( fs::directory_entry ent ) = is_directory(ent);
+        inline bool is_dir( fs::directory_entry ent ) { return is_directory(ent); }
     }
 
 #else
