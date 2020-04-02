@@ -89,15 +89,17 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     new_obj->translation = (float *)obj_translation_asset.copyBuffer();
 
     // Loop over the children and populate the current object's children
-    for( auto& child_dir: fs::directory_iterator(obj_children_path) ) {
-        if( child_dir.is_directory() ) {
-            // Get the name and the path
-            fs::path child_path = child_dir.path();
-            std::string child_name = child_path.filename().string();
+    if( fs::exists(obj_children_path) ) {
+        for( auto& child_dir: fs::directory_iterator(obj_children_path) ) {
+            if( is_directory(child_dir) ) {
+                // Get the name and the path
+                fs::path child_path = child_dir.path();
+                std::string child_name = child_path.filename().string();
 
-            // Create the new child and add it
-            LoadedObjectProperties *new_child = parseObjectDirectory( child_name, child_path );
-            new_obj->children.push_back( new_child );
+                // Create the new child and add it
+                LoadedObjectProperties *new_child = parseObjectDirectory( child_name, child_path );
+                new_obj->children.push_back( new_child );
+            }
         }
     }
 

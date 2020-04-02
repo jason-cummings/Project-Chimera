@@ -2,6 +2,12 @@
 ### Jason Cummings, Alex Burnley, Riley Kirkham
 A basic 3D platformer game with a toon shading style.
 
+## Requirements
+Your computer must have support for OpenGL 3.3. Most dependencies are included and built with the project with the exception of the following:
+* Boost filesystem library
+    * 'brew install boost' or https://www.boost.org/users/download/
+
+
 ## Usage
 ### Mac/Linux
 Ensure that you have CMake version 3.6+ installed on the command line, then build the project by executing:

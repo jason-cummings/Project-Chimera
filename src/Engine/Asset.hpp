@@ -7,8 +7,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <filesystem>
-namespace fs = std::filesystem;
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 
 #include "WAIWrapper.hpp"
 
