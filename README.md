@@ -4,9 +4,9 @@ A basic 3D platformer game with a toon shading style.
 
 ## Requirements
 Your computer must have support for OpenGL 3.3. Most dependencies are included and built with the project with the exception of the following:
-* Boost filesystem library
-    * 'brew install boost' or https://www.boost.org/users/download/
 
+* **MAC ONLY:** Boost library (brew install boost)
+    * std::filesystem is available and used on all other platforms
 
 ## Usage
 ### Mac/Linux

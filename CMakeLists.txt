@@ -46,7 +46,6 @@ else()
 endif()
 
 find_package( OpenGL REQUIRED )
-find_package( Boost COMPONENTS filesystem REQUIRED )
 
 set( GAME_LIBS
 	${OPENGL_LIBRARY}
@@ -54,7 +53,6 @@ set( GAME_LIBS
 	${GLEW_LIBRARIES}
 	${WHEREAMI_LIBRARY}
 	${BULLET_LIBRARY}
-	${Boost_LIBRARIES}
 )
 set( GAME_INCLUDES
 	${GLM_INCLUDE_DIRS}
@@ -63,8 +61,15 @@ set( GAME_INCLUDES
 	${GLEW_INCLUDE_DIRS}
 	${WHEREAMI_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
-	${Boost_INCLUDE_DIRS}
 )
+
+# Only include boost on Mac
+if( APPLE )
+	find_package( Boost COMPONENTS filesystem REQUIRED )
+	set( GAME_LIBS ${Boost_LIBRARIES} )
+	set( GAME_INCLUDES ${GAME_INCLUDES} ${Boost_INCLUDE_DIRS} )
+endif()
+
 
 include_directories( ${GAME_INCLUDES} )
 

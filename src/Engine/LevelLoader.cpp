@@ -91,7 +91,7 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     // Loop over the children and populate the current object's children
     if( fs::exists(obj_children_path) ) {
         for( auto& child_dir: fs::directory_iterator(obj_children_path) ) {
-            if( is_directory(child_dir) ) {
+            if( fswrapper::is_dir( child_dir ) ) {
                 // Get the name and the path
                 fs::path child_path = child_dir.path();
                 std::string child_name = child_path.filename().string();

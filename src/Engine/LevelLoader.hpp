@@ -3,12 +3,11 @@
 
 #include <iostream>
 #include <vector>
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
 
 #include "Asset.hpp"
 #include "GameObject.hpp"
 #include "WAIWrapper.hpp"
+#include "FilesystemWrapper.hpp"
 
 // Root directory for any levels
 #define LEVELS_DIRECTORY "Assets/Levels/"

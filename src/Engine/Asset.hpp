@@ -7,10 +7,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <boost/filesystem.hpp>
-namespace fs = boost::filesystem;
 
 #include "WAIWrapper.hpp"
+#include "FilesystemWrapper.hpp"
 
 class Asset {
 private:
