@@ -5,6 +5,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include "Systems/Rendering/Mesh.hpp"
@@ -16,8 +19,16 @@ protected:
 	std::string identifier; // use to reconstruct scenegraph from file
 	std::vector<GameObject *> children;
 	GameObject * parent; // this can be null
+
+	// Scaling, rotation and translation for the object
+	glm::vec3 scale;
+	glm::quat rotation;
+	glm::vec3 translation;
 	glm::mat4 transform; // transform from parent space
 	glm::mat4 world_transform; // transform from world space
+
+	// Method to calculate resulting transformation matrix
+	void calculateTransforms();
 
 public:
 	//constructor
@@ -32,11 +43,18 @@ public:
 	virtual RigidBodyPhysicsComponent * getPhysicsComponent() const { return nullptr; }
 
 	//transformation management
-	glm::mat4 getTransform() const { return transform; }
-	glm::mat4 getWorldTransform() const { return world_transform; }
+	inline glm::mat4 getTransform() const { return transform; }
+	inline glm::vec3 getScale() const { return scale; }
+	inline glm::quat getRotation() const { return rotation; }
+	inline glm::vec3 getTranslation() const { return translation; }
+	inline glm::mat4 getWorldTransform() const { return world_transform; }
 
-	void setTransform(glm::mat4 in);
-	virtual void compileTransforms(glm::mat4 parent_transform); //compiles tranformation matrices into world_transform
+	void setTransform( glm::vec3 scale_in, glm::quat rot_in, glm::vec3 trans_in );
+	void setScale( glm::vec3 in );
+	void setRotation( glm::quat in );
+	void setTranslation( glm::vec3 in );
+
+	virtual void compileTransforms( glm::mat4 parent_transform ); //compiles tranformation matrices into world_transform
 
 	// Physics related transform management
 	virtual void updateTransformFromPhysics(glm::mat4 parent_transform); // Gets worldspace transform from physics engine and converts to local space

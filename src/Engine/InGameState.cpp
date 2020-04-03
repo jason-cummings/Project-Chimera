@@ -1,45 +1,51 @@
 #include "InGameState.hpp"
 
 InGameState::InGameState() {
-    // Create the scene and some obstacles
-    scene = new GameObject("0");
+    // // Create the scene and some obstacles
+    // scene = new GameObject("0");
 
-    Obstacle *o1 = new Obstacle();
-    o1->setTransform( glm::scale( glm::translate( glm::mat4(1.0), glm::vec3(0.f, 0.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) ) );
+    // Obstacle *o1 = new Obstacle();
+    // glm::vec3 o1scale(1.f, 1.f, 1.f);
+    // glm::quat o1rot( glm::vec3(0.f, 0.f, 0.f) );
+    // glm::vec3 o1trans(0.f, 0.f, 0.f);
+    // o1->setTransform( o1scale, o1rot, o1trans );
 
-    Obstacle *o2 = new Obstacle();
-    glm::mat4 o2trans = glm::scale( glm::translate( o2->getTransform(), glm::vec3(2.f, 3.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) );
-    o2->setTransform(o2trans);
+    // Obstacle *o2 = new Obstacle();
+    // glm::vec3 o2scale(1.f, 1.f, 1.f);
+    // glm::quat o2rot( glm::vec3(0.f, 0.f, 0.f) );
+    // glm::vec3 o2trans(2.f, 3.f, 0.f);
+    // o2->setTransform( o2scale, o2rot, o2trans );
     
-    Obstacle *o3 = new Obstacle();
-    glm::mat4 o3trans = glm::scale( glm::rotate( glm::translate( o3->getTransform(), glm::vec3(-1.f, 2.f, 0.f) ), glm::radians(45.f), glm::vec3(0.f, 1.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) );
-    o3->setTransform(o3trans);
+    // Obstacle *o3 = new Obstacle();
+    // glm::vec3 o3scale(1.f, 1.f, 1.f);
+    // glm::quat o3rot( glm::vec3(glm::radians(12.f), glm::radians(45.f), 0.f) );
+    // glm::vec3 o3trans(-1.f, 2.f, 0.f);
+    // o3->setTransform( o3scale, o3rot, o3trans );
     
-    StaticCubeObstacle *sc = new StaticCubeObstacle();
-    glm::mat4 sctrans = glm::scale( glm::translate( sc->getTransform(), glm::vec3(0.f, -2.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) );
-    sc->setTransform(sctrans);
+    // StaticCubeObstacle *sc = new StaticCubeObstacle();
+    // glm::vec3 scscale(1.f, 1.f, 1.f);
+    // glm::quat scrot( glm::vec3(0.f, glm::radians(20.f), glm::radians(45.f)) );
+    // glm::vec3 sctrans(0.f, -2.f, 0.f);
+    // sc->setTransform( scscale, scrot, sctrans );
 
-    // Add the created obstacles to the screen
-    scene->addChild(o1);
-    scene->addChild(o2);
-    scene->addChild(o3);
-    scene->addChild(sc);
+    // // Add the created obstacles to the screen
+    // scene->addChild(o1);
+    // scene->addChild(o2);
+    // scene->addChild(o3);
+    // scene->addChild(sc);
+
+    scene = LevelLoader::loadLevel("BasicLevel");
 
     // Create a player and add it to the scene
     Player* player = new Player();
-    glm::mat4 p_scale = glm::scale(glm::mat4(1.f), glm::vec3(.01f, .01f, .01f));
-    glm::mat4 p_trans = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 0.f));
-
-    glm::mat4 player_transform = p_trans * p_scale;
-    player->setTransform(player_transform);
-    // player->setTransform(glm::scale( glm::mat4(1.0), glm::vec3(.01f, .01f, .01f) ));
+    player->setTransform( glm::vec3(.5f, .5f, .5f), glm::quat(glm::vec3(0.f,0.f,0.f)), glm::vec3(0.f, 1.f, 0.f));
 
     scene->addChild((GameObject*)player);
     playerMovement = new PlayerMovementSystem(player);
 
-    scene->setBulletTransforms();
 
-    LevelLoader loader("BasicLevel");
+
+    scene->setBulletTransforms();
 
     // Initialize keyboard controls variables
     w = false;

@@ -136,8 +136,8 @@ void RenderSystem::populateRenderLists( GameObject * gameObject ) {
 }
 
 void RenderSystem::createMatrices() {
-	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 100.f);
-	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 10.0f)));
+	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 1000.f);
+	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 350.0f))); // 10.f
 }
 
 
@@ -199,10 +199,10 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformFloat("ambientAmount", .2);
 
-	cartoon_shading->setUniformVec3("light.location",glm::vec3(10.0f,0.0f,10.0f));
+	cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
 	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
 	cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
-	cartoon_shading->setUniformFloat("light.linearAttenuation",0.1f);
+	cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
 	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
 	//cartoon_shading->setUniformFloat("light.directional",0.0f);
 

@@ -2,7 +2,7 @@
 
 
 Player::Player(): GameObject("Player"){
-    mesh = MeshFactory::createBasicMesh("Player");
+    mesh = MeshFactory::createBasicMesh(std::string("Player"));
 }
 
 Player::~Player(){

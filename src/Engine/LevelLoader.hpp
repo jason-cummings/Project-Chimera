@@ -6,6 +6,12 @@
 
 #include "Asset.hpp"
 #include "GameObject.hpp"
+#include "GameObjects/Obstacle.hpp"
+#include "GameObjects/SceneRenderable.hpp"
+
+#include "Systems/Rendering/MeshFactory.hpp"
+#include "Systems/Physics/RigidBodyFactory.hpp"
+
 #include "WAIWrapper.hpp"
 #include "FilesystemWrapper.hpp"
 
@@ -34,6 +40,7 @@ struct LoadedObjectProperties {
     std::string identifier = "";
 
     // Correspond to filenames under the approriate directory for the level
+    // If left empty, the object does not have that property
     std::string mesh_id = "";
     std::string collision_shape_id = "";
     std::string material_id = "";
@@ -58,32 +65,42 @@ private:
     // The root scene object to be created
     GameObject *scene;
 
+    // The objects loaded for the scene
+    std::map<std::string, Mesh*> loaded_meshes;
+
     // Convenience functions
     fs::path levelPath( std::string level_name ) const;
     fs::path pathAppend( fs::path in, std::string to_append ) const;
     std::string getPropertyContents( fs::path property_path ) const;
 
     // Load a level from the name and populate the scene object
-    void loadLevel( std::string level_name );
+    void createLevel( std::string level_name );
 
     // Load information for a single object, then call recursively on object's children
     LoadedObjectProperties * parseObjectDirectory( std::string object_name, fs::path object_path ) const;
+    
+    // Create meshes, collision objects, and materirals for the level from their directories
+    void loadMeshes( fs::path dir );
+    void loadCollisionObjects( fs::path dir );
+    void loadMaterials( fs::path dir );
 
     // Create the scene GameObject and all of its children
-    void createScene( LoadedObjectProperties * scene_root );
+    void createScene( LoadedObjectProperties * scene_root_props );
 
     // Determine what GameObject should be created based on the Properties and create it
-    GameObject * createGameObject( LoadedObjectProperties * obj );
-
-public:
+    GameObject * createGameObject( LoadedObjectProperties * obj_props, bool is_root );
+    
     // Calls loadLevel with the passed in level name
     LevelLoader( std::string level_name );
+    
+    // Return the loaded scene
+    GameObject * getScene() { return scene; }
 
+public:
     // Delete any stored info
     ~LevelLoader();
 
-    // Return the loaded scene
-    GameObject * getScene() { return scene; }
+    static GameObject * loadLevel( std::string level_name );
 }; 
 
 #endif

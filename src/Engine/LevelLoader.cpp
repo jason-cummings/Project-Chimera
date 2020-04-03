@@ -3,7 +3,7 @@
 // Calls loadLevel with the passed in level name
 LevelLoader::LevelLoader( std::string level_name ) {
     scene = nullptr;
-    loadLevel(level_name);
+    createLevel(level_name);
 }
 
 // Delete any stored info
@@ -33,19 +33,24 @@ std::string LevelLoader::getPropertyContents( fs::path property_path ) const {
     return ret;
 }
 
-void LevelLoader::loadLevel( std::string level_name ) {
+void LevelLoader::createLevel( std::string level_name ) {
     // Ensure that the level can be opened
     fs::path level_path = levelPath(level_name);
     if( !fs::exists(level_path) ) {
         std::cerr << "Could not open level " << level_name << std::endl;
         std::cerr << "Directory at path " << level_path << " could not be opened" << std::endl;
         return;
-    }
-
+    }\
+   
     // Get the directory of the root node and parse it recursively
     fs::path scene_path = level_path;
     scene_path.append( LEVEL_ROOTNODE_DNAME );
     LoadedObjectProperties *scene_properties = parseObjectDirectory( LEVEL_ROOTNODE_DNAME, scene_path );
+   
+    // Load all the level objects
+    fs::path mesh_path = level_path;
+    mesh_path.append( LEVEL_MESH_DNAME );
+    loadMeshes( mesh_path );
 
     // Create the scene with the properties read in
     createScene( scene_properties );
@@ -106,13 +111,75 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     return new_obj;
 }
 
-// Create the scene GameObject and all of its children
-void LevelLoader::createScene( LoadedObjectProperties *scene_root ) {
+void LevelLoader::loadMeshes( fs::path dir )  {
+    // Loop through all folders in the mesh dir and added them to the loaded_meshes
+    for( auto& mesh_dir: fs::directory_iterator(dir) ) {
+        fs::path mesh_path = mesh_dir.path();
+        loaded_meshes[mesh_path.filename().string()] = MeshFactory::createBasicMesh( mesh_path );
+    }
+}
+
+void LevelLoader::loadCollisionObjects( fs::path dir )  {
 
 }
 
+void LevelLoader::loadMaterials( fs::path dir )  {
+
+}
+
+// Create the scene GameObject and all of its children
+void LevelLoader::createScene( LoadedObjectProperties *scene_root_props ) {
+    scene = createGameObject( scene_root_props, true );
+}
+
 // Determine what GameObject should be created based on the Properties and create it
-GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj ) {
-    GameObject *temp = new GameObject("temp");
-    return temp;
+GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, bool is_root ) {
+    GameObject *obj;
+
+    // Controls for determining types of game objects
+    bool has_mesh = obj_props->mesh_id != std::string("");
+    bool has_collision_shape = obj_props->collision_shape_id != std::string("");
+    bool has_material = obj_props->material_id != std::string("");
+    
+    // Determine type of GameObject depending on the properties it has
+    if( is_root ) {
+        std::cout << "Creating scene root: " << obj_props->identifier << std::endl;
+        obj = new GameObject( obj_props->identifier );
+    }
+    else if( has_mesh && has_collision_shape ) {
+        std::cout << "Creating obstacle: " << obj_props->identifier << std::endl;
+        obj = new Obstacle();
+    }
+    else if( has_mesh && !has_collision_shape ) {
+        std::cout << "Creating a scene renderable: " << obj_props->identifier << std::endl;
+        Mesh *use_mesh = loaded_meshes[obj_props->mesh_id];
+        obj = new SceneRenderable( obj_props->identifier, use_mesh );
+    }
+    else {
+        std::cerr << "Unknown object config: mesh - " << has_mesh << " | col - " << has_collision_shape << " | material - " << has_material << std::endl;
+        return nullptr;
+    }
+
+    // Set the transformation data for the newly created object
+    glm::vec3 scalevec( obj_props->scaling[0], obj_props->scaling[1], obj_props->scaling[2] );
+    glm::vec3 rotvec( obj_props->rotation[0], obj_props->rotation[1], obj_props->rotation[2] );
+    glm::vec3 transvec( obj_props->translation[0], obj_props->translation[1], obj_props->translation[2] );
+    // std::cout << "Scaling by " << scalevec.x << ", " << scalevec.y << ", " << scalevec.z << std::endl;
+    // std::cout << "Rotating by " << rotvec.x << ", " << rotvec.y << ", " << rotvec.z << std::endl;
+    // std::cout << "Translating by " << transvec.x << ", " << transvec.y << ", " << transvec.z << std::endl;
+    obj->setTransform( scalevec, rotvec, transvec );
+
+    // Recurse through the created object's children, creating and adding them
+    for( int i=0; i<obj_props->children.size(); i++ ) {
+        GameObject *child_obj = createGameObject( obj_props->children[i], false );
+        obj->addChild( child_obj );
+    }
+
+    return obj;
+}
+
+GameObject * LevelLoader::loadLevel( std::string level_name ) {
+    std::cout << "Loading level: " << level_name << std::endl;
+    LevelLoader loader_object( level_name );
+    return loader_object.getScene();
 }

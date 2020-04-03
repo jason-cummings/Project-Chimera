@@ -17,12 +17,39 @@ GameObject::~GameObject() {
 
 // Transformation management
 
-void GameObject::setTransform(glm::mat4 in) {
-	transform = in;
+void GameObject::setTransform( glm::vec3 scale_in, glm::quat rot_in, glm::vec3 trans_in ) {
+	scale = scale_in;
+	rotation = rot_in;
+	translation = trans_in;
+	calculateTransforms();
+}
+
+void GameObject::setScale( glm::vec3 in ) {
+	scale = in;
+	calculateTransforms();
+}
+
+void GameObject::setRotation( glm::quat in ) {
+	rotation = in;
+	calculateTransforms();
+}
+
+void GameObject::setTranslation( glm::vec3 in ) {
+	translation = in;
+	calculateTransforms();
+}
+
+// Create transformation matrix from individual vectors
+void GameObject::calculateTransforms() {
+	glm::mat4 scale_matrix = glm::scale( glm::mat4(1.f), scale );
+	glm::mat4 rotation_matrix = glm::toMat4( rotation );
+	glm::mat4 translation_matrix = glm::translate( glm::mat4(1.f), translation );
+	transform = translation_matrix * rotation_matrix * scale_matrix;
+
 	if(parent != NULL)
 		compileTransforms(parent->getWorldTransform());
-	else compileTransforms(glm::mat4(1.0));
-
+	else
+		compileTransforms(glm::mat4(1.f));
 }
 
 void GameObject::compileTransforms(glm::mat4 parent_transform) {
@@ -147,8 +174,8 @@ bool testSetTransform() {
 	GameObject * g1 = new GameObject("1");
 	GameObject * g2 = new GameObject("2");
 	g1->addChild(g2);
-	g1->setTransform( glm::translate(g1->getTransform(),glm::vec3(1.0,0.0,0.0)) );
-	g2->setTransform( glm::translate(glm::mat4(1.0),glm::vec3(1.0,0.0,0.0)) );
+	g1->setTranslation( g1->getTranslation() + glm::vec3(1.0,0.0,0.0) );
+	g2->setTranslation( glm::vec3(1.0,0.0,0.0) );
 
 	glm::mat4 total = glm::translate(glm::mat4(1.0),glm::vec3(2.0,0.0,0.0));
 

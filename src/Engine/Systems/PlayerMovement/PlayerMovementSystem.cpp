@@ -16,7 +16,7 @@ void PlayerMovementSystem::movePlayer( int xmove, int ymove, int zmove, double d
     ) * (float)dt;
 
     //Moves the player with the given inputs.
-    player->setTransform( glm::translate( player->getTransform(), movement ));
+    player->setTranslation(  player->getTranslation() + movement );
 }
 
 

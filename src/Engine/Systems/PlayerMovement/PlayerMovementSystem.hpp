@@ -2,7 +2,7 @@
 #define PLAYERMOVEMENTSYSTEM_H
 #include "./../../GameObjects/Player.hpp"
 #include <glm/glm.hpp>
-#define MOVE_SPEED 45
+#define MOVE_SPEED 100
 
 class PlayerMovementSystem
 {
