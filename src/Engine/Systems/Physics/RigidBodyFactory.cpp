@@ -40,7 +40,7 @@ btRigidBody * RigidBodyFactory::createRigidBody( btCollisionShape *collision_sha
 }
 
 // Create a new cube with the argument attributes
-RigidBodyPhysicsComponent * RigidBodyFactory::createCube( int id, float side_length, float mass ) {
+RigidBodyPhysicsComponent * RigidBodyFactory::createCube( std::string id, float side_length, float mass ) {
     // Test if the cube shape already exists
     std::string cube_shape_name = "_cube_" + std::to_string(side_length);
     btCollisionShape *cube_shape = findCollisionShape( cube_shape_name );
@@ -59,7 +59,7 @@ RigidBodyPhysicsComponent * RigidBodyFactory::createCube( int id, float side_len
 }
 
 // Create a rigid body from data to be read in under the directory directory_name
-RigidBodyPhysicsComponent * RigidBodyFactory::createBvhTriangleMeshFromFiles( int id, std::string directory_name ) {
+RigidBodyPhysicsComponent * RigidBodyFactory::createBvhTriangleMeshFromFiles( std::string id, std::string directory_name ) {
     // Test if this shape already exsts
     std::string mesh_shape_name = "_bvh_triangle_mesh_" + directory_name;
     btCollisionShape *mesh_shape = findCollisionShape( mesh_shape_name );

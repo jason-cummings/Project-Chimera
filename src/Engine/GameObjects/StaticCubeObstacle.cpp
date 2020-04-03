@@ -1,7 +1,7 @@
 #include "StaticCubeObstacle.hpp"
 
-StaticCubeObstacle::StaticCubeObstacle(): GameObject(2) {
-    mesh = MeshFactory::createBasicMesh("StaticCube");
+StaticCubeObstacle::StaticCubeObstacle(): GameObject("StaticCube") {
+    mesh = MeshFactory::createBasicMesh(std::string("StaticCube"));
     physics = RigidBodyFactory::createBvhTriangleMeshFromFiles( identifier, "StaticCube" );
 }
 

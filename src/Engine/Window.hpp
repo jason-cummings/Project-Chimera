@@ -12,9 +12,6 @@
 
 class Window {
 private:
-	// These variables might not actually be necessary
-	int w_width, w_height;
-
 	// Control variable for locking the mouse in the window
 	bool mouse_lock;
 

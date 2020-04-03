@@ -1,6 +1,6 @@
 #include "RenderSystem.hpp"
 
-RenderSystem::RenderSystem( int width, int height ) {
+RenderSystem::RenderSystem() {
 	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
 	glBindVertexArray( BASE_VAO );
@@ -25,10 +25,18 @@ RenderSystem::RenderSystem( int width, int height ) {
 	// Get the shader manager
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
-	reshape( width, height );
+	
+	texture_width = 2048;
+	texture_height = 1024;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
+}
+
+// Create and return the singleton instance of RenderSystem
+RenderSystem & RenderSystem::getRenderSystem() {
+	static RenderSystem rs;
+	return rs;
 }
 
 void RenderSystem::reshape( int new_width, int new_height ) {
@@ -111,6 +119,7 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	//clear rendering lists
 	populateRenderLists( sceneGraph );
+	
 	createMatrices();
 
 	// Do the deferred rendering
@@ -126,18 +135,18 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// drawTexture(color_tex);
 }
 
-void RenderSystem::populateRenderLists( GameObject * gameObject ) {
-	if(gameObject->hasMesh()) {
-		meshList.push_back(gameObject);
+void RenderSystem::populateRenderLists( GameObject * game_object ) {
+	if(game_object->hasMesh()) {
+		meshList.push_back(game_object);
 	}
-	for(int i = 0; i < gameObject->getNumChildren(); i++) {
-		populateRenderLists(gameObject->getChild(i));
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		populateRenderLists(game_object->getChild(i));
 	}
 }
 
 void RenderSystem::createMatrices() {
-	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 100.f);
-	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 10.0f)));
+	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 1000.f);
+	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 350.0f))); // 10.f
 }
 
 
@@ -200,10 +209,10 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformFloat("ambientAmount", .2);
 
-	cartoon_shading->setUniformVec3("light.location",glm::vec3(10.0f,0.0f,10.0f));
+	cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
 	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
 	cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
-	cartoon_shading->setUniformFloat("light.linearAttenuation",0.1f);
+	cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
 	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
 	//cartoon_shading->setUniformFloat("light.directional",0.0f);
 

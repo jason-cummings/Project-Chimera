@@ -4,10 +4,18 @@
 #include <SDL.h>
 
 #include "GameObject.hpp"
+#include "LevelLoader.hpp"
+#include "StandardTimer.hpp"
+#include "Systems/Rendering/RenderSystem.hpp"
 
 class GameState {
 protected:
+    // The scene graph for the state
     GameObject *scene;
+    RenderSystem & render_system;
+
+    // Subsystems for all game states
+    Timer *timer;
 
     // Event handlers default to doing nothing, so a state can implement only what it needs
     virtual void handleKeyDown( SDL_Event e ) {}
@@ -19,16 +27,10 @@ protected:
 
 public:
     virtual ~GameState() {}
-    GameState() { scene = nullptr; }
+    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; }
 
     // Perform any relevant state updates
-    virtual void update( double dt ) = 0;
-
-    // Perform any necessary updates before the physics step
-    virtual void prePhysics() {};
-
-    // Perform any necessary updates after the physics step
-    virtual void postPhysics() {};
+    virtual void gameLoop() = 0;
 
     // Update the scene graph to reflect changes
     // This should be done after all systems have executed, but before rendering
@@ -47,7 +49,9 @@ public:
         }
     }
 
-    GameObject *getScene() { return scene; }
+    virtual void reshape( int new_width, int new_height ) {
+        RenderSystem::getRenderSystem().reshape( new_width, new_height );
+    }
 };
 
 #endif
