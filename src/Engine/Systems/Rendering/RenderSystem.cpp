@@ -1,6 +1,6 @@
 #include "RenderSystem.hpp"
 
-RenderSystem::RenderSystem( int width, int height ) {
+RenderSystem::RenderSystem() {
 	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
 	glBindVertexArray( BASE_VAO );
@@ -12,10 +12,18 @@ RenderSystem::RenderSystem( int width, int height ) {
 
 	// Get the shader manager
 	sm = ShaderManager::getShaderManager();
-	reshape( width, height );
+	
+	texture_width = 2048;
+	texture_height = 1024;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
+}
+
+// Create and return the singleton instance of RenderSystem
+RenderSystem & RenderSystem::getRenderSystem() {
+	static RenderSystem rs;
+	return rs;
 }
 
 void RenderSystem::reshape( int new_width, int new_height ) {
@@ -111,6 +119,7 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	//clear rendering lists
 	populateRenderLists( sceneGraph );
+	
 	createMatrices();
 
 	// Do the deferred rendering
@@ -126,12 +135,12 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// drawTexture(color_tex);
 }
 
-void RenderSystem::populateRenderLists( GameObject * gameObject ) {
-	if(gameObject->hasMesh()) {
-		meshList.push_back(gameObject);
+void RenderSystem::populateRenderLists( GameObject * game_object ) {
+	if(game_object->hasMesh()) {
+		meshList.push_back(game_object);
 	}
-	for(int i = 0; i < gameObject->getNumChildren(); i++) {
-		populateRenderLists(gameObject->getChild(i));
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		populateRenderLists(game_object->getChild(i));
 	}
 }
 

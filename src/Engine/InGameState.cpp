@@ -34,17 +34,20 @@ InGameState::InGameState() {
     // scene->addChild(o3);
     // scene->addChild(sc);
 
+    physics_system = new PhysicsSystem();
+    timer = new StandardTimer();
+
     scene = LevelLoader::loadLevel("BasicLevel");
 
     // Create a player and add it to the scene
     Player* player = new Player();
     player->setTransform( glm::vec3(.5f, .5f, .5f), glm::quat(glm::vec3(0.f,0.f,0.f)), glm::vec3(0.f, 1.f, 0.f));
-
     scene->addChild((GameObject*)player);
+    
     playerMovement = new PlayerMovementSystem(player);
 
-
-
+    // Add the scene graph to Bullet and set the transforms appropriately
+    physics_system->addSceneComponents( scene );
     scene->setBulletTransforms();
 
     // Initialize keyboard controls variables
@@ -56,12 +59,29 @@ InGameState::InGameState() {
     space = false;
 }
 
-void InGameState::update( double dt ) {
+void InGameState::gameLoop() {
+    double dt = timer->getLastTickTime();
+
+    // Perform necessary updates just before the physics step
+    prePhysics();
+
     int xmove = int(d-a);
     int ymove = int(space-shift);
     int zmove = int(s-w);
     //sends movement info to PlayerMovementSystem.
     playerMovement->movePlayer( xmove, ymove, zmove, dt );
+
+    // Step physics
+    physics_system->stepPhysics(dt);
+
+    // Perform post physics scenegraph updates
+    postPhysics();
+
+    // Update the state's scene graph to reflect all changes from the other systems
+    // updateScene();
+
+    // Render all
+    render_system.render( dt, scene );
 }
 
 void InGameState::prePhysics() {

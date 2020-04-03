@@ -19,6 +19,9 @@
 
 class RenderSystem {
 private:
+    // Singleton Instance for RenserSystem
+    // static RenderSystem *singleton;
+
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
 
@@ -100,9 +103,13 @@ private:
 
 
 
+    RenderSystem();
 
 public:
-    RenderSystem( int width, int height );
+    
+
+    // Get the singleton instance
+    static RenderSystem & getRenderSystem();
 
     // Update render systems view variables
     void reshape( int new_width, int new_height );
