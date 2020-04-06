@@ -2,7 +2,7 @@
 
 Asset::Asset( std::string fname ) {
     // Get the path to the executable, then add the file name
-    std::string fpath = WAIWrapper::getExecutablePath() + "/Assets/" + std::string(fname);
+    std::string fpath = assetPath().string() + std::string(fname);
 
     // Read in the asset with the full file path
     if( !readInAsset( fpath ) ) {

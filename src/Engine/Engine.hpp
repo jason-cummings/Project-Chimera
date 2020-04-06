@@ -33,7 +33,7 @@ public:
     static Engine & getEngine();
 
     // Initialize the engine and return success
-    bool init();
+    bool init( std::string level_to_load );
 
     // Step the Engine based on time
     void tick();

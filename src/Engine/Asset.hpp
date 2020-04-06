@@ -30,6 +30,8 @@ public:
 
     // Use if you need to maintain the buffer data after the Asset instance has been destroyed
     char * copyBuffer();
+
+    static fs::path assetPath() { return fs::path(WAIWrapper::getExecutablePath() + "/Assets/"); };
 };
 
 #endif

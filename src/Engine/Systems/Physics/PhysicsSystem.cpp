@@ -9,7 +9,7 @@ PhysicsSystem::PhysicsSystem() {
 
     // Set up the world and add some gravity
 	dynamics_world = new btDiscreteDynamicsWorld(dispatcher, overlapping_pair_cache, solver, collision_configuration);
-	dynamics_world->setGravity(btVector3(0, btScalar(-10), 0)); //DEFAULT_GRAVITY
+	dynamics_world->setGravity(btVector3(0, btScalar(DEFAULT_GRAVITY), 0)); //DEFAULT_GRAVITY
 }
 
 PhysicsSystem::~PhysicsSystem() {

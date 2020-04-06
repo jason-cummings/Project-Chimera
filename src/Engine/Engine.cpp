@@ -16,7 +16,7 @@ Engine & Engine::getEngine() {
 
 // Perform any initialization necessary for the engine
 // Returns true if all initialization was successful, else false
-bool Engine::init() {
+bool Engine::init( std::string level_to_load ) {
     // Attempt to initialize the window
     if( !window.init( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT ) ) {
         std::cout << "Error in window initialization" << std::endl;
@@ -29,7 +29,7 @@ bool Engine::init() {
     rs.reshape( (int)window_size.x, (int)window_size.y );
 
     // Create a new state
-    state = new InGameState();
+    state = new InGameState( level_to_load );
 
     return true;
 }

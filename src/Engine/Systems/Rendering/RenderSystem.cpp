@@ -146,7 +146,7 @@ void RenderSystem::populateRenderLists( GameObject * game_object ) {
 
 void RenderSystem::createMatrices() {
 	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 1000.f);
-	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 350.0f))); // 10.f
+	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 350.0f))); // 350.f
 }
 
 
