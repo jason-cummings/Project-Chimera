@@ -16,6 +16,7 @@ private:
 
 public:
     Obstacle();
+    Obstacle( std::string id, Mesh *mesh_in, RigidBodyPhysicsComponent *physics_in );
     ~Obstacle();
 
     bool hasMesh() const { return true; }

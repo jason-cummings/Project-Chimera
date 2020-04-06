@@ -18,9 +18,9 @@ private:
     static btRigidBody * createRigidBody( btCollisionShape *collision_shape, float mass );
 
 public:
-    static RigidBodyPhysicsComponent * createCube( int id, float side_length, float mass );
+    static RigidBodyPhysicsComponent * createCube( std::string id, float side_length, float mass );
     
-    static RigidBodyPhysicsComponent * createBvhTriangleMeshFromFiles( int id, std::string directory_name );
+    static RigidBodyPhysicsComponent * createBvhTriangleMeshFromFiles( std::string id, std::string directory_name );
 };
 
 #endif

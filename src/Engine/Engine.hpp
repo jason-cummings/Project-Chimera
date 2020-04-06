@@ -2,9 +2,7 @@
 #define ENGINE_HPP
 
 #include "Systems/Rendering/RenderSystem.hpp"
-#include "Systems/Physics/PhysicsSystem.hpp"
 #include "Window.hpp"
-#include "StandardTimer.hpp"
 #include "InGameState.hpp"
 
 #define DEFAULT_WINDOW_WIDTH 640
@@ -12,17 +10,10 @@
 
 class Engine {
 private:
-    // Singleton Engine instance
-    static Engine *engine;
-
     bool quit;
     Window window;
 
-    // Engine systems
-    RenderSystem *render_system;
-    PhysicsSystem *physics_system;
-    Timer *timer;
-
+    // Engine state
     GameState *state;
 
     // Private constructor for singleton instance
@@ -39,7 +30,7 @@ public:
     ~Engine();
 
     // Create the singleton instance if necessary and return it
-    static Engine * getEngine();
+    static Engine & getEngine();
 
     // Initialize the engine and return success
     bool init();

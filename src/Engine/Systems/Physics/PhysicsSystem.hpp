@@ -22,7 +22,7 @@ private:
 	btDiscreteDynamicsWorld* dynamics_world;                   // The dynamics world to be stepped
 
     // Components
-    std::map<int, RigidBodyPhysicsComponent*> components;
+    std::map<std::string, RigidBodyPhysicsComponent*> components;
 
 public:
     PhysicsSystem();

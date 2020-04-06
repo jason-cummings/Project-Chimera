@@ -1,15 +1,10 @@
 #include "Window.hpp"
 
-Window::Window() {
-	w_width = 0;
-	w_height = 0;
-}
+Window::Window() {}
 
 // Initialize the SDL window and OpenGL and return success
-bool Window::init( int w, int h ) {
+bool Window::init( int w_width, int w_height ) {
 	bool success = true;
-	w_width = w;
-	w_height = h;
 	mouse_lock = false;
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
@@ -72,12 +67,6 @@ std::vector<SDL_Event> Window::getSDLEvents() {
 		events.push_back(e);
 	}
 	return events;
-}
-
-// Reshape the window
-void Window::reshape( int new_width, int new_height ) {
-	w_width = new_width;
-	w_height = new_height;
 }
 
 // Perform any necessary operations after rendering

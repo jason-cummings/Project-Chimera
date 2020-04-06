@@ -1,5 +1,23 @@
 ### Project Chimera - Homework 3 Checkpoint
 
+#### Edit 4/1 - Individual Contributions
+Riley: 
+* Built the initial file architecture 
+* Implemented initial player class and player-keyboard interaction and movement
+* Built MeshFactory and wrote methods to read in meshes to display in the game
+
+Jason:
+* Built CMake architecture and added necessary dependencies
+* Created intial rendering system pipeline and implemented basic deferred rendering steps
+* Created basic physics world and added Hello World example from bullet as a POC
+* Added very basic game state loop and timer functions to control it
+
+Alex:
+* Largely worked on FBX Parser program to be able to convert FBX files to formats we can use
+* Set up scene graph hierarchy and initial objects to populate the scene graph
+* Added functionality to render meshes loaded from MeshFactory
+* Added cartoon shading to rendering pipeline
+
 #### Section 1 - Original Plan
 Project Proposal: "At this point the user will be able to see the 3D world around them and control the player. The level at this point will not have a character model, and the level will only consist of a few boxes for testing purposes. The basic physics engine integration will be working at this point."
 
