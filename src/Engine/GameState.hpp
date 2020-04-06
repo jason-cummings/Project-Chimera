@@ -4,13 +4,10 @@
 #include <SDL.h>
 
 #include "GameObject.hpp"
-<<<<<<< HEAD
 #include "./GameObjects/Camera.hpp"
-=======
 #include "LevelLoader.hpp"
 #include "StandardTimer.hpp"
 #include "Systems/Rendering/RenderSystem.hpp"
->>>>>>> master
 
 class GameState {
 protected:

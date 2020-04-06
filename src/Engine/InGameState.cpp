@@ -28,36 +28,25 @@ InGameState::InGameState() {
     // glm::vec3 sctrans(0.f, -2.f, 0.f);
     // sc->setTransform( scscale, scrot, sctrans );
 
-<<<<<<< HEAD
     //Set Camera
     camera = new Camera();
 
     // Add the created obstacles to the screen
-    scene->addChild(o1);
-    scene->addChild(o2);
-    scene->addChild(o3);
-    scene->addChild(sc);
-=======
-    // // Add the created obstacles to the screen
-    // scene->addChild(o1);
-    // scene->addChild(o2);
-    // scene->addChild(o3);
-    // scene->addChild(sc);
->>>>>>> master
+    //scene->addChild(o1);
+    //scene->addChild(o2);
+    //scene->addChild(o3);
+    //scene->addChild(sc);
 
     physics_system = new PhysicsSystem();
     timer = new StandardTimer();
 
-<<<<<<< HEAD
     //Camera is a child of player so it follows player's movements automatically.
     player->addChild(camera);
 
     glm::mat4 player_transform = p_trans * p_scale;
     player->setTransform(player_transform);
     // player->setTransform(glm::scale( glm::mat4(1.0), glm::vec3(.01f, .01f, .01f) ));
-=======
     scene = LevelLoader::loadLevel("BasicLevel");
->>>>>>> master
 
     // Create a player and add it to the scene
     Player* player = new Player();

@@ -1,6 +1,6 @@
 #include "Camera.hpp"
 
-Camera::Camera() : GameObject(1){
+Camera::Camera() : GameObject("Camera"){
     th = 0;
     ph = 0;
     //createMatrices();
