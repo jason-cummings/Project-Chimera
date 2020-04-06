@@ -40,7 +40,7 @@ void LevelLoader::createLevel( std::string level_name ) {
         std::cerr << "Could not open level " << level_name << std::endl;
         std::cerr << "Directory at path " << level_path << " could not be opened" << std::endl;
         return;
-    }\
+    }
    
     // Get the directory of the root node and parse it recursively
     fs::path scene_path = level_path;
@@ -51,6 +51,11 @@ void LevelLoader::createLevel( std::string level_name ) {
     fs::path mesh_path = level_path;
     mesh_path.append( LEVEL_MESH_DNAME );
     loadMeshes( mesh_path );
+
+    // Load all the level objects
+    fs::path colshapes_path = level_path;
+    colshapes_path.append( LEVEL_COLLISION_SHAPES_DNAME );
+    loadCollisionShapes( colshapes_path );
 
     // Create the scene with the properties read in
     createScene( scene_properties );
@@ -89,9 +94,13 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     Asset obj_translation_asset( obj_translation_path );
 
     // Copy the data to the appropriate object properties
-    new_obj->rotation = (float *)obj_rotation_asset.copyBuffer();
-    new_obj->scaling = (float *)obj_scaling_asset.copyBuffer();
-    new_obj->translation = (float *)obj_translation_asset.copyBuffer();
+    float *rotdata = (float *)obj_rotation_asset.copyBuffer();
+    float *scaledata = (float *)obj_scaling_asset.copyBuffer();
+    float *transdata = (float *)obj_translation_asset.copyBuffer();
+
+    new_obj->rotation = glm::vec3( rotdata[0], rotdata[1], rotdata[2] );
+    new_obj->scaling = glm::vec3( scaledata[0], scaledata[1], scaledata[2] );
+    new_obj->translation = glm::vec3( transdata[0], transdata[1], transdata[2] );
 
     // Loop over the children and populate the current object's children
     if( fs::exists(obj_children_path) ) {
@@ -119,8 +128,12 @@ void LevelLoader::loadMeshes( fs::path dir )  {
     }
 }
 
-void LevelLoader::loadCollisionObjects( fs::path dir )  {
-
+void LevelLoader::loadCollisionShapes( fs::path dir )  {
+    // Loop through all folders in the mesh dir and added them to the loaded_meshes
+    for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
+        fs::path col_shape_path = col_shape_dir.path();
+        loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
+    }
 }
 
 void LevelLoader::loadMaterials( fs::path dir )  {
@@ -148,7 +161,10 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
     }
     else if( has_mesh && has_collision_shape ) {
         std::cout << "Creating obstacle: " << obj_props->identifier << std::endl;
-        obj = new Obstacle();
+        Mesh *use_mesh = loaded_meshes[obj_props->mesh_id];
+        btBvhTriangleMeshShape * use_shape = loaded_collision_shapes[obj_props->collision_shape_id];
+        RigidBodyPhysicsComponent *use_physics = RigidBodyFactory::createBvhTriangleMeshComponent( obj_props->identifier, use_shape, obj_props->scaling );
+        obj = new Obstacle( obj_props->identifier, use_mesh, use_physics );
     }
     else if( has_mesh && !has_collision_shape ) {
         std::cout << "Creating a scene renderable: " << obj_props->identifier << std::endl;
@@ -161,13 +177,10 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
     }
 
     // Set the transformation data for the newly created object
-    glm::vec3 scalevec( obj_props->scaling[0], obj_props->scaling[1], obj_props->scaling[2] );
-    glm::vec3 rotvec( obj_props->rotation[0], obj_props->rotation[1], obj_props->rotation[2] );
-    glm::vec3 transvec( obj_props->translation[0], obj_props->translation[1], obj_props->translation[2] );
-    // std::cout << "Scaling by " << scalevec.x << ", " << scalevec.y << ", " << scalevec.z << std::endl;
-    // std::cout << "Rotating by " << rotvec.x << ", " << rotvec.y << ", " << rotvec.z << std::endl;
-    // std::cout << "Translating by " << transvec.x << ", " << transvec.y << ", " << transvec.z << std::endl;
-    obj->setTransform( scalevec, rotvec, transvec );
+    // std::cout << "Scaling by " << obj_props->scaling.x << ", " << obj_props->scaling.y << ", " << obj_props->scaling.z << std::endl;
+    // std::cout << "Rotating by " << obj_props->rotation.x << ", " << obj_props->rotation.y << ", " << obj_props->rotation.z << std::endl;
+    // std::cout << "Translating by " << obj_props->translation.x << ", " << obj_props->translation.y << ", " << obj_props->translation.z << std::endl;
+    obj->setTransform( obj_props->scaling, obj_props->rotation, obj_props->translation );
 
     // Recurse through the created object's children, creating and adding them
     for( int i=0; i<obj_props->children.size(); i++ ) {
