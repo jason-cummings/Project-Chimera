@@ -19,6 +19,9 @@ InGameState::InGameState() {
     glm::mat4 sctrans = glm::scale( glm::translate( sc->getTransform(), glm::vec3(0.f, -2.f, 0.f) ), glm::vec3(1.f, 1.f, 1.f) );
     sc->setTransform(sctrans);
 
+    //Set Camera
+    camera = new Camera();
+
     // Add the created obstacles to the screen
     scene->addChild(o1);
     scene->addChild(o2);
@@ -29,6 +32,9 @@ InGameState::InGameState() {
     Player* player = new Player();
     glm::mat4 p_scale = glm::scale(glm::mat4(1.f), glm::vec3(.01f, .01f, .01f));
     glm::mat4 p_trans = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 1.f, 0.f));
+
+    //Camera is a child of player so it follows player's movements automatically.
+    player->addChild(camera);
 
     glm::mat4 player_transform = p_trans * p_scale;
     player->setTransform(player_transform);

@@ -4,6 +4,7 @@
 #include <SDL.h>
 
 #include "GameObject.hpp"
+#include "./GameObjects/Camera.hpp"
 
 class GameState {
 protected:
@@ -16,6 +17,7 @@ protected:
     virtual void handleMouseButtonDown( SDL_Event e ) {}
     virtual void handleMouseButtonUp( SDL_Event e ) {}
     virtual void handleMouseWheel( SDL_Event e ) {}
+    Camera *camera;
 
 public:
     virtual ~GameState() {}
