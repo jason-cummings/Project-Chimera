@@ -9,6 +9,7 @@ void InGameState::init() {
     physics_system = new PhysicsSystem();
     timer = new StandardTimer();
     camera = new Camera();
+    render_system.registerCamera( camera );
 
     scene = LevelLoader::loadLevel(current_level);
     addPhysicsThings();
@@ -17,8 +18,10 @@ void InGameState::init() {
     Player* player = new Player();
     player->setTransform( glm::vec3(.5f, .5f, .5f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(100.f, 0.f, 0.f) );
     scene->addChild( player );
+    player->addChild( camera );
     
     playerMovement = new PlayerMovementSystem(player);
+    playerMovement->registerCamera( camera );
 
     // Add the scene graph to Bullet and set the transforms appropriately
     physics_system->addSceneComponents( scene );
@@ -88,6 +91,8 @@ void InGameState::gameLoop() {
     // Update the state's scene graph to reflect all changes from the other systems
     // updateScene();
 
+    camera->createMatrices();
+
     // Render all
     render_system.render( dt, scene );
 }
@@ -147,7 +152,12 @@ void InGameState::handleKeyUp( SDL_Event e ) {
 
 void InGameState::handleMouseMotion( SDL_Event e ) {
     // For captured mode, get relative mouse motion, not absolute position
-    int dx = e.motion.xrel;
-    int dy = e.motion.yrel;
-    // std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
+    //Scale necessary to scale down movement speed, otherwise blisteringly fast.
+    //dx needs to be inverted for proper mouse directional navigation.
+    float scale = 0.01;
+    float dx = -e.motion.xrel * scale;
+    float dy = e.motion.yrel * scale;
+
+    camera->updateCamera(dx,dy);
+        // std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
 }

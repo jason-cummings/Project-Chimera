@@ -24,6 +24,9 @@ protected:
     // Initialize function to be called in the constructor Should set init_success to false on any failure
     virtual void init() = 0;
 
+    //Camera
+    Camera *camera;
+
     // Event handlers default to doing nothing, so a state can implement only what it needs
     virtual void handleKeyDown( SDL_Event e ) {}
     virtual void handleKeyUp( SDL_Event e ) {}
@@ -31,7 +34,7 @@ protected:
     virtual void handleMouseButtonDown( SDL_Event e ) {}
     virtual void handleMouseButtonUp( SDL_Event e ) {}
     virtual void handleMouseWheel( SDL_Event e ) {}
-    Camera *camera;
+    
 
 public:
     virtual ~GameState() {}
@@ -60,7 +63,7 @@ public:
     }
 
     virtual void reshape( int new_width, int new_height ) {
-        render_system.reshape( new_width, new_height );
+        camera->reshape( new_width, new_height );
     }
 };
 

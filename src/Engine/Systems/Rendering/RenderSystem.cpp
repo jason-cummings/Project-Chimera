@@ -1,6 +1,8 @@
 #include "RenderSystem.hpp"
 
 RenderSystem::RenderSystem() {
+	camera = nullptr;
+
 	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
 	glBindVertexArray( BASE_VAO );
@@ -39,26 +41,15 @@ RenderSystem & RenderSystem::getRenderSystem() {
 	return rs;
 }
 
-void RenderSystem::reshape( int new_width, int new_height ) {
-	view_width = new_width;
-	view_height = new_height;
-	aspect_ratio = view_width / (float)view_height;
-
-	texture_width = 2048;
-	texture_height = 1024;
-
-	createMatrices();
-}
-
 /**
 	Rendering Pipeline Setup
 **/
 
-
+// Wrapper function to catch GL errors
 void RenderSystem::testGLError( const char *loc ) {
 	int err;
 	if( (err = glGetError()) != GL_NO_ERROR )
-		std::cout << "OpenGL error at " << loc << ": " << err << std::endl;
+		std::cerr << "OpenGL error at " << loc << ": " << err << std::endl;
 }
 
 
@@ -120,19 +111,21 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	//clear rendering lists
 	populateRenderLists( sceneGraph );
 	
-	createMatrices();
+	// Attempt to get the camera's matrices
+	try {
+		view_mat = camera->getViewMatrix();
+		proj_mat = camera->getProjectionMatrix();
+	} catch ( std::exception &e ) {
+		// If failed, use some default matrices
+		std::cerr << "Exception retrieving camera - using default matrices" << std::endl;
+		createDefaultMatrices();
+	}
 
 	// Do the deferred rendering
 	deferredRenderStep();
 
+	// Perform shading
 	shadingStep();
-
-	// Display the diffuse texture for now
-	// glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	// GLuint color_tex = deferred_buffer.getTexture( "normal" )->getID();
-	// createMatrices();
-	// glViewport( 0, 0, view_width, view_height );
-	// drawTexture(color_tex);
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
@@ -144,8 +137,11 @@ void RenderSystem::populateRenderLists( GameObject * game_object ) {
 	}
 }
 
-void RenderSystem::createMatrices() {
-	proj_mat = glm::perspective(glm::radians(fov), aspect_ratio , 0.1f, 1000.f);
+// Function to create default view and projection matrices only if the camera seg faults
+void RenderSystem::createDefaultMatrices() {
+	float fov = 55.f;
+	float aspect_ratio = 640.f/480.f;
+	proj_mat = glm::perspective( glm::radians(fov), aspect_ratio , 1.f, 10000.f );
 	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 350.0f))); // 350.f
 }
 
@@ -184,7 +180,15 @@ void RenderSystem::deferredRenderStep() {
 
 void RenderSystem::shadingStep() {
 
-	glViewport( 0, 0, view_width, view_height );
+	int vw = 1920, vh = 1080;
+	try {
+		vw = camera->getViewWidth();
+		vh = camera->getViewHeight();
+	} catch( std::exception &e ) {
+		std::cerr << "Error retrieving view width and height from camera" << std::endl;
+	}
+
+	glViewport( 0, 0, vw, vh );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );

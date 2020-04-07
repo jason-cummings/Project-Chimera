@@ -23,13 +23,15 @@ bool Engine::init( std::string level_to_load ) {
         return false;
     }
 
-    // Create the rendersystem with the window size
-    glm::vec2 window_size = window.getDrawableSize();
+    // Call to initialize RenderSystem singleton
     RenderSystem &rs = RenderSystem::getRenderSystem();
-    rs.reshape( (int)window_size.x, (int)window_size.y );
-
+    
     // Create a new state
     state = new InGameState( level_to_load );
+
+    // Reshape the state with the window size
+    glm::vec2 window_size = window.getDrawableSize();
+    state->reshape( (int)window_size.x, (int)window_size.y );
 
     return true;
 }

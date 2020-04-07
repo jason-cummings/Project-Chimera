@@ -12,16 +12,26 @@ class Camera : public GameObject{
 public:
     Camera();
     ~Camera();
-    void updateCamera(glm::vec3 change);
+    void updateCamera( float xchange, float ychange);
     void reshape( int new_width, int new_height ); 
+    void createMatrices();
+
+    // Getters to be used by render system
+    inline glm::mat4 getViewMatrix() { return view_mat; }
+    inline glm::mat4 getProjectionMatrix() { return proj_mat; }
+
+    inline int getViewWidth() { return view_width; }
+    inline int getViewHeight() { return view_height; }
+
+    inline float getTh() { return th; }
+    inline float getPh() { return ph; }
+
 private:
     glm::mat4 view_mat;
     glm::mat4 proj_mat;
     float th, ph ;
     int view_width, view_height;
     float aspect_ratio, fov = 55.f;
-    void createMatrices();
-
 };
 
 
