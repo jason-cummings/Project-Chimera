@@ -79,9 +79,9 @@ btBvhTriangleMeshShape * RigidBodyFactory::createBvhTriangleMeshFromFiles( fs::p
         indexed_mesh.m_numTriangles =         indices.getBytes() / sizeof(int) / 3; // 3 indices for a triangle
         indexed_mesh.m_triangleIndexBase =    (const unsigned char*)(indices.copyBuffer());
         indexed_mesh.m_triangleIndexStride =  3 * sizeof(int);
-        indexed_mesh.m_numVertices =          vertices.getBytes() / (19 * sizeof(float)); // 19 data points per vertex
+        indexed_mesh.m_numVertices =          vertices.getBytes() / (3 * sizeof(float)); // 19 data points per vertex
         indexed_mesh.m_vertexBase =           (const unsigned char*)(vertices.copyBuffer());
-        indexed_mesh.m_vertexStride =         19 * sizeof(float); // 19 data points per vertex
+        indexed_mesh.m_vertexStride =         3 * sizeof(float); // 19 data points per vertex
 
         // Create a triangle vertex array with the indexed mesh
         btTriangleIndexVertexArray *mesh_data = new btTriangleIndexVertexArray();
