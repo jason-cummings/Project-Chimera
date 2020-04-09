@@ -4,6 +4,7 @@
 #include <SDL.h>
 
 #include "GameObject.hpp"
+#include "./GameObjects/Camera.hpp"
 #include "LevelLoader.hpp"
 #include "StandardTimer.hpp"
 #include "Systems/Rendering/RenderSystem.hpp"
@@ -12,10 +13,19 @@ class GameState {
 protected:
     // The scene graph for the state
     GameObject *scene;
-    RenderSystem & render_system;
 
     // Subsystems for all game states
+    RenderSystem & render_system;
     Timer *timer;
+
+    // Control variable to ensure the state was successfully initialized
+    bool init_success;
+
+    // Initialize function to be called in the constructor Should set init_success to false on any failure
+    virtual void init() = 0;
+
+    //Camera
+    Camera *camera;
 
     // Event handlers default to doing nothing, so a state can implement only what it needs
     virtual void handleKeyDown( SDL_Event e ) {}
@@ -24,10 +34,13 @@ protected:
     virtual void handleMouseButtonDown( SDL_Event e ) {}
     virtual void handleMouseButtonUp( SDL_Event e ) {}
     virtual void handleMouseWheel( SDL_Event e ) {}
+    
 
 public:
     virtual ~GameState() {}
-    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; }
+    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; init_success = true; }
+
+    inline bool getInitSuccess() { return init_success; }
 
     // Perform any relevant state updates
     virtual void gameLoop() = 0;
@@ -50,7 +63,7 @@ public:
     }
 
     virtual void reshape( int new_width, int new_height ) {
-        RenderSystem::getRenderSystem().reshape( new_width, new_height );
+        camera->reshape( new_width, new_height );
     }
 };
 

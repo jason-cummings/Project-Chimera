@@ -10,6 +10,9 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include <iostream>
 
 class RigidBodyPhysicsComponent {
 private:
@@ -32,9 +35,14 @@ public:
     btRigidBody * getCollisionObject() const { return collision_object; }
 
     // Return the collision object's transform as a glm::mat4 to sync with graphics.
-    glm::mat4 getTransformAsMat4() const;
+    // SHOULD NO LONGER BE NECESSARY
+    // glm::mat4 getTransformAsMat4() const;
 
-    // void getTransformationData( glm::vec3 &trans_out, glm::quat &rot_out ) const;
+    // Get the rotation and translation as glm objects, and pass them to the corresponding output parameters
+    void getTransformationData( glm::vec3 parent_scale, glm::mat4 parent_bullet_transform, glm::vec3 &trans_out, glm::quat &rot_out ) const;
+
+    // Set the transformation data from the game object's data
+    void setTransformationData( glm::mat4 object_bullet_transform );
 };
 
 #endif

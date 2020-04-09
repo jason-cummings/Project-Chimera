@@ -1,8 +1,11 @@
 #include "StaticCubeObstacle.hpp"
 
-StaticCubeObstacle::StaticCubeObstacle(): GameObject("StaticCube") {
+StaticCubeObstacle::StaticCubeObstacle( float scale ): GameObject("StaticCube") {
     mesh = MeshFactory::createBasicMesh(std::string("StaticCube"));
-    physics = RigidBodyFactory::createBvhTriangleMeshFromFiles( identifier, "StaticCube" );
+    fs::path cube_path = Asset::assetPath().append("StaticCube");
+    btBvhTriangleMeshShape *cube_shape = RigidBodyFactory::createBvhTriangleMeshFromFiles( cube_path );
+    glm::vec3 scale_trans(scale);
+    physics = RigidBodyFactory::createBvhTriangleMeshComponent( identifier, cube_shape, scale_trans );
 }
 
 StaticCubeObstacle::~StaticCubeObstacle() {
@@ -13,15 +16,9 @@ StaticCubeObstacle::~StaticCubeObstacle() {
 // Update the transforms of the physics component just before the physics step
 void StaticCubeObstacle::setBulletTransforms() const {
     if( physics ) {
-        // Convert the worldspace transform and pass it to bullet
-        btTransform bt_in;
-        bt_in.setFromOpenGLMatrix( &glm::value_ptr(world_transform)[0] );
-        btRigidBody * obj = (btRigidBody *)physics->getCollisionObject();
-        
-        // obj->getMotionState()->setWorldTransform( bt_in );
-        obj->setWorldTransform(bt_in);
-
-        // Call the super method to step through children
-        GameObject::setBulletTransforms();
+        physics->setTransformationData( bullet_world_transform );
     }
+
+    // Call the super method to step through children
+    GameObject::setBulletTransforms();
 }

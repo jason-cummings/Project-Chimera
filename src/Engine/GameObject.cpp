@@ -3,8 +3,12 @@
 
 GameObject::GameObject(std::string id) {
 	identifier = id;
-	transform = glm::mat4(1.0);
-	world_transform = glm::mat4(1.0);
+	scale = glm::vec3(1.f);
+	rotation = glm::quat( glm::vec3(0.f) );
+	translation = glm::vec3(0.f);
+	transform = glm::mat4(1.f);
+	world_transform = glm::mat4(1.f);
+	bullet_world_transform = glm::mat4(1.f);
 	parent = NULL;
 }
 
@@ -54,16 +58,26 @@ void GameObject::calculateTransforms() {
 
 void GameObject::compileTransforms(glm::mat4 parent_transform) {
 	world_transform = parent_transform * transform;
+
+	// Calculate the transform with the world space translation and rotation but no scale
+    float w_xscale = glm::length( world_transform[0] );
+    float w_yscale = glm::length( world_transform[1] );
+    float w_zscale = glm::length( world_transform[2] );
+	bullet_world_transform[0] = world_transform[0] / w_xscale;
+    bullet_world_transform[1] = world_transform[1] / w_yscale;
+    bullet_world_transform[2] = world_transform[2] / w_zscale;
+    bullet_world_transform[3] = world_transform[3];
+
 	for(int i = 0; i < children.size(); i++) {
 		children[i]->compileTransforms(world_transform);
 	}
 }
 
 // Gets worldspace transform from physics engine if applicable and converts to local space
-void GameObject::updateTransformFromPhysics(glm::mat4 parent_transform) {
+void GameObject::updateTransformFromPhysics(glm::vec3 parent_scale, glm::mat4 parent_bullet_transform) {
 	// Nothing to be done by default, step through children
 	for( int i=0; i<children.size(); i++ ) {
-		children[i]->updateTransformFromPhysics(world_transform);
+		children[i]->updateTransformFromPhysics( scale, bullet_world_transform );
 	}
 }
 

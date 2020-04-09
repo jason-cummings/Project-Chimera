@@ -46,18 +46,14 @@ struct LoadedObjectProperties {
     std::string material_id = "";
 
     // Transformation values
-    float *rotation = nullptr;
-    float *scaling = nullptr;
-    float *translation = nullptr;
+    glm::vec3 scaling = glm::vec3(1.f);
+    glm::vec3 rotation = glm::vec3(0.f);
+    glm::vec3 translation = glm::vec3(0.f);
 
     // Construction info for the object's children
     std::vector<LoadedObjectProperties *> children;
 
-    ~LoadedObjectProperties() {
-        if( rotation ) free(rotation);
-        if( scaling ) free(scaling);
-        if( translation ) free(translation);
-    }
+    ~LoadedObjectProperties() {}
 };
 
 class LevelLoader {
@@ -67,6 +63,7 @@ private:
 
     // The objects loaded for the scene
     std::map<std::string, Mesh*> loaded_meshes;
+    std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
 
     // Convenience functions
     fs::path levelPath( std::string level_name ) const;
@@ -81,7 +78,7 @@ private:
     
     // Create meshes, collision objects, and materirals for the level from their directories
     void loadMeshes( fs::path dir );
-    void loadCollisionObjects( fs::path dir );
+    void loadCollisionShapes( fs::path dir );
     void loadMaterials( fs::path dir );
 
     // Create the scene GameObject and all of its children

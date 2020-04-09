@@ -16,20 +16,22 @@ Engine & Engine::getEngine() {
 
 // Perform any initialization necessary for the engine
 // Returns true if all initialization was successful, else false
-bool Engine::init() {
+bool Engine::init( std::string level_to_load ) {
     // Attempt to initialize the window
     if( !window.init( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT ) ) {
         std::cout << "Error in window initialization" << std::endl;
         return false;
     }
 
-    // Create the rendersystem with the window size
-    glm::vec2 window_size = window.getDrawableSize();
+    // Call to initialize RenderSystem singleton
     RenderSystem &rs = RenderSystem::getRenderSystem();
-    rs.reshape( (int)window_size.x, (int)window_size.y );
-
+    
     // Create a new state
-    state = new InGameState();
+    state = new InGameState( level_to_load );
+
+    // Reshape the state with the window size
+    glm::vec2 window_size = window.getDrawableSize();
+    state->reshape( (int)window_size.x, (int)window_size.y );
 
     return true;
 }
