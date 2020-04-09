@@ -28,8 +28,8 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
 	
-	texture_width = 2048;
-	texture_height = 1024;
+	texture_width = 3840;
+	texture_height = 2160;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();

@@ -12,11 +12,11 @@ void InGameState::init() {
     render_system.registerCamera( camera );
 
     scene = LevelLoader::loadLevel(current_level);
-    addPhysicsThings();
+    // addPhysicsThings();
 
     // Create a player and add it to the scene
     Player* player = new Player();
-    player->setTransform( glm::vec3(.5f, .5f, .5f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(100.f, 0.f, 0.f) );
+    player->setTransform( glm::vec3(.01f, .01f, .01f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 3.f, 0.f) );
     scene->addChild( player );
     player->addChild( camera );
     
@@ -154,7 +154,7 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
     // For captured mode, get relative mouse motion, not absolute position
     //Scale necessary to scale down movement speed, otherwise blisteringly fast.
     //dx needs to be inverted for proper mouse directional navigation.
-    float scale = 0.01;
+    float scale = 0.002;
     float dx = -e.motion.xrel * scale;
     float dy = e.motion.yrel * scale;
 
