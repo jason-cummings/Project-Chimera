@@ -9,7 +9,8 @@ GLuint TextureLoader::loadTexture( std::string &filename, bool undoGamma ){
     if(textures.count(filename) > 0)
 		return textures.at(filename);
 
-	
+	stbi_set_flip_vertically_on_load(true);
+
 	int width;
 	int height;
 	int numChannels;
