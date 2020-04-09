@@ -9,11 +9,15 @@
 #include <btBulletDynamicsCommon.h>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
+
+#include <iostream>
 
 class RigidBodyPhysicsComponent {
 private:
     // ID of the associated GameObject
-    int id;
+    std::string id;
 
     // Keep track of the shape and object
     // Shape should be in common between instances of PhysicsComponent whenever possible
@@ -21,34 +25,24 @@ private:
     btRigidBody *collision_object;
 
 public:
-    RigidBodyPhysicsComponent( int obj_id, btCollisionShape *col_sh, btRigidBody *col_obj ):
+    RigidBodyPhysicsComponent( std::string obj_id, btCollisionShape *col_sh, btRigidBody *col_obj ):
         id(obj_id), collision_shape(col_sh), collision_object(col_obj) {}
     ~RigidBodyPhysicsComponent() {}
 
     // Getters
-    int getID() const { return id; }
+    std::string getID() const { return id; }
     btCollisionShape * getCollisionShape() const { return collision_shape; }
     btRigidBody * getCollisionObject() const { return collision_object; }
 
     // Return the collision object's transform as a glm::mat4 to sync with graphics.
-    glm::mat4 getTransformAsMat4() const {
-        btTransform trans;
+    // SHOULD NO LONGER BE NECESSARY
+    // glm::mat4 getTransformAsMat4() const;
 
-        // If the rigid body has a motion state, use its transform, else the defaualt world transform
-        if( collision_object->getMotionState() ) {
-            collision_object->getMotionState()->getWorldTransform(trans);
-        }
-        else {
-            trans = collision_object->getWorldTransform();
-        }
-        
-        // Get the transform values as a GL matrix and make it into a glm::mat4
-        btScalar trans_values[16];
-        trans.getOpenGLMatrix( &trans_values[0] ); //&glm::value_ptr(mat4_trans)[0]
-        glm::mat4 mat4_trans = glm::make_mat4( trans_values );
+    // Get the rotation and translation as glm objects, and pass them to the corresponding output parameters
+    void getTransformationData( glm::vec3 parent_scale, glm::mat4 parent_bullet_transform, glm::vec3 &trans_out, glm::quat &rot_out ) const;
 
-        return mat4_trans;
-    }
+    // Set the transformation data from the game object's data
+    void setTransformationData( glm::mat4 object_bullet_transform );
 };
 
 #endif

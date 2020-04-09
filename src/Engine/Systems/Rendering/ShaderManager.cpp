@@ -29,6 +29,8 @@ void ShaderManager::loadShaders() {
     basic_deferred_shader->addUniform( "View" );
     basic_deferred_shader->addUniform( "Projection" );
     basic_deferred_shader->addUniform( "materialShininess" );
+    basic_deferred_shader->addUniform( "colorTexture" );
+    basic_deferred_shader->addUniform( "emissiveTexture" );
     shaders["basic-deferred"] = basic_deferred_shader;
 
     Shader *quad_shader = new Shader( "quad", "DrawQuad.vert", "DrawQuad.frag" );

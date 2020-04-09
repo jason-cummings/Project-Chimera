@@ -1,10 +1,14 @@
 #include "GameObject.hpp"
 
 
-GameObject::GameObject(int id) {
+GameObject::GameObject(std::string id) {
 	identifier = id;
-	transform = glm::mat4(1.0);
-	world_transform = glm::mat4(1.0);
+	scale = glm::vec3(1.f);
+	rotation = glm::quat( glm::vec3(0.f) );
+	translation = glm::vec3(0.f);
+	transform = glm::mat4(1.f);
+	world_transform = glm::mat4(1.f);
+	bullet_world_transform = glm::mat4(1.f);
 	parent = NULL;
 }
 
@@ -17,26 +21,63 @@ GameObject::~GameObject() {
 
 // Transformation management
 
-void GameObject::setTransform(glm::mat4 in) {
-	transform = in;
+void GameObject::setTransform( glm::vec3 scale_in, glm::quat rot_in, glm::vec3 trans_in ) {
+	scale = scale_in;
+	rotation = rot_in;
+	translation = trans_in;
+	calculateTransforms();
+}
+
+void GameObject::setScale( glm::vec3 in ) {
+	scale = in;
+	calculateTransforms();
+}
+
+void GameObject::setRotation( glm::quat in ) {
+	rotation = in;
+	calculateTransforms();
+}
+
+void GameObject::setTranslation( glm::vec3 in ) {
+	translation = in;
+	calculateTransforms();
+}
+
+// Create transformation matrix from individual vectors
+void GameObject::calculateTransforms() {
+	glm::mat4 scale_matrix = glm::scale( glm::mat4(1.f), scale );
+	glm::mat4 rotation_matrix = glm::toMat4( rotation );
+	glm::mat4 translation_matrix = glm::translate( glm::mat4(1.f), translation );
+	transform = translation_matrix * rotation_matrix * scale_matrix;
+
 	if(parent != NULL)
 		compileTransforms(parent->getWorldTransform());
-	else compileTransforms(glm::mat4(1.0));
-
+	else
+		compileTransforms(glm::mat4(1.f));
 }
 
 void GameObject::compileTransforms(glm::mat4 parent_transform) {
 	world_transform = parent_transform * transform;
+
+	// Calculate the transform with the world space translation and rotation but no scale
+    float w_xscale = glm::length( world_transform[0] );
+    float w_yscale = glm::length( world_transform[1] );
+    float w_zscale = glm::length( world_transform[2] );
+	bullet_world_transform[0] = world_transform[0] / w_xscale;
+    bullet_world_transform[1] = world_transform[1] / w_yscale;
+    bullet_world_transform[2] = world_transform[2] / w_zscale;
+    bullet_world_transform[3] = world_transform[3];
+
 	for(int i = 0; i < children.size(); i++) {
 		children[i]->compileTransforms(world_transform);
 	}
 }
 
 // Gets worldspace transform from physics engine if applicable and converts to local space
-void GameObject::updateTransformFromPhysics(glm::mat4 parent_transform) {
+void GameObject::updateTransformFromPhysics(glm::vec3 parent_scale, glm::mat4 parent_bullet_transform) {
 	// Nothing to be done by default, step through children
 	for( int i=0; i<children.size(); i++ ) {
-		children[i]->updateTransformFromPhysics(world_transform);
+		children[i]->updateTransformFromPhysics( scale, bullet_world_transform );
 	}
 }
 
@@ -124,7 +165,7 @@ bool GameObject::deleteChild(int child_index){
 // Scene graph searching
 
 
-GameObject * GameObject::getGameObject(int id) {
+GameObject * GameObject::getGameObject(std::string id) {
 	if(id == identifier) {
 		return this;
 	}
@@ -144,11 +185,11 @@ GameObject * GameObject::getGameObject(int id) {
 // tests
 
 bool testSetTransform() {
-	GameObject * g1 = new GameObject(1);
-	GameObject * g2 = new GameObject(2);
+	GameObject * g1 = new GameObject("1");
+	GameObject * g2 = new GameObject("2");
 	g1->addChild(g2);
-	g1->setTransform( glm::translate(g1->getTransform(),glm::vec3(1.0,0.0,0.0)) );
-	g2->setTransform( glm::translate(glm::mat4(1.0),glm::vec3(1.0,0.0,0.0)) );
+	g1->setTranslation( g1->getTranslation() + glm::vec3(1.0,0.0,0.0) );
+	g2->setTranslation( glm::vec3(1.0,0.0,0.0) );
 
 	glm::mat4 total = glm::translate(glm::mat4(1.0),glm::vec3(2.0,0.0,0.0));
 
@@ -162,16 +203,16 @@ bool testSetTransform() {
 
 
 bool testSearch() {
-	GameObject g1 = GameObject(1);
-	GameObject g2 = GameObject(2);
+	GameObject g1 = GameObject("1");
+	GameObject g2 = GameObject("2");
 	g1.addChild(&g2);
-	return g1.getGameObject(2) == &g2;
+	return g1.getGameObject("2") == &g2;
 }
 
 bool testRemove() {
-	GameObject g1 = GameObject(1);
-	GameObject g2 = GameObject(2);
-	GameObject g3 = GameObject(3);
+	GameObject g1 = GameObject("1");
+	GameObject g2 = GameObject("2");
+	GameObject g3 = GameObject("3");
 	g1.addChild(&g2);
 	g1.addChild(&g3);
 	g1.removeChild(&g2);

@@ -15,17 +15,16 @@ private:
     RigidBodyPhysicsComponent *physics;
 
 public:
-    Obstacle();
+    Obstacle( std::string id, Mesh *mesh_in, RigidBodyPhysicsComponent *physics_in );
     ~Obstacle();
 
-    bool hasMesh() const { return true; }
-    Mesh * getMesh() const { return mesh; }
-    bool hasPhysicsComponent() const { return physics != nullptr; }
-    RigidBodyPhysicsComponent * getPhysicsComponent() const { return physics; }
+    bool hasMesh() const override { return true; }
+    Mesh * getMesh() const override { return mesh; }
+    bool hasPhysicsComponent() const override { return physics != nullptr; }
+    RigidBodyPhysicsComponent * getPhysicsComponent() const override { return physics; }
 
     // Update any necessary data
-    void updateTransformFromPhysics( glm::mat4 parent_transform );
-    void setBulletTransforms() const;
+    void setBulletTransforms() const override;
 };
 
 #endif

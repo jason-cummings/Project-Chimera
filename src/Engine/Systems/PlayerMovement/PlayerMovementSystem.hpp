@@ -1,18 +1,20 @@
 #ifndef PLAYERMOVEMENTSYSTEM_H
 #define PLAYERMOVEMENTSYSTEM_H
 #include "./../../GameObjects/Player.hpp"
+#include "./../../GameObjects/Camera.hpp"
 #include <glm/glm.hpp>
-#define MOVE_SPEED 45
+#define MOVE_SPEED 100
 
 class PlayerMovementSystem
 {
-private:
+private: 
     Player* player;
-    //Add Pointer to Camera as well.
+    Camera* camera;
 public:
-    PlayerMovementSystem(Player* playerptr);
+    PlayerMovementSystem( Player* playerptr );
     ~PlayerMovementSystem();
-    void movePlayer( int xmove, int ymove, int zmove, double dt );
+    void movePlayer( int ad, int ss, int ws, double dt );
+    inline void registerCamera( Camera* input ) { camera = input; }
 
 };
 

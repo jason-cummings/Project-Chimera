@@ -1,15 +1,10 @@
 #include "Window.hpp"
 
-Window::Window() {
-	w_width = 0;
-	w_height = 0;
-}
+Window::Window() {}
 
 // Initialize the SDL window and OpenGL and return success
-bool Window::init( int w, int h ) {
+bool Window::init( int w_width, int w_height ) {
 	bool success = true;
-	w_width = w;
-	w_height = h;
 	mouse_lock = false;
 
 	if( SDL_Init( SDL_INIT_VIDEO ) < 0 ) {
@@ -22,7 +17,7 @@ bool Window::init( int w, int h ) {
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 3 );
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 		
-		window = SDL_CreateWindow( "Project Chimera", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w_width, w_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE ); // SDL_WINDOW_FULLSCREEN_DESKTOP
+		window = SDL_CreateWindow( "Project Chimera", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w_width, w_height, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_FULLSCREEN_DESKTOP ); // SDL_WINDOW_FULLSCREEN_DESKTOP or SDL_WINDOW_RESIZABLE
 		if( window == NULL ) {
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
 			success = false;
@@ -72,12 +67,6 @@ std::vector<SDL_Event> Window::getSDLEvents() {
 		events.push_back(e);
 	}
 	return events;
-}
-
-// Reshape the window
-void Window::reshape( int new_width, int new_height ) {
-	w_width = new_width;
-	w_height = new_height;
 }
 
 // Perform any necessary operations after rendering

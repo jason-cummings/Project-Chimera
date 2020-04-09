@@ -13,7 +13,7 @@ private:
     RigidBodyPhysicsComponent *physics;
 
 public:
-    StaticCubeObstacle();
+    StaticCubeObstacle( float scale );
     ~StaticCubeObstacle();
 
     bool hasMesh() const { return true; }

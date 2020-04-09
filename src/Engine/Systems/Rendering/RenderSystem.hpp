@@ -16,11 +16,24 @@
 #include "Framebuffer.hpp"
 #include "../../GameObject.hpp"
 #include "Mesh.hpp"
+#include "Material.hpp"
+#include "TextureLoader.hpp"
+#include "../../Asset.hpp"
+#include "../../GameObjects/Camera.hpp"
 
 class RenderSystem {
 private:
+    Material *TEMP_material;
+
+
+
+    Camera *camera;
+
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
+
+    //VAO for simple quad
+    GLuint quad_vao;
 
     // VBO object for a simple quad
     GLuint quad_vbo;
@@ -33,10 +46,6 @@ private:
 
     // The shader manager for the render system
     ShaderManager *sm;
-
-    // Window size variables
-    int view_width, view_height;
-    float aspect_ratio, fov = 55.f;
 
     // Model, View, and Projection matrices for the program
     glm::mat4 view_mat, proj_mat;
@@ -82,7 +91,7 @@ private:
     void populateRenderLists(GameObject * gameObject);
 
     // Create the necessary matrices for rendering
-    void createMatrices();
+    void createDefaultMatrices();
 
     // Do the deferred rendering step
     void deferredRenderStep();
@@ -100,16 +109,19 @@ private:
 
 
 
+    RenderSystem();
 
 public:
-    RenderSystem( int width, int height );
 
-    // Update render systems view variables
-    void reshape( int new_width, int new_height );
+    // Get the singleton instance
+    static RenderSystem & getRenderSystem();
 
     // RENDER
     void render( double dt, GameObject * sceneGraph );
-};
+
+    // Set the camera for the rendersystem
+    inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    };
 
 // The VBO for rendering a quad over the whole viewport
 const GLfloat quad_vbo_data[] = {

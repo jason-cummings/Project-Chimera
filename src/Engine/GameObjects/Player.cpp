@@ -1,8 +1,8 @@
 #include "Player.hpp"
 
 
-Player::Player(): GameObject(3){
-    mesh = MeshFactory::createBasicMesh("Player");
+Player::Player(): GameObject("Player"){
+    mesh = MeshFactory::createBasicMesh(std::string("Player"));
 }
 
 Player::~Player(){
