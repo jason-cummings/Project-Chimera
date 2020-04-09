@@ -12,7 +12,7 @@ void InGameState::init() {
     render_system.registerCamera( camera );
 
     scene = LevelLoader::loadLevel(current_level);
-    // addPhysicsThings();
+    addPhysicsThings();
 
     // Create a player and add it to the scene
     Player* player = new Player();
@@ -38,49 +38,41 @@ void InGameState::init() {
 
 
 void InGameState::addPhysicsThings() {
-    glm::vec3 o1scale(20.f);
-    glm::quat o1rot( glm::vec3(0.f, 0.f, 0.f) );
-    glm::vec3 o1trans(0.f, 0.f, 0.f);
+    glm::vec3 o1scale(.9f);
+    glm::quat o1rot( glm::vec3(0.f, glm::radians(0.f), 0.f) );
+    glm::vec3 o1trans(0.f, 3.f, 0.f);
     DynamicCube *o1 = new DynamicCube( o1scale.x );
     o1->setTransform( o1scale, o1rot, o1trans );
     
-    glm::vec3 o2scale(30.f);
-    glm::quat o2rot( glm::vec3(0.f, glm::radians(25.f), 0.f) );
-    glm::vec3 o2trans(-12.f, 40.f, 10.f);
+    glm::vec3 o2scale(.9f);
+    glm::quat o2rot( glm::vec3(glm::radians(15.f), glm::radians(15.f), 0.f) );
+    glm::vec3 o2trans(0.8f, 3.f, 0.f);
     DynamicCube *o2 = new DynamicCube( o2scale.x );
     o2->setTransform( o2scale, o2rot, o2trans );
     
-    glm::vec3 o3scale(15.f);
-    glm::quat o3rot( glm::vec3(glm::radians(45.f), glm::radians(15.f), 0.f) );
-    glm::vec3 o3trans(20.f, 54.f, 0.f);
+    glm::vec3 o3scale(1.f);
+    glm::quat o3rot( glm::vec3(glm::radians(40.f), glm::radians(15.f), glm::radians(25.f)) );
+    glm::vec3 o3trans(-1.5f, 4.f, 0.f);
     DynamicCube *o3 = new DynamicCube( o3scale.x );
     o3->setTransform( o3scale, o3rot, o3trans );
 
-    glm::vec3 scscale(100.f);
-    glm::quat scrot( glm::vec3(0.f) );
-    glm::vec3 sctrans(0.f, -100.f, 0.f);
-    StaticCubeObstacle *sc = new StaticCubeObstacle( scscale.x );
-    sc->setTransform( scscale, scrot, sctrans );
-
-
     scene->addChild(o1);
-    scene->addChild(o2);
+    o1->addChild(o2);
     scene->addChild(o3);
-    // scene->addChild(sc);
 }
 
 
 void InGameState::gameLoop() {
     double dt = timer->getLastTickTime();
 
-    // Perform necessary updates just before the physics step
-    prePhysics();
-
     int xmove = int(d-a);
     int ymove = int(space-shift);
     int zmove = int(s-w);
     //sends movement info to PlayerMovementSystem.
     playerMovement->movePlayer( xmove, ymove, zmove, dt );
+
+    // Perform necessary updates just before the physics step
+    prePhysics();
 
     // Step physics
     physics_system->stepPhysics(dt);
@@ -98,12 +90,11 @@ void InGameState::gameLoop() {
 }
 
 void InGameState::prePhysics() {
-    // This is commented for now because it causes weird time variations in the simulation
-    // scene->setBulletTransforms();
+    scene->setBulletTransforms();
 }
 
 void InGameState::postPhysics() {
-    scene->updateTransformFromPhysics( glm::mat4(1.f) );
+    scene->updateTransformFromPhysics( glm::vec3(1.f), glm::mat4(1.f) );
 }
 
 void InGameState::handleKeyDown( SDL_Event e ) {
@@ -154,7 +145,7 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
     // For captured mode, get relative mouse motion, not absolute position
     //Scale necessary to scale down movement speed, otherwise blisteringly fast.
     //dx needs to be inverted for proper mouse directional navigation.
-    float scale = 0.002;
+    float scale = 0.003;
     float dx = -e.motion.xrel * scale;
     float dy = e.motion.yrel * scale;
 

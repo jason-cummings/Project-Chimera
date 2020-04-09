@@ -7,6 +7,7 @@
 #include <glm/gtx/transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
@@ -26,6 +27,7 @@ protected:
 	glm::vec3 translation;
 	glm::mat4 transform; // transform from parent space
 	glm::mat4 world_transform; // transform from world space
+	glm::mat4 bullet_world_transform; // transform with no scale component
 
 	// Method to calculate resulting transformation matrix
 	void calculateTransforms();
@@ -48,6 +50,7 @@ public:
 	inline glm::quat getRotation() const { return rotation; }
 	inline glm::vec3 getTranslation() const { return translation; }
 	inline glm::mat4 getWorldTransform() const { return world_transform; }
+	inline glm::mat4 getBulletWorldTransform() const { return bullet_world_transform; }
 
 	void setTransform( glm::vec3 scale_in, glm::quat rot_in, glm::vec3 trans_in );
 	void setScale( glm::vec3 in );
@@ -57,7 +60,7 @@ public:
 	virtual void compileTransforms( glm::mat4 parent_transform ); //compiles tranformation matrices into world_transform
 
 	// Physics related transform management
-	virtual void updateTransformFromPhysics(glm::mat4 parent_transform); // Gets worldspace transform from physics engine and converts to local space
+	virtual void updateTransformFromPhysics(glm::vec3 parent_scale, glm::mat4 parent_bullet_transform); // Gets worldspace transform from physics engine and converts to local space
 	virtual void setBulletTransforms() const; // Update physics body transforms just before physics step
 
 	// scenegraph / child object management

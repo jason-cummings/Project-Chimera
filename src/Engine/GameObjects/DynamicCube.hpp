@@ -15,6 +15,8 @@ private:
     Mesh *mesh;
     RigidBodyPhysicsComponent *physics;
 
+    static int num_cubes;
+
 public:
     DynamicCube( float scale );
     ~DynamicCube();
@@ -25,8 +27,8 @@ public:
     RigidBodyPhysicsComponent * getPhysicsComponent() const { return physics; }
 
     // Update any necessary data
-    void updateTransformFromPhysics( glm::mat4 parent_transform );
-    void setBulletTransforms() const;
+    void updateTransformFromPhysics( glm::vec3 parent_scale, glm::mat4 parent_bullet_transfrom ) override;
+    void setBulletTransforms() const override;
 };
 
 #endif

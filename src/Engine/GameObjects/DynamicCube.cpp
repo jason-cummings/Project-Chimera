@@ -1,6 +1,8 @@
 #include "DynamicCube.hpp"
 
-DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube") {
+int DynamicCube::num_cubes = 0;
+
+DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube" + std::to_string(++num_cubes)) {
     mesh = MeshFactory::createBasicMesh(std::string("Level"));
     physics = RigidBodyFactory::createCubeComponent( identifier, scale, pow( scale, 3 ) );
 }
@@ -11,44 +13,25 @@ DynamicCube::~DynamicCube() {
 }
 
 // Get the transform from the physics component 
-void DynamicCube::updateTransformFromPhysics( glm::mat4 parent_transform ) {
+void DynamicCube::updateTransformFromPhysics( glm::vec3 parent_scale, glm::mat4 parent_bullet_transfrom ) {
+    // Get the updated transformation data from physics
     if( physics ) {
-        // Calculate the local transform the parent and physics component
-        glm::mat4 local_transform = glm::inverse(parent_transform) * physics->getTransformAsMat4();
-        btTransform bt_local_transform;
-        bt_local_transform.setFromOpenGLMatrix( &glm::value_ptr(local_transform)[0] );
-
-        // Get the local rotation
-        btQuaternion bt_local_rotation = bt_local_transform.getRotation();
-        glm::quat new_local_rotation( bt_local_rotation.getW(), bt_local_rotation.getX(), bt_local_rotation.getY(), bt_local_rotation.getZ() );
-
-        // Get the local translation
-        btVector3 bt_local_trans = bt_local_transform.getOrigin();
-        glm::vec3 new_local_trans( bt_local_trans.getX(), bt_local_trans.getY(), bt_local_trans.getZ() );
-
-        // Set the transform
-        setTransform( getScale(), new_local_rotation, new_local_trans );
+        glm::vec3 new_translation;
+        glm::quat new_rotation;
+        physics->getTransformationData( parent_scale, parent_bullet_transfrom, new_translation, new_rotation );
+        setTransform( scale, new_rotation, new_translation );
     }
 
     // Call super method to step through children
-    GameObject::updateTransformFromPhysics( world_transform );
+    GameObject::updateTransformFromPhysics( scale, bullet_world_transform );
 }
 
 // Update the transforms of the physics component just before the physics step
 void DynamicCube::setBulletTransforms() const {
     if( physics ) {
-        // Get an unscaled transform for bullet
-        glm::mat4 to_bullet = glm::translate( glm::mat4(1.f), translation ) * glm::toMat4( rotation );
-
-        // Convert the unscaled transform to a btTransform and pass it to bullet
-        btTransform bt_in;
-        bt_in.setFromOpenGLMatrix( &glm::value_ptr(to_bullet)[0] );
-        btRigidBody * obj = (btRigidBody *)physics->getCollisionObject();
-        
-        // obj->getMotionState()->setWorldTransform( bt_in );
-        obj->setWorldTransform(bt_in);
-
-        // Call the super method to step through children
-        GameObject::setBulletTransforms();
+        physics->setTransformationData( bullet_world_transform );
     }
+
+    // Call the super method to step through children
+    GameObject::setBulletTransforms();
 }
