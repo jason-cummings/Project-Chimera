@@ -34,8 +34,10 @@ RenderSystem::RenderSystem() {
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
 
-	GLuint color_tex = TextureLoader::loadTexture( Asset::assetPath().append("Textures/codercat.jpg").string(), false );
-	GLuint emissive_tex = TextureLoader::loadTexture( Asset::assetPath().append("Textures/black.jpg").string(), false );
+	std::string color_tex_path = Asset::assetPath().append("Textures/codercat.jpg").string();
+	std::string emissive_tex_path = Asset::assetPath().append("Textures/black.jpg").string();
+	GLuint color_tex = TextureLoader::loadTexture( color_tex_path, false );
+	GLuint emissive_tex = TextureLoader::loadTexture( emissive_tex_path, false );
 
 	TEMP_material = new Material( color_tex, emissive_tex, 4 );
 }
