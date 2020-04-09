@@ -33,6 +33,11 @@ RenderSystem::RenderSystem() {
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
+
+	GLuint color_tex = TextureLoader::loadTexture( Asset::assetPath().append("Textures/codercat.jpg").string(), false );
+	GLuint emissive_tex = TextureLoader::loadTexture( Asset::assetPath().append("Textures/black.jpg").string(), false );
+
+	TEMP_material = new Material( color_tex, emissive_tex, 4 );
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -98,6 +103,7 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
+		TEMP_material->bind( shader );
 		meshList[i]->getMesh()->draw();
 	}
 }
@@ -126,6 +132,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 
 	// Perform shading
 	shadingStep();
+
+	// drawTexture( TEMP_material->getTexture() );
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
