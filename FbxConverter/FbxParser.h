@@ -26,6 +26,7 @@ private:
 	std::vector<std::string> animation_directories;
 
 	DataOptimizer mesh_optimizer;
+	DataOptimizer skinned_mesh_optimizer;
 	DataOptimizer material_optimizer; // not used yet but example usage
 
 	DataOptimizer hitbox_optimizer;

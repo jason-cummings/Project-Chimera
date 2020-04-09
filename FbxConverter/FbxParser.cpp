@@ -39,6 +39,7 @@ void FbxParser::init(bool for_hitbox) {
 	}
 
 	mesh_optimizer = DataOptimizer("output/Meshes");
+	skinned_mesh_optimizer = DataOptimizer("output/SkinnedMeshes");
 	material_optimizer = DataOptimizer("output/Materials");
 	hitbox_optimizer = DataOptimizer("output/Hitboxes");
 
@@ -52,6 +53,7 @@ void FbxParser::init(bool for_hitbox) {
 
 		// create Mesh folder within output folder
 		createFolder("./output/Meshes");
+		createFolder("./output/SkinnedMeshes");
 
 		createFolder("./output/AnimationStacks");
 
@@ -202,14 +204,14 @@ void FbxParser::processMesh(FbxMesh * mesh, std::string parent_directory) {
 
 void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights> bone_weights) {
 	int mesh_index = 0;
-	if(mesh_optimizer.checkExists(mesh)) {
-		std::cout << "Mesh exists: " << mesh_optimizer.getIndex(mesh) << std::endl;
-		mesh_index = mesh_optimizer.getIndex(mesh);
+	if(skinned_mesh_optimizer.checkExists(mesh)) {
+		std::cout << "Mesh exists: " << skinned_mesh_optimizer.getIndex(mesh) << std::endl;
+		mesh_index = skinned_mesh_optimizer.getIndex(mesh);
 
 	}
 	else {
 
-		mesh_index = mesh_optimizer.addData(mesh);
+		mesh_index = skinned_mesh_optimizer.addData(mesh);
 		MeshExporter<SkinnedVertex> me;
 
 		int num_polygons = mesh->GetPolygonCount();
@@ -243,7 +245,7 @@ void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,
 			}
 		}
 
-		me.exportMesh(mesh_optimizer.getDataDirectory(mesh_index));
+		me.exportMesh(skinned_mesh_optimizer.getDataDirectory(mesh_index));
 
 	}
 
