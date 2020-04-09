@@ -20,9 +20,10 @@ uniform sampler2D emissiveTexture;
 void main() {
 	position = fragPos;
 	normal = vec4(fragNormal, 1.0);
-    // diffuse.rgb = texture(colorTexture, texCoords).rgb;
+    diffuse.rgb = texture(colorTexture, texCoords).rgb;
+	// diffuse.rgb = vec3(texCoords, 0.0);
 	
-	diffuse = fragCol;
+	// diffuse = fragCol;
 	diffuse.a = shininess;
 	emissive = texture(emissiveTexture, texCoords);
 	emissive = vec4(0.0);

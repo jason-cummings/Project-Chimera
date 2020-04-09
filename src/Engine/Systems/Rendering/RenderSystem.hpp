@@ -16,10 +16,17 @@
 #include "Framebuffer.hpp"
 #include "../../GameObject.hpp"
 #include "Mesh.hpp"
+#include "Material.hpp"
+#include "TextureLoader.hpp"
+#include "../../Asset.hpp"
 #include "../../GameObjects/Camera.hpp"
 
 class RenderSystem {
 private:
+    Material *TEMP_material;
+
+
+
     Camera *camera;
 
     // Temporary VAO to render everything for now
