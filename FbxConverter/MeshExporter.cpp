@@ -7,6 +7,12 @@ bool operator==(const Vertex& v1, const Vertex& v2) {
 		(v1.uv == v2.uv);
 }
 
+bool operator==(const SkinnedVertex& v1, const SkinnedVertex& v2) {
+	return (v1.position == v2.position) && 
+		(v1.normal == v2.normal) && 
+		(v1.uv == v2.uv);
+}
+
 bool operator==(const MinimalVertex& v1, const MinimalVertex& v2) {
 	return (v1.position == v2.position);
 }
@@ -68,6 +74,7 @@ std::ostream &operator<<( std::ostream &output, const MeshExporter<Vertex> &me )
 // tell compiler to create versions of MeshExporter for the different types of Vertex
 template class MeshExporter<Vertex>;
 template class MeshExporter<MinimalVertex>;
+template class MeshExporter<SkinnedVertex>;
 
 
 

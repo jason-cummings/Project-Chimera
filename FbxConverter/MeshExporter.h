@@ -44,7 +44,33 @@ struct NormalMappedVertex {
 
 // stub for later use
 struct SkinnedVertex {
+	glm::vec4 position;
+	glm::vec4 rgba = glm::vec4(0.3f,0.3f,0.3f,1.0f);
+	glm::vec3 normal;
+	glm::vec3 tangent;
+	glm::vec3 bitangent;
+	glm::vec2 uv;
 
+	int joint_index_0 = 0;
+	int joint_weight_0 = 0.0f;
+	int joint_index_1 = 0;
+	int joint_weight_1 = 0.0f;
+	int joint_index_2 = 0;
+	int joint_weight_2 = 0.0f;
+	int joint_index_3 = 0;
+	int joint_weight_3 = 0.0f;
+
+
+	// bool operator<(const Vertex& v2) const{
+	// 	//return *this == v2;
+ //    	return position[0] < v2.position[0];
+ //    }
+
+	friend bool operator==(const SkinnedVertex& v1, const SkinnedVertex& v2);
+	friend std::ostream &operator<<( std::ostream &output, const SkinnedVertex &v ) { 
+        output << "Position : " << glm::to_string(v.position) << ", Normal : " << glm::to_string(v.normal) << ", UV : " << glm::to_string(v.uv);
+        return output;            
+    }
 };
 
 template<class T>
