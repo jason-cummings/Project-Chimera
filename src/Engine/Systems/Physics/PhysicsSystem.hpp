@@ -36,6 +36,9 @@ public:
 
     // Step the physics simulation 
     void stepPhysics( double dt );
+
+    // Perform a closest ray cast test in the physics world and return the resulting struct 
+    void closestRayCast( btVector3 from, btVector3 to, btCollisionWorld::ClosestRayResultCallback &callback );
 };
 
 #endif

@@ -21,10 +21,10 @@ public:
     DynamicCube( float scale );
     ~DynamicCube();
 
-    bool hasMesh() const { return true; }
-    Mesh * getMesh() const { return mesh; }
-    bool hasPhysicsComponent() const { return physics != nullptr; }
-    RigidBodyPhysicsComponent * getPhysicsComponent() const { return physics; }
+    inline bool hasMesh() const override { return true; }
+    inline Mesh * getMesh() const override { return mesh; }
+    inline bool hasPhysicsComponent() const override { return physics != nullptr; }
+    inline RigidBodyPhysicsComponent * getPhysicsComponent() const override { return physics; }
 
     // Update any necessary data
     void updateTransformFromPhysics( glm::vec3 parent_scale, glm::mat4 parent_bullet_transfrom ) override;

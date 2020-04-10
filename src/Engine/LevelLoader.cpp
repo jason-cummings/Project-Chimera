@@ -41,7 +41,7 @@ void LevelLoader::createLevel( std::string level_name ) {
         std::cerr << "Directory at path " << level_path << " could not be opened" << std::endl;
         return;
     }
-   
+
     // Get the directory of the root node and parse it recursively
     fs::path scene_path = level_path;
     scene_path.append( LEVEL_ROOTNODE_DNAME );

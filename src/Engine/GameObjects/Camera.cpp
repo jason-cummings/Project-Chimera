@@ -14,12 +14,19 @@ void Camera::updateCamera(float xchange, float ychange){
     th += xchange;
     ph += ychange;
 
-    //Stops camera from inverting when going above  or below player model
-    if( ph > 1.57){
+    //Stops camera from inverting when going above or below player model
+    if( ph > 1.57 ) {
         ph = 1.57;
     }
-    else if( ph < -1.57){
+    else if( ph < -1.57 ) {
         ph = -1.57;
+    }
+    // Bound th as well just for overflow prevention
+    if( th < -3.141592 ) {
+        th += 6.283184;
+    }
+    else if( th > 3.141592 ) {
+        th -= 6.283184;
     }
 }
 

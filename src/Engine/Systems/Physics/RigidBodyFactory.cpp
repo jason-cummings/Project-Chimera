@@ -56,6 +56,32 @@ RigidBodyPhysicsComponent * RigidBodyFactory::createCubeComponent( std::string i
     return ret;
 }
 
+// Create a capsule shaped physics component with a total height of height and a diameter of width
+RigidBodyPhysicsComponent * RigidBodyFactory::createCapsuleComponent( std::string id, float height, float diameter, float mass ) {
+    // Make sure the capsulse can be properly made
+    if( height <= diameter ) {
+        std::cerr << "Cannot create capsule with height less than diameter (" << height << " <= " << diameter << ")" << std::endl;
+        return nullptr;
+    }
+
+    // Test if the capsule shape already exists
+    std::string capsule_shape_name = "_capsule_" + std::to_string(height) + "_" + std::to_string(diameter);
+    btCollisionShape *capsule_shape = findCollisionShape( capsule_shape_name );
+
+    // If it doesn't exist, create it and add it to the map
+    if( capsule_shape == nullptr ) {
+        float capsule_height = height - diameter;
+        float capsule_radius = diameter / 2.f;
+        capsule_shape = new btCapsuleShape( btScalar(capsule_radius), btScalar(capsule_height) );
+        created_collision_shapes[capsule_shape_name] = capsule_shape;
+    }
+    
+    // Create the physics component and return it
+    RigidBodyPhysicsComponent *ret = createComponent( id, capsule_shape, mass );
+    return ret;
+}
+
+
 // Create a rigid body from data to be read in under the directory directory_name
 // If scale is nullptr, don't scale, else scale must be a 3 float array
 btBvhTriangleMeshShape * RigidBodyFactory::createBvhTriangleMeshFromFiles( fs::path directory ) {
