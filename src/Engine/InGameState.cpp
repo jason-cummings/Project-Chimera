@@ -23,7 +23,7 @@ void InGameState::init() {
     Player* player = new Player();
     glm::vec3 pscale(1.f);
     // glm::vec3 pscale(.01f);
-    player->setTransform( pscale, glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 0.f, 0.f) );
+    player->setTransform( pscale, glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 10.f, 0.f) );
     scene->addChild( player );
     player->addChild( camera );
     
