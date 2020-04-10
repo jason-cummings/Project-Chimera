@@ -4,7 +4,7 @@ int DynamicCube::num_cubes = 0;
 
 DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube" + std::to_string(++num_cubes)) {
     mesh = MeshFactory::createBasicMesh(std::string("Level"));
-    physics = RigidBodyFactory::createCubeComponent( identifier, scale, pow( scale, 3 ) );
+    physics = RigidBodyFactory::createCubeComponent( identifier, scale, pow( scale, 3 )*100.f );
 }
 
 DynamicCube::~DynamicCube() {

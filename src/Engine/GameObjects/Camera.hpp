@@ -12,7 +12,7 @@ class Camera : public GameObject{
 public:
     Camera();
     ~Camera();
-    void updateCamera( float xchange, float ychange);
+    void updateCamera( float xchange, float ychange );
     void reshape( int new_width, int new_height ); 
     void createMatrices();
 
