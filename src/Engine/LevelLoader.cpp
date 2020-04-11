@@ -46,7 +46,14 @@ void LevelLoader::createLevel( std::string level_name ) {
     fs::path scene_path = level_path;
     scene_path.append( LEVEL_ROOTNODE_DNAME );
     LoadedObjectProperties *scene_properties = parseObjectDirectory( LEVEL_ROOTNODE_DNAME, scene_path );
-   
+
+    //Load all the level materials
+    fs::path materials_path = level_path;
+    materials_path.append( LEVEL_MATERIALS_DNAME );
+    fs::path textures_path = level_path;
+    textures_path.append( LEVEL_TEXTURES_DNAME );
+    loadMaterials( materials_path, textures_path );
+
     // Load all the level objects
     fs::path mesh_path = level_path;
     mesh_path.append( LEVEL_MESH_DNAME );
@@ -126,28 +133,52 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     return new_obj;
 }
 
-void LevelLoader::loadMeshes( fs::path dir )  {
-    if( fs::exists(dir) ) {
-        // Loop through all folders in the mesh dir and added them to the loaded_meshes
-        for( auto& mesh_dir: fs::directory_iterator(dir) ) {
-            fs::path mesh_path = mesh_dir.path();
-            loaded_meshes[mesh_path.filename().string()] = MeshFactory::createBasicMesh( mesh_path );
+void LevelLoader::loadMeshes( fs::path dir ) {
+    // Loop through all folders in the mesh dir and added them to the loaded_meshes
+    for( auto& mesh_dir: fs::directory_iterator(dir) ) {
+        // Create the mesh from the found VBO and IBO
+        fs::path mesh_path = mesh_dir.path();
+        Mesh* created_mesh = MeshFactory::createBasicMesh( mesh_path );
+        
+        // Test if the mesh has a material
+        fs::path material_path = mesh_dir.path();
+        material_path.append( OBJECT_MATERIAL_FNAME );
+        if(fs::exists( material_path )){
+            // Use the found material
+            std::string material_name = getPropertyContents( material_path );
+            created_mesh->setMaterial( loaded_materials[material_name] );
         }
+        else { 
+            // Use the default material
+            created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
+        }
+        loaded_meshes[mesh_path.filename().string()] = created_mesh;
     }
 }
 
-void LevelLoader::loadCollisionShapes( fs::path dir )  {
-    if( fs::exists(dir) ) {
-        // Loop through all folders in the mesh dir and added them to the loaded_meshes
-        for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
-            fs::path col_shape_path = col_shape_dir.path();
-            loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
-        }
+void LevelLoader::loadCollisionShapes( fs::path dir ) {
+    // Loop through all folders in the mesh dir and added them to the loaded_meshes
+    for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
+        fs::path col_shape_path = col_shape_dir.path();
+        loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
     }
 }
 
-void LevelLoader::loadMaterials( fs::path dir )  {
+void LevelLoader::loadMaterials( fs::path dir, fs::path textures_dir ) {
+    if( fs::exists(dir) ) {
+        //Loop through all folders in the mesh dir and, if there is a material, load it, if not, use default material.
+        for( auto& materials_dir: fs::directory_iterator( dir ) ) {
+            fs::path materials_path = materials_dir.path();
+            loaded_materials[materials_path.filename().string()] = MaterialFactory::createMaterial( materials_path, textures_dir );
+        }
+    }
 
+    //Add Default Material to loaded_materials
+    fs::path default_path = Asset::assetPath(); 
+    default_path.append("Default_material");
+    fs::path default_textures_path = Asset::assetPath();
+    default_textures_path.append("Textures");
+    loaded_materials["__DefaultMaterial"] = MaterialFactory::createMaterial( default_path, default_textures_path );
 }
 
 void LevelLoader::loadAnimations(fs::path dir) {

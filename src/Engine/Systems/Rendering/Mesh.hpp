@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 #include "Shader.hpp"
+#include "Material.hpp"
 
 #define N_VERTEX_VALUES 19
 
@@ -13,6 +14,7 @@ private:
 	GLuint vbo;
 	GLuint ibo;
 	int num_vertices;
+	Material* material;
 
 public:
 	Mesh() {vao=0;vbo=0;ibo=0;num_vertices=0;}
@@ -21,9 +23,8 @@ public:
 
 	void draw();
 
-
-
-	void bindMaterial();
+	void setMaterial( Material *input );
+	inline Material * getMaterial() { return material; }
 };
 
 #endif

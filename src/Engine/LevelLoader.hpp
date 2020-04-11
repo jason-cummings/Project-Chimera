@@ -10,6 +10,8 @@
 #include "GameObjects/SceneRenderable.hpp"
 
 #include "Systems/Rendering/MeshFactory.hpp"
+#include "Systems/Rendering/Material.hpp"
+#include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
 #include "Systems/Animation/AnimationFactory.hpp"
 
@@ -23,6 +25,7 @@
 #define LEVEL_MESH_DNAME                "Meshes"
 #define LEVEL_MATERIALS_DNAME           "Materials"
 #define LEVEL_COLLISION_SHAPES_DNAME    "Hitboxes"
+#define LEVEL_TEXTURES_DNAME            "Textures"
 #define LEVEL_ROOTNODE_DNAME            "RootNode"
 #define LEVEL_ANIMATION_DNAME           "AnimationStacks"
 
@@ -68,6 +71,7 @@ private:
     // The objects loaded for the scene
     std::map<std::string, Mesh*> loaded_meshes;
     std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
+    std::map<std::string, Material*> loaded_materials;
 
     // Convenience functions
     fs::path levelPath( std::string level_name ) const;
@@ -83,19 +87,15 @@ private:
     // Create meshes, collision objects, materirals, and animations for the level from their directories
     void loadMeshes( fs::path dir );
     void loadCollisionShapes( fs::path dir );
-    void loadMaterials( fs::path dir );
-    void loadAnimations(fs::path dir);
 
+    void loadMaterials( fs::path dir, fs::path textures_dir );
+    void loadAnimations(fs::path dir);
 
     // Create the scene GameObject and all of its children
     void createScene( LoadedObjectProperties * scene_root_props );
 
     // Determine what GameObject should be created based on the Properties and create it
     GameObject * createGameObject( LoadedObjectProperties * obj_props, bool is_root );
-    
-    
-    
-    
 
 public:
 
