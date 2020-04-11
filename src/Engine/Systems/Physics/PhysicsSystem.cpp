@@ -56,3 +56,8 @@ void PhysicsSystem::stepPhysics( double dt ) {
     dynamics_world->stepSimulation( btScalar(dt), 1, 1/60.f );
     // dynamics_world->stepSimulation( 1/60.f, 1, 1/60.f );
 }
+
+// Perform a raytest
+void PhysicsSystem::closestRayCast( btVector3 from, btVector3 to, btCollisionWorld::ClosestRayResultCallback &callback ) {
+    dynamics_world->rayTest( from, to, callback );
+}

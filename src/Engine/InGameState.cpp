@@ -7,20 +7,27 @@ InGameState::InGameState( std::string level_to_load ) {
 
 void InGameState::init() {
     physics_system = new PhysicsSystem();
+    animation_system = new AnimationSystem();
     timer = new StandardTimer();
     camera = new Camera();
     render_system.registerCamera( camera );
 
-    scene = LevelLoader::loadLevel(current_level);
+    LevelLoader level_loader(current_level);
+    scene = level_loader.getScene();
+    for(int i = 0; i < level_loader.getNumAnimationStacks(); i++) {
+        animation_system->addAnimationStack(level_loader.getAnimationStack(i));
+    }
     addPhysicsThings();
 
     // Create a player and add it to the scene
     Player* player = new Player();
-    player->setTransform( glm::vec3(.01f, .01f, .01f), glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 3.f, 0.f) );
+    glm::vec3 pscale(1.f);
+    // glm::vec3 pscale(.01f);
+    player->setTransform( pscale, glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 10.f, 0.f) );
     scene->addChild( player );
     player->addChild( camera );
     
-    playerMovement = new PlayerMovementSystem(player);
+    playerMovement = new PlayerMovementSystem( physics_system, player );
     playerMovement->registerCamera( camera );
 
     // Add the scene graph to Bullet and set the transforms appropriately
@@ -69,7 +76,9 @@ void InGameState::gameLoop() {
     int ymove = int(space-shift);
     int zmove = int(s-w);
     //sends movement info to PlayerMovementSystem.
-    playerMovement->movePlayer( xmove, ymove, zmove, dt );
+    playerMovement->movePlayer( w, s, d, a, space, shift, dt );
+
+    animation_system->evaluateAnimations(dt);
 
     // Perform necessary updates just before the physics step
     prePhysics();
