@@ -33,4 +33,4 @@ As far as the level physics, as mentioned before, the player movement system sti
 Finally, we'll be implementing a couple of menus, including a main menu which the program will open into and which will allow the player to select a level. We will also have a pause menu that will allow the player to go back to the main menu.
 
 #### Section 5 - Video
-See HW4Checkpoint.mp4
+![Alt text](/checkpoints/videos/HW4Checkpoint.mp4?raw=true "Homework 4 Checkpoint Video")
