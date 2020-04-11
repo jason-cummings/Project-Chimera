@@ -41,7 +41,6 @@ void Mesh::draw() {
 	glBindVertexArray( 0 );
 }
 
-
-void Mesh::bindMaterial() {
-	// TODO
+void Mesh::setMaterial( Material* input ){
+	material = input;
 }

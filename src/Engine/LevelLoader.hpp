@@ -10,6 +10,8 @@
 #include "GameObjects/SceneRenderable.hpp"
 
 #include "Systems/Rendering/MeshFactory.hpp"
+#include "Systems/Rendering/Material.hpp"
+#include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
 
 #include "WAIWrapper.hpp"
@@ -22,6 +24,7 @@
 #define LEVEL_MESH_DNAME                "Meshes"
 #define LEVEL_MATERIALS_DNAME           "Materials"
 #define LEVEL_COLLISION_SHAPES_DNAME    "Hitboxes"
+#define LEVEL_TEXTURES_DNAME            "Textures"
 #define LEVEL_ROOTNODE_DNAME            "RootNode"
 
 // Object subdirectory names for children or properties
@@ -64,6 +67,7 @@ private:
     // The objects loaded for the scene
     std::map<std::string, Mesh*> loaded_meshes;
     std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
+    std::map<std::string, Material*> loaded_materials;
 
     // Convenience functions
     fs::path levelPath( std::string level_name ) const;
@@ -79,7 +83,9 @@ private:
     // Create meshes, collision objects, and materirals for the level from their directories
     void loadMeshes( fs::path dir );
     void loadCollisionShapes( fs::path dir );
-    void loadMaterials( fs::path dir );
+    void loadMaterials( fs::path dir, fs::path textures_dir );
+
+    
 
     // Create the scene GameObject and all of its children
     void createScene( LoadedObjectProperties * scene_root_props );

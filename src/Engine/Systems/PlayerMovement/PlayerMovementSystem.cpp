@@ -10,12 +10,6 @@ PlayerMovementSystem::~PlayerMovementSystem(){
 
 void PlayerMovementSystem::movePlayer( int ad, int ss, int ws, double dt ){
     double th = camera->getTh();   
-    while(th > 6.28){
-        th -= 6.28;
-    }
-    while(th < -6.28){
-        th += 6.28;
-    }
 
     double movex = MOVE_SPEED * (ws * sin(th) + ad * cos(th))/2;
     double movey = MOVE_SPEED * (double)ss;
