@@ -29,8 +29,10 @@ Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path tex
     to_shininess.append("shininess");
     Asset* shininess_asset = new Asset( to_shininess );
 
-    texture = TextureLoader::loadTexture( new_to_texture.string(), false );
-    emissive = TextureLoader::loadTexture( new_to_emissive.string(), false );
+    std::string texture_path_string = new_to_texture.string();
+    std::string emissive_path_string = new_to_emissive.string();
+    texture = TextureLoader::loadTexture( texture_path_string, false );
+    emissive = TextureLoader::loadTexture( emissive_path_string, false );
     shininess = (float)strtod(shininess_asset->getBuffer(),NULL);
     
     Material *material = new Material( texture, emissive, shininess );
