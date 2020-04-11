@@ -127,18 +127,22 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
 }
 
 void LevelLoader::loadMeshes( fs::path dir )  {
-    // Loop through all folders in the mesh dir and added them to the loaded_meshes
-    for( auto& mesh_dir: fs::directory_iterator(dir) ) {
-        fs::path mesh_path = mesh_dir.path();
-        loaded_meshes[mesh_path.filename().string()] = MeshFactory::createBasicMesh( mesh_path );
+    if( fs::exists(dir) ) {
+        // Loop through all folders in the mesh dir and added them to the loaded_meshes
+        for( auto& mesh_dir: fs::directory_iterator(dir) ) {
+            fs::path mesh_path = mesh_dir.path();
+            loaded_meshes[mesh_path.filename().string()] = MeshFactory::createBasicMesh( mesh_path );
+        }
     }
 }
 
 void LevelLoader::loadCollisionShapes( fs::path dir )  {
-    // Loop through all folders in the mesh dir and added them to the loaded_meshes
-    for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
-        fs::path col_shape_path = col_shape_dir.path();
-        loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
+    if( fs::exists(dir) ) {
+        // Loop through all folders in the mesh dir and added them to the loaded_meshes
+        for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
+            fs::path col_shape_path = col_shape_dir.path();
+            loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
+        }
     }
 }
 
@@ -147,11 +151,13 @@ void LevelLoader::loadMaterials( fs::path dir )  {
 }
 
 void LevelLoader::loadAnimations(fs::path dir) {
-    // Loop through all folders in the Animationstacks dir and add them to animation_stacks
-    for( auto& animation_dir: fs::directory_iterator(dir) ) {
-        if(fswrapper::is_dir(animation_dir)) {
-            fs::path animation_path = animation_dir.path();
-            animation_stacks.push_back(AnimationFactory::getAnimationStack(animation_path,scene));
+    if( fs::exists(dir) ) {
+        // Loop through all folders in the Animationstacks dir and add them to animation_stacks
+        for( auto& animation_dir: fs::directory_iterator(dir) ) {
+            if(fswrapper::is_dir(animation_dir)) {
+                fs::path animation_path = animation_dir.path();
+                animation_stacks.push_back(AnimationFactory::getAnimationStack(animation_path,scene));
+            }
         }
     }
 }
