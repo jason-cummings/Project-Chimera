@@ -14,14 +14,12 @@ AnimationLayer::~AnimationLayer() {
 
 // updates the cur_time variable and evaluates the animation curves
 void AnimationLayer::evaluate(double dt) {
-	std::cout << "cur_time: " << cur_time << ", max_time: " << max_time << std::endl;
 	cur_time += dt;
 	while(cur_time > max_time) {
 		cur_time -= max_time;
 	}
 
 	for(int i = 0; i < curves.size(); i++) {
-		std::cout << " - Evaluating curve for " << curves[i]->getTarget()->getID() << std::endl;
 		curves[i]->evaluate(cur_time);
 	}
 }

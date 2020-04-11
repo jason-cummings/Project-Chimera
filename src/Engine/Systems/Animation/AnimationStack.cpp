@@ -19,7 +19,6 @@ void AnimationStack::addAnimationLayer(AnimationLayer * layer) {
 void AnimationStack::evaluateAnimations(double dt) {
 	for(int i = 0; i < animations.size(); i++) {
 		if(active_animations[i]) {
-			std::cout << "Evaluating animations for " << animations[i]->getName() <<std::endl;
 			animations[i]->evaluate(dt);
 		}
 	}
