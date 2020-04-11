@@ -38,8 +38,7 @@ RenderSystem::RenderSystem() {
 	std::string emissive_tex_path = Asset::assetPath().append("Textures/black.jpg").string();
 	GLuint color_tex = TextureLoader::loadTexture( color_tex_path, false );
 	GLuint emissive_tex = TextureLoader::loadTexture( emissive_tex_path, false );
-
-	TEMP_material = new Material( color_tex, emissive_tex, 4 );
+	TEMP_material = new Material( color_tex, emissive_tex, 4.f );
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -105,14 +104,18 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
+		Mesh *to_draw = meshList[i]->getMesh();
+		Material *mat_to_use = to_draw->getMaterial();
+		
+		// mat_to_use->bind( shader );
 		TEMP_material->bind( shader );
-		meshList[i]->getMesh()->draw();
+		to_draw->draw();
 	}
 }
 
 
 /**
-	Rendering Pipeling
+	Rendering Pipeline
 **/
 
 void RenderSystem::render( double dt, GameObject * sceneGraph ) {
@@ -134,8 +137,6 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 
 	// Perform shading
 	shadingStep();
-
-	// drawTexture( TEMP_material->getTexture() );
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {

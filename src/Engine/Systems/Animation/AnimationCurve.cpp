@@ -39,8 +39,6 @@ void TranslationAnimationCurve::evaluate( float time ) {
 			target->setTranslation(current_value);
 		}
 	}
-
-	std::cout << "Selected keys: (" << t_key1 << ", " << t_key2 << ")" << std::endl;
 }
 
 void TranslationAnimationCurve::addKeyframe(VecKeyframe keyframe) {
