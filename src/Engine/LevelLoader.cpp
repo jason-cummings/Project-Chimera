@@ -41,7 +41,7 @@ void LevelLoader::createLevel( std::string level_name ) {
         std::cerr << "Directory at path " << level_path << " could not be opened" << std::endl;
         return;
     }
-   
+
     // Get the directory of the root node and parse it recursively
     fs::path scene_path = level_path;
     scene_path.append( LEVEL_ROOTNODE_DNAME );
@@ -66,6 +66,12 @@ void LevelLoader::createLevel( std::string level_name ) {
 
     // Create the scene with the properties read in
     createScene( scene_properties );
+
+    fs::path animation_path = level_path;
+    animation_path.append( LEVEL_ANIMATION_DNAME );
+    loadAnimations(animation_path);
+
+
     delete scene_properties;
 }
 
@@ -175,6 +181,18 @@ void LevelLoader::loadMaterials( fs::path dir, fs::path textures_dir ) {
     loaded_materials["__DefaultMaterial"] = MaterialFactory::createMaterial( default_path, default_textures_path );
 }
 
+void LevelLoader::loadAnimations(fs::path dir) {
+    if( fs::exists(dir) ) {
+        // Loop through all folders in the Animationstacks dir and add them to animation_stacks
+        for( auto& animation_dir: fs::directory_iterator(dir) ) {
+            if(fswrapper::is_dir(animation_dir)) {
+                fs::path animation_path = animation_dir.path();
+                animation_stacks.push_back(AnimationFactory::getAnimationStack(animation_path,scene));
+            }
+        }
+    }
+}
+
 // Create the scene GameObject and all of its children
 void LevelLoader::createScene( LoadedObjectProperties *scene_root_props ) {
     scene = createGameObject( scene_root_props, true );
@@ -215,7 +233,11 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
     // std::cout << "Scaling by " << obj_props->scaling.x << ", " << obj_props->scaling.y << ", " << obj_props->scaling.z << std::endl;
     // std::cout << "Rotating by " << obj_props->rotation.x << ", " << obj_props->rotation.y << ", " << obj_props->rotation.z << std::endl;
     // std::cout << "Translating by " << obj_props->translation.x << ", " << obj_props->translation.y << ", " << obj_props->translation.z << std::endl;
-    obj->setTransform( obj_props->scaling, obj_props->rotation, obj_props->translation );
+    glm::vec3 rotation_radians = glm::vec3(glm::radians(obj_props->rotation[0]), 
+                                           glm::radians(obj_props->rotation[1]),
+                                           glm::radians(obj_props->rotation[2]));
+    glm::quat rotation_quaternion(rotation_radians);
+    obj->setTransform( obj_props->scaling, rotation_quaternion, obj_props->translation );
 
     // Recurse through the created object's children, creating and adding them
     for( int i=0; i<obj_props->children.size(); i++ ) {
@@ -224,10 +246,4 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
     }
 
     return obj;
-}
-
-GameObject * LevelLoader::loadLevel( std::string level_name ) {
-    std::cout << "Loading level: " << level_name << std::endl;
-    LevelLoader loader_object( level_name );
-    return loader_object.getScene();
 }

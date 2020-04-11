@@ -15,7 +15,7 @@ GLuint TextureLoader::loadTexture( std::string &filename, bool undoGamma ){
 	int height;
 	int numChannels;
 	unsigned char* image = stbi_load(filename.c_str(), &width, &height, &numChannels, STBI_rgb_alpha);
-	std::cout << "Image: " << filename << ", channels: " << numChannels <<std::endl;
+	// std::cout << "Image: " << filename << ", channels: " << numChannels <<std::endl;
 	GLuint tex;
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);

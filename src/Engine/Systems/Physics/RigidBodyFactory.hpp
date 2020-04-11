@@ -21,6 +21,8 @@ public:
     static btBvhTriangleMeshShape * createBvhTriangleMeshFromFiles( fs::path directory );
 
     static RigidBodyPhysicsComponent * createCubeComponent( std::string id, float side_length, float mass );
+
+    static RigidBodyPhysicsComponent * createCapsuleComponent( std::string id, float height, float diameter, float mass );
     
     static RigidBodyPhysicsComponent * createBvhTriangleMeshComponent( std::string id, btBvhTriangleMeshShape *collision_shape, glm::vec3 scale = glm::vec3(1.f) );
 

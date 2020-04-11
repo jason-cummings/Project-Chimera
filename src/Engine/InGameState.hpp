@@ -7,6 +7,7 @@
 #include "GameObjects/DynamicCube.hpp"
 #include "GameObjects/StaticCubeObstacle.hpp"
 #include "./Systems/PlayerMovement/PlayerMovementSystem.hpp"
+#include "./Systems/Animation/AnimationSystem.hpp"
 #include "Systems/Physics/PhysicsSystem.hpp"
 #include "./GameObjects/Player.hpp"
 
@@ -19,6 +20,7 @@ private:
     // Subsystems for this state
     PlayerMovementSystem* playerMovement;
     PhysicsSystem *physics_system;
+    AnimationSystem * animation_system;
 
     // Initialize the state
     void init() override;

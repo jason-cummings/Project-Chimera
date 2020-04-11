@@ -13,6 +13,7 @@
 #include "Systems/Rendering/Material.hpp"
 #include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
+#include "Systems/Animation/AnimationFactory.hpp"
 
 #include "WAIWrapper.hpp"
 #include "FilesystemWrapper.hpp"
@@ -26,6 +27,7 @@
 #define LEVEL_COLLISION_SHAPES_DNAME    "Hitboxes"
 #define LEVEL_TEXTURES_DNAME            "Textures"
 #define LEVEL_ROOTNODE_DNAME            "RootNode"
+#define LEVEL_ANIMATION_DNAME           "AnimationStacks"
 
 // Object subdirectory names for children or properties
 #define OBJECT_CHILDREN_DNAME           "children"
@@ -64,6 +66,8 @@ private:
     // The root scene object to be created
     GameObject *scene;
 
+    std::vector<AnimationStack*> animation_stacks;
+
     // The objects loaded for the scene
     std::map<std::string, Mesh*> loaded_meshes;
     std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
@@ -80,30 +84,33 @@ private:
     // Load information for a single object, then call recursively on object's children
     LoadedObjectProperties * parseObjectDirectory( std::string object_name, fs::path object_path ) const;
     
-    // Create meshes, collision objects, and materirals for the level from their directories
+    // Create meshes, collision objects, materirals, and animations for the level from their directories
     void loadMeshes( fs::path dir );
     void loadCollisionShapes( fs::path dir );
-    void loadMaterials( fs::path dir, fs::path textures_dir );
 
-    
+    void loadMaterials( fs::path dir, fs::path textures_dir );
+    void loadAnimations(fs::path dir);
 
     // Create the scene GameObject and all of its children
     void createScene( LoadedObjectProperties * scene_root_props );
 
     // Determine what GameObject should be created based on the Properties and create it
     GameObject * createGameObject( LoadedObjectProperties * obj_props, bool is_root );
-    
-    // Calls loadLevel with the passed in level name
-    LevelLoader( std::string level_name );
-    
-    // Return the loaded scene
-    GameObject * getScene() { return scene; }
 
 public:
+
+    // Calls loadLevel with the passed in level name
+    LevelLoader( std::string level_name );
+
     // Delete any stored info
     ~LevelLoader();
 
-    static GameObject * loadLevel( std::string level_name );
+    // Return the loaded scene
+    GameObject * getScene() { return scene; }
+
+    // inline getters for animations
+    int getNumAnimationStacks() {return animation_stacks.size();};
+    AnimationStack* getAnimationStack(int i) {return animation_stacks[i];};
 }; 
 
 #endif
