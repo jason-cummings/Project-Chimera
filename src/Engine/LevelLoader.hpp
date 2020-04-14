@@ -11,7 +11,6 @@
 
 #include "Systems/Rendering/MeshFactory.hpp"
 #include "Systems/Rendering/Material.hpp"
-#include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
 #include "Systems/Animation/AnimationFactory.hpp"
 
