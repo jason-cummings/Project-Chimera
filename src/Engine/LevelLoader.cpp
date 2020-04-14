@@ -89,7 +89,6 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     
     // Look for any possible relevant property paths
     fs::path obj_mesh_path =            pathAppend( object_path, OBJECT_MESH_FNAME );
-    fs::path obj_material_path =        pathAppend( object_path, OBJECT_MATERIAL_FNAME );
     fs::path obj_collision_shape_path = pathAppend( object_path, OBJECT_COLLISION_SHAPE_FNAME );
     fs::path obj_rotation_path =        pathAppend( object_path, OBJECT_ROTATION_FNAME );
     fs::path obj_scaling_path =         pathAppend( object_path, OBJECT_SCALING_FNAME );
@@ -98,7 +97,6 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
 
     // Read in the property indicators
     new_obj->mesh_id =                  getPropertyContents( obj_mesh_path );
-    new_obj->material_id =              getPropertyContents( obj_material_path );
     new_obj->collision_shape_id =       getPropertyContents( obj_collision_shape_path );
 
     // Read in asset files for the transformation data
@@ -143,14 +141,10 @@ void LevelLoader::loadMeshes( fs::path dir ) {
         // Test if the mesh has a material
         fs::path material_path = mesh_dir.path();
         material_path.append( OBJECT_MATERIAL_FNAME );
-        if(fs::exists( material_path )){
+        if( fs::exists( material_path ) ) {
             // Use the found material
             std::string material_name = getPropertyContents( material_path );
             created_mesh->setMaterial( loaded_materials[material_name] );
-        }
-        else { 
-            // Use the default material
-            created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
         }
         loaded_meshes[mesh_path.filename().string()] = created_mesh;
     }
@@ -166,19 +160,11 @@ void LevelLoader::loadCollisionShapes( fs::path dir ) {
 
 void LevelLoader::loadMaterials( fs::path dir, fs::path textures_dir ) {
     if( fs::exists(dir) ) {
-        //Loop through all folders in the mesh dir and, if there is a material, load it, if not, use default material.
         for( auto& materials_dir: fs::directory_iterator( dir ) ) {
             fs::path materials_path = materials_dir.path();
             loaded_materials[materials_path.filename().string()] = MaterialFactory::createMaterial( materials_path, textures_dir );
         }
     }
-
-    //Add Default Material to loaded_materials
-    fs::path default_path = Asset::assetPath(); 
-    default_path.append("Default_material");
-    fs::path default_textures_path = Asset::assetPath();
-    default_textures_path.append("Textures");
-    loaded_materials["__DefaultMaterial"] = MaterialFactory::createMaterial( default_path, default_textures_path );
 }
 
 void LevelLoader::loadAnimations(fs::path dir) {
@@ -205,27 +191,27 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
     // Controls for determining types of game objects
     bool has_mesh = obj_props->mesh_id != std::string("");
     bool has_collision_shape = obj_props->collision_shape_id != std::string("");
-    bool has_material = obj_props->material_id != std::string("");
+
     
     // Determine type of GameObject depending on the properties it has
     if( is_root ) {
-        std::cout << "Creating scene root: " << obj_props->identifier << std::endl;
+        // std::cout << "Creating scene root: " << obj_props->identifier << std::endl;
         obj = new GameObject( obj_props->identifier );
     }
     else if( has_mesh && has_collision_shape ) {
-        std::cout << "Creating obstacle: " << obj_props->identifier << std::endl;
+        // std::cout << "Creating obstacle: " << obj_props->identifier << std::endl;
         Mesh *use_mesh = loaded_meshes[obj_props->mesh_id];
         btBvhTriangleMeshShape * use_shape = loaded_collision_shapes[obj_props->collision_shape_id];
         RigidBodyPhysicsComponent *use_physics = RigidBodyFactory::createBvhTriangleMeshComponent( obj_props->identifier, use_shape, obj_props->scaling );
         obj = new Obstacle( obj_props->identifier, use_mesh, use_physics );
     }
     else if( has_mesh && !has_collision_shape ) {
-        std::cout << "Creating a scene renderable: " << obj_props->identifier << std::endl;
+        // std::cout << "Creating a scene renderable: " << obj_props->identifier << std::endl;
         Mesh *use_mesh = loaded_meshes[obj_props->mesh_id];
         obj = new SceneRenderable( obj_props->identifier, use_mesh );
     }
     else {
-        std::cerr << "Unknown object config: mesh - " << has_mesh << " | col - " << has_collision_shape << " | material - " << has_material << std::endl;
+        std::cerr << "Unknown object config: mesh - " << has_mesh << " | col - " << has_collision_shape << std::endl;
         return nullptr;
     }
 
