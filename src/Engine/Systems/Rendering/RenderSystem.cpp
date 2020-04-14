@@ -38,7 +38,6 @@ RenderSystem::RenderSystem() {
 	std::string emissive_tex_path = Asset::assetPath().append("Textures/black.jpg").string();
 	GLuint color_tex = TextureLoader::loadTexture( color_tex_path, false );
 	GLuint emissive_tex = TextureLoader::loadTexture( emissive_tex_path, false );
-	TEMP_material = new Material( color_tex, emissive_tex, 4.f );
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -90,8 +89,7 @@ void RenderSystem::drawTexture( GLuint tex ) {
 }
 
 void RenderSystem::drawQuad() {
-
-	glBindVertexArray(quad_vao);
+	glBindVertexArray( quad_vao );
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 	glBindVertexArray( 0 );
 	testGLError("Quad");
@@ -107,8 +105,7 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		Mesh *to_draw = meshList[i]->getMesh();
 		Material *mat_to_use = to_draw->getMaterial();
 		
-		// mat_to_use->bind( shader );
-		TEMP_material->bind( shader );
+		mat_to_use->bind( shader );
 		to_draw->draw();
 	}
 }

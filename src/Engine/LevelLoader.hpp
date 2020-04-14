@@ -48,7 +48,6 @@ struct LoadedObjectProperties {
     // If left empty, the object does not have that property
     std::string mesh_id = "";
     std::string collision_shape_id = "";
-    std::string material_id = "";
 
     // Transformation values
     glm::vec3 scaling = glm::vec3(1.f);
