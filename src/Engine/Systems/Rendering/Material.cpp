@@ -72,3 +72,4 @@ Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path tex
     Material *material = new Material( texture, emissive, shininess );
     return material;
 }
+
