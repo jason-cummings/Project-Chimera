@@ -3,15 +3,21 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp>
+#include <math.h>
 
 #include "./../../GameObjects/Player.hpp"
 #include "./../../GameObjects/Camera.hpp"
 #include "./../Physics/PhysicsSystem.hpp"
 
-#define MOVE_SPEED 5.f // m/s
-#define GROUND_DISTANCE_THRESHOLD 0.1f // m
-#define JUMP_COOLDOWN_TIME 0.15f // s
+#define GROUND_MOVE_SPEED 7.f // m/s
+#define AIR_MOVE_FORCE 1000.f // ?
 #define JUMP_IMPULSE_VALUE 500.f // Newtons?
+
+#define RAYCAST_ANGLE 2.0944f // Radians (~120 degerees from vertical y)
+#define GROUND_DISTANCE_THRESHOLD 0.05f // m
+
+#define JUMP_COOLDOWN_TIME 0.15f // s
+#define TURN_TIMEFACTOR .1f // s
 
 class PlayerMovementSystem
 {
@@ -39,10 +45,5 @@ public:
 
     inline void registerCamera( Camera* input ) { camera = input; }
 };
-
-
-
-
-
 
 #endif
