@@ -10,11 +10,13 @@
 #include "./../Physics/PhysicsSystem.hpp"
 
 #define GROUND_MOVE_SPEED 7.f // m/s
+#define GROUND_SPRINT_SPEED 12.f // m/s
 #define AIR_MOVE_FORCE 1000.f // ?
 #define JUMP_IMPULSE_VALUE 500.f // Newtons?
 
 #define RAYCAST_ANGLE 2.0944f // Radians (~120 degerees from vertical y)
 #define GROUND_DISTANCE_THRESHOLD 0.05f // m
+#define MAX_CLIMBABLE_ANGLE 0.7854f // Radians (~45 degrees)
 
 #define JUMP_COOLDOWN_TIME 0.15f // s
 #define TURN_TIMEFACTOR .1f // s
@@ -28,6 +30,7 @@ private:
     btRigidBody *player_body;
 
     bool on_ground;
+    btVector3 ground_contact_normal;
     float jump_cool_down;
 
 public:

@@ -3,7 +3,7 @@
 PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr ): physics_system(physics_in), player(playerptr), camera(nullptr) {
     player_body = player->getPhysicsComponent()->getCollisionObject();
     
-    // Restrict any player hitbox rotation to only be around the y axis
+    // Restrict any player hitbox rotation to only be around the y axis 
     player_body->setAngularFactor( btVector3(0.f, 1.f, 0.f) );
     
     // Prevent the player from disabling itself
@@ -36,7 +36,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
     btScalar current_th = current_orientation.getAngle();
     btVector3 current_axis = current_orientation.getAxis();
     if( current_th > 3.1416 ) {
-        current_th -= 6.2832;
+        current_th -= btScalar(6.2832);
     }
     if( current_axis.getY() < 0 ) {
         current_th *= -1;
@@ -57,10 +57,10 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         // Calculate the angle difference and bound it appropriately
         btScalar delta_th = desired_th - current_th;
         if( delta_th < -3.1416 ) {
-            delta_th += 6.2832;
+            delta_th += btScalar(6.2832);
         }
         else if( delta_th > 3.1416 ) {
-            delta_th -= 6.2832;
+            delta_th -= btScalar(6.2832);
         }
 
         if( abs(delta_th) < .01 ) {
@@ -71,7 +71,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
             // Apply angular velocity
             btVector3 turn_axis(0.f, 1.f, 0.f);
             btScalar turn_value = btScalar(delta_th / TURN_TIMEFACTOR);
-            btVector3 angular_velocity = turn_value * turn_axis;
+            btVector3 angular_velocity = turn_value * turn_axis; 
             player_body->setAngularVelocity(angular_velocity);
         }
     }
@@ -82,9 +82,11 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         btVector3 player_move_dir( -sin(current_th), 0.f, -cos(current_th) );
 
         if( on_ground ) {
+            btVector3 player_move_along_plane = ground_contact_normal.cross( player_move_dir.cross( ground_contact_normal ) ).normalize();
+
             // Set the linear velocity to the player body in the desired direction of movement
-            btVector3 new_player_velocity = player_move_dir * GROUND_MOVE_SPEED;
-            new_player_velocity.setY( current_velocity.getY() );
+            btVector3 new_player_velocity = player_move_along_plane * (shift ? GROUND_SPRINT_SPEED : GROUND_MOVE_SPEED);
+            new_player_velocity.setY( new_player_velocity.getY()-.1f );
             player_body->setLinearVelocity( new_player_velocity );
             player_body->setDamping( 0.f, 0.f );
         }
@@ -147,6 +149,8 @@ void PlayerMovementSystem::testOnGround() {
         float dist_to_collision = (float)ray_from.distance( callback.m_hitPointWorld );
         if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD + PLAYER_DIAMETER/2.f ) {
             on_ground = true;
+            ground_contact_normal = callback.m_hitNormalWorld;
+            // std::cout << "    Norm: " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
         }
     }
     if( !on_ground ) {
@@ -170,6 +174,8 @@ void PlayerMovementSystem::testOnGround() {
                 float dist_to_collision = (float)ray_from.distance( angled_callback.m_hitPointWorld );
                 if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD  + PLAYER_DIAMETER/2.f ) {
                     on_ground = true;
+                    ground_contact_normal = angled_callback.m_hitNormalWorld;
+                    // std::cout << "    Norm: " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
                     break;
                 }
             }
