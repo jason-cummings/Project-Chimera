@@ -9,8 +9,8 @@
 #include "./../../GameObjects/Camera.hpp"
 #include "./../Physics/PhysicsSystem.hpp"
 
-#define GROUND_MOVE_SPEED 7.f // m/s
-#define GROUND_SPRINT_SPEED 12.f // m/s
+#define GROUND_MOVE_SPEED 15.f // m/s
+#define GROUND_SPRINT_SPEED 30.f // m/s
 #define AIR_MOVE_FORCE 1000.f // ?
 #define JUMP_IMPULSE_VALUE 500.f // Newtons?
 
@@ -30,7 +30,7 @@ private:
     btRigidBody *player_body;
 
     bool on_ground;
-    btVector3 ground_contact_normal;
+    btVector3 ground_contact_normal, ground_contact_position;
     float jump_cool_down;
 
 public:
