@@ -82,15 +82,26 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         btVector3 player_move_dir( -sin(current_th), 0.f, -cos(current_th) );
 
         if( on_ground ) {
+            // Project the movement vector along the plane the player is currently on
             btVector3 player_move_along_plane = ground_contact_normal.cross( player_move_dir.cross( ground_contact_normal ) ).normalize();
+            
+            if( player_move_along_plane.getY() > .7071 ) {
+                player_move_along_plane.setY( 0.f );
+                player_body->setLinearFactor( btVector3(1.f, 0.f, 1.f) );
+            }
+            else {
+                player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
+            }
 
-            // Set the linear velocity to the player body in the desired direction of movement
+            // Set the linear velocity of the player body in the desired direction of movement
             btVector3 new_player_velocity = player_move_along_plane * (shift ? GROUND_SPRINT_SPEED : GROUND_MOVE_SPEED);
             new_player_velocity.setY( new_player_velocity.getY()-.1f );
             player_body->setLinearVelocity( new_player_velocity );
             player_body->setDamping( 0.f, 0.f );
         }
         else {
+            player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
+
             // Set the linear velocity to the player body in the desired direction of movement
             btVector3 applied_force = player_move_dir * AIR_MOVE_FORCE;
             player_body->applyCentralForce( applied_force );
@@ -100,9 +111,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
     else {
         // NOT MOVING
         if( on_ground ) {
-            // Set linear velocity to zero and set friction high to prevent sliding
-            // player_body->setLinearVelocity( btVector3( 0.f, 0.f, 0.f ) );
-            // player_body->setDamping( .99f, 0.f );
+            // Set friction high to prevent sliding
             player_body->setFriction(10.f);
         }
     }
@@ -150,7 +159,6 @@ void PlayerMovementSystem::testOnGround() {
         if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD + PLAYER_DIAMETER/2.f ) {
             on_ground = true;
             ground_contact_normal = callback.m_hitNormalWorld;
-            // std::cout << "    Norm: " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
         }
     }
     if( !on_ground ) {
@@ -158,13 +166,11 @@ void PlayerMovementSystem::testOnGround() {
         for( int i=0; i<8; i++ ) {
             // Create the new callback object 
             float th = i * 6.2830f / 8.f;
-            // std::cout << "Casting " << i << " at " << th << std::endl;
             btVector3 ray_offset( sin(RAYCAST_ANGLE)*cos(th), cos(RAYCAST_ANGLE), sin(RAYCAST_ANGLE)*sin(th) );
             ray_to = ray_from + (PLAYER_DIAMETER * ray_offset);
             btCollisionWorld::ClosestRayResultCallback angled_callback( ray_from, ray_to );
-            // std::cout << "  Casting from " << ray_from.getX() << ", " << ray_from.getY() << ", " << ray_from.getZ() << std::endl;
-            // std::cout << "  Casting to   " << ray_to.getX() << ", " << ray_to.getY() << ", " << ray_to.getZ() << std::endl;
-            
+
+            // Cast the ray and test for a hit
             physics_system->closestRayCast( ray_from, ray_to, angled_callback );
             if( angled_callback.hasHit() ) {
                 // std::cout << "angled_callback results:" << std::endl;
@@ -175,7 +181,6 @@ void PlayerMovementSystem::testOnGround() {
                 if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD  + PLAYER_DIAMETER/2.f ) {
                     on_ground = true;
                     ground_contact_normal = angled_callback.m_hitNormalWorld;
-                    // std::cout << "    Norm: " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
                     break;
                 }
             }

@@ -14,9 +14,9 @@
 #define AIR_MOVE_FORCE 1000.f // ?
 #define JUMP_IMPULSE_VALUE 500.f // Newtons?
 
-#define RAYCAST_ANGLE 2.0944f // Radians (~120 degerees from vertical y)
-#define GROUND_DISTANCE_THRESHOLD 0.05f // m
-#define MAX_CLIMBABLE_ANGLE 0.7854f // Radians (~45 degrees)
+#define RAYCAST_ANGLE 2.5307f // (~145 degrees) //2.0944f // Radians (~120 degerees from vertical y)
+#define GROUND_DISTANCE_THRESHOLD 0.04f // m
+// #define MAX_CLIMBABLE_ANGLE 0.7854f // Radians (~45 degrees)
 
 #define JUMP_COOLDOWN_TIME 0.15f // s
 #define TURN_TIMEFACTOR .1f // s
