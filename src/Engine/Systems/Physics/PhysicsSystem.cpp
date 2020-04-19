@@ -60,4 +60,14 @@ void PhysicsSystem::stepPhysics( double dt ) {
 // Perform a raytest
 void PhysicsSystem::closestRayCast( btVector3 from, btVector3 to, btCollisionWorld::ClosestRayResultCallback &callback ) {
     dynamics_world->rayTest( from, to, callback );
+    
+    if( callback.hasHit() ) {
+        GameObject *ray_collision = (GameObject *)callback.m_collisionObject->getUserPointer();
+        if( ray_collision != nullptr ) {
+            glm::vec3 col_obj_scale = ray_collision->getScale();
+            btVector3 bt_col_obj_scale = btVector3( col_obj_scale.x, col_obj_scale.y, col_obj_scale.z );
+            btVector3 new_ground_normal = callback.m_hitNormalWorld / bt_col_obj_scale;
+            callback.m_hitNormalWorld = new_ground_normal.normalize();
+        }
+    }
 }

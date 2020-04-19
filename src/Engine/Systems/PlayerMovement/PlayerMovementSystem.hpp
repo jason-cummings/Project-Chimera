@@ -13,7 +13,7 @@
 #define GROUND_MOVE_SPEED 7.f // m/s
 #define GROUND_SPRINT_SPEED 12.f // m/s
 #define AIR_MOVE_FORCE 1000.f // ?
-#define JUMP_IMPULSE_VALUE 500.f // Newtons?
+#define JUMP_IMPULSE_VALUE 700.f // Newtons?
 
 #define RAYCAST_ANGLE 2.5307f // (~145 degrees) //2.0944f // Radians (~120 degerees from vertical y)
 #define GROUND_DISTANCE_THRESHOLD 0.04f // m
@@ -30,11 +30,11 @@ private:
     PhysicsSystem *physics_system;
     btRigidBody *player_body;
 
-    bool on_ground;
+    bool on_ground, moved_last_tick;
     btVector3 ground_contact_normal, ground_contact_position;
     Obstacle *current_ground;
     
-    float jump_cool_down;
+    float jump_cool_down, in_air_time;
 
 public:
     PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr );

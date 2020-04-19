@@ -14,6 +14,7 @@ PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* p
     current_ground = nullptr;
 
     jump_cool_down = 0;
+    in_air_time = 0;
 }
 
 PlayerMovementSystem::~PlayerMovementSystem() {}
@@ -23,6 +24,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
     player_body = player->getPhysicsComponent()->getCollisionObject();
 
     // Calculate control variables for this timestep
+    if( !on_ground && in_air_time > 0 ) in_air_time -= (float)dt;
     testOnGround();
     if( on_ground && jump_cool_down > 0 ) jump_cool_down -= (float)dt;
     bool moving = f || b || r || l || space || shift;
@@ -79,6 +81,8 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
 
     // Test movement scenarios
     if( (f ^ b) || (r ^ l) ) {
+        moved_last_tick = true;
+
         // Create a normal vector in the direction the player is moving
         btVector3 player_move_dir( -sin(current_th), 0.f, -cos(current_th) );
 
@@ -112,11 +116,13 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         }
     }
     else {
+        moved_last_tick = false;
         player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
         // NOT MOVING
         if( on_ground ) {
             // Set friction high to prevent sliding
             player_body->setFriction(10.f);
+            player_body->applyCentralImpulse( btVector3(0.f, -1000.f, 0.f) );
         }
     }
 
@@ -128,16 +134,28 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         player_body->applyCentralImpulse( btVector3(0.f, JUMP_IMPULSE_VALUE, 0.f) );
         on_ground = false;
         jump_cool_down = JUMP_COOLDOWN_TIME;
+        in_air_time = .2f;
     }
 }
 
 void PlayerMovementSystem::makePostPhysicsAdjustments() {
-    // btVector3 current_position = player_body->getWorldTransform().getOrigin();
-    // btVector3 ray_from( player_pos.x, btScalar(player_pos.y+PLAYER_DIAMETER/2.f), player_pos.z );
+    // If the player was on the ground before the last physics tick, attempt to keep them on the ground
+    if( moved_last_tick && on_ground ) {
+        btVector3 current_position = player_body->getWorldTransform().getOrigin();
+        btVector3 ray_to = current_position - btVector3( 0.f, 500.f, 0.f );
+        btCollisionWorld::ClosestRayResultCallback callback( current_position, ray_to );
+        physics_system->closestRayCast( current_position, ray_to, callback );
 
-    // btVector3 ray_to( player_pos.x, player_pos.y-PLAYER_DIAMETER/2.f, player_pos.z );
-    // btCollisionWorld::ClosestRayResultCallback callback( ray_from, ray_to );
-    // physics_system->closestRayCast( ray_from, ray_to, callback );
+        if( callback.hasHit() ) {
+            btScalar dist = current_position.distance2( callback.m_hitPointWorld );
+            btScalar ground_dot = callback.m_hitNormalWorld.getY();
+            if( dist < PLAYER_HEIGHT/2.f+.5f ) {
+                float adjust_value = (.3f * (1.f - ground_dot));
+                float adjusted_y = PLAYER_HEIGHT/2.f + adjust_value;
+                player_body->getWorldTransform().setOrigin( callback.m_hitPointWorld + btVector3(0.f, adjusted_y, 0.f) );
+            }
+        }
+    }
 }
 
 void PlayerMovementSystem::flyPlayer( int ad, int ss, int ws, double dt ){
@@ -153,66 +171,62 @@ void PlayerMovementSystem::flyPlayer( int ad, int ss, int ws, double dt ){
 }
 
 void PlayerMovementSystem::testOnGround() {
-    // Perform the ray test to detect ground collisions
-    glm::vec3 player_pos = glm::vec3( player->getWorldTransform()[3] );
-    btVector3 ray_from( player_pos.x, btScalar(player_pos.y+PLAYER_DIAMETER/2.f), player_pos.z );
+    if( in_air_time <= 0.f ) {
+        // Perform the ray test to detect ground collisions
+        glm::vec3 player_pos = glm::vec3( player->getWorldTransform()[3] );
+        btVector3 ray_from( player_pos.x, btScalar(player_pos.y+PLAYER_DIAMETER/2.f), player_pos.z );
 
-    btVector3 ray_to( player_pos.x, player_pos.y-PLAYER_DIAMETER/2.f, player_pos.z );
-    btCollisionWorld::ClosestRayResultCallback callback( ray_from, ray_to );
-    physics_system->closestRayCast( ray_from, ray_to, callback );
+        btVector3 ray_to( player_pos.x, player_pos.y-PLAYER_DIAMETER/2.f, player_pos.z );
+        btCollisionWorld::ClosestRayResultCallback callback( ray_from, ray_to );
+        physics_system->closestRayCast( ray_from, ray_to, callback );
 
-    // Assume not on ground and test if the player should be
-    on_ground = false;
-    current_ground = nullptr;
-    if( callback.hasHit() ) {
-        // std::cout << "Callback results:" << std::endl;
-        // std::cout << "    Pos:  " << callback.m_hitPointWorld.getX() << ", " << callback.m_hitPointWorld.getY() << ", " << callback.m_hitPointWorld.getZ() << std::endl;
-        // std::cout << "    Norm: " << callback.m_hitNormalWorld.getX() << ", " << callback.m_hitNormalWorld.getY() << ", " << callback.m_hitNormalWorld.getZ() << std::endl;
+        // Assume not on ground and test if the player should be
+        on_ground = false;
+        current_ground = nullptr;
+        if( callback.hasHit() ) {
+            // std::cout << "Callback results:" << std::endl;
+            // std::cout << "    Pos:  " << callback.m_hitPointWorld.getX() << ", " << callback.m_hitPointWorld.getY() << ", " << callback.m_hitPointWorld.getZ() << std::endl;
+            // std::cout << "    Norm: " << callback.m_hitNormalWorld.getX() << ", " << callback.m_hitNormalWorld.getY() << ", " << callback.m_hitNormalWorld.getZ() << std::endl;
 
-        float dist_to_collision = (float)ray_from.distance( callback.m_hitPointWorld );
-        if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD + PLAYER_DIAMETER/2.f ) {
-            on_ground = true;
-            ground_contact_position = callback.m_hitPointWorld;
-            ground_contact_normal = callback.m_hitNormalWorld;
-            current_ground = (Obstacle *)callback.m_collisionObject->getUserPointer();
+            float dist_to_collision = (float)ray_from.distance( callback.m_hitPointWorld );
+            if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD + PLAYER_DIAMETER/2.f ) {
+                on_ground = true;
+                ground_contact_position = callback.m_hitPointWorld;
+                ground_contact_normal = callback.m_hitNormalWorld;
+                current_ground = (Obstacle *)callback.m_collisionObject->getUserPointer();
+            }
         }
-    }
-    if( !on_ground ) {
-        // Cast 8 rays at angle RAYCAST_ANGLE to test if on the ground (approximating a cone test)
-        for( int i=0; i<8; i++ ) {
-            // Create the new callback object 
-            float th = i * 6.2830f / 8.f;
-            btVector3 ray_offset( sin(RAYCAST_ANGLE)*cos(th), cos(RAYCAST_ANGLE), sin(RAYCAST_ANGLE)*sin(th) );
-            ray_to = ray_from + (PLAYER_DIAMETER * ray_offset);
-            btCollisionWorld::ClosestRayResultCallback angled_callback( ray_from, ray_to );
+        if( !on_ground ) {
+            // Cast 8 rays at angle RAYCAST_ANGLE to test if on the ground (approximating a cone test)
+            for( int i=0; i<8; i++ ) {
+                // Create the new callback object 
+                float th = i * 6.2830f / 8.f;
+                btVector3 ray_offset( sin(RAYCAST_ANGLE)*cos(th), cos(RAYCAST_ANGLE), sin(RAYCAST_ANGLE)*sin(th) );
+                ray_to = ray_from + (PLAYER_DIAMETER * ray_offset);
+                btCollisionWorld::ClosestRayResultCallback angled_callback( ray_from, ray_to );
 
-            // Cast the ray and test for a hit
-            physics_system->closestRayCast( ray_from, ray_to, angled_callback );
-            if( angled_callback.hasHit() ) {
-                // std::cout << "angled_callback results:" << std::endl;
-                // std::cout << "    Pos:  " << angled_callback.m_hitPointWorld.getX() << ", " << angled_callback.m_hitPointWorld.getY() << ", " << angled_callback.m_hitPointWorld.getZ() << std::endl;
-                // std::cout << "    Norm: " << angled_callback.m_hitNormalWorld.getX() << ", " << angled_callback.m_hitNormalWorld.getY() << ", " << angled_callback.m_hitNormalWorld.getZ() << std::endl;
+                // Cast the ray and test for a hit
+                physics_system->closestRayCast( ray_from, ray_to, angled_callback );
+                if( angled_callback.hasHit() ) {
+                    // std::cout << "angled_callback results:" << std::endl;
+                    // std::cout << "    Pos:  " << angled_callback.m_hitPointWorld.getX() << ", " << angled_callback.m_hitPointWorld.getY() << ", " << angled_callback.m_hitPointWorld.getZ() << std::endl;
+                    // std::cout << "    Norm: " << angled_callback.m_hitNormalWorld.getX() << ", " << angled_callback.m_hitNormalWorld.getY() << ", " << angled_callback.m_hitNormalWorld.getZ() << std::endl;
 
-                float dist_to_collision = (float)ray_from.distance( angled_callback.m_hitPointWorld );
-                if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD  + PLAYER_DIAMETER/2.f ) {
-                    on_ground = true;
-                    ground_contact_position = angled_callback.m_hitPointWorld;
-                    ground_contact_normal = angled_callback.m_hitNormalWorld;
-                    current_ground = (Obstacle *)angled_callback.m_collisionObject->getUserPointer();
-                    break;
+                    float dist_to_collision = (float)ray_from.distance( angled_callback.m_hitPointWorld );
+                    if( dist_to_collision <= GROUND_DISTANCE_THRESHOLD  + PLAYER_DIAMETER/2.f ) {
+                        on_ground = true;
+                        ground_contact_position = angled_callback.m_hitPointWorld;
+                        ground_contact_normal = angled_callback.m_hitNormalWorld;
+                        current_ground = (Obstacle *)angled_callback.m_collisionObject->getUserPointer();
+                        break;
+                    }
                 }
             }
         }
-    }
 
-    if( on_ground ) {
-        if( current_ground != nullptr ) {
-            glm::vec3 ground_scale = current_ground->getScale();
-            btVector3 bt_ground_scale = btVector3( ground_scale.x, ground_scale.y, ground_scale.z );
-            btVector3 new_ground_normal = ground_contact_normal / bt_ground_scale;
-            ground_contact_normal = new_ground_normal.normalize();
+        if( on_ground ) {
+            // std::cout << "Norm: " << ground_contact_normal.length2() << " " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
+            // std::cout << "Pos:: " << ground_contact_position.getX() << ", " << ground_contact_position.getY() << ", " << ground_contact_position.getZ() << std::endl;
         }
-        // std::cout << "Norm: " << ground_contact_normal.length2() << " " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
-        // std::cout << "Pos:: " << ground_contact_position.getX() << ", " << ground_contact_position.getY() << ", " << ground_contact_position.getZ() << std::endl;
     }
 }
