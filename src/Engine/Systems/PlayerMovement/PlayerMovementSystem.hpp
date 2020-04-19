@@ -6,11 +6,12 @@
 #include <math.h>
 
 #include "./../../GameObjects/Player.hpp"
+#include "./../../GameObjects/Obstacle.hpp"
 #include "./../../GameObjects/Camera.hpp"
 #include "./../Physics/PhysicsSystem.hpp"
 
-#define GROUND_MOVE_SPEED 15.f // m/s
-#define GROUND_SPRINT_SPEED 30.f // m/s
+#define GROUND_MOVE_SPEED 7.f // m/s
+#define GROUND_SPRINT_SPEED 12.f // m/s
 #define AIR_MOVE_FORCE 1000.f // ?
 #define JUMP_IMPULSE_VALUE 500.f // Newtons?
 
@@ -31,6 +32,8 @@ private:
 
     bool on_ground;
     btVector3 ground_contact_normal, ground_contact_position;
+    Obstacle *current_ground;
+    
     float jump_cool_down;
 
 public:
@@ -39,6 +42,9 @@ public:
 
     // On ground movement
     void movePlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt );
+
+    // Perform any necessary operations after the physics step
+    void makePostPhysicsAdjustments();
 
     // Old movement style
     void flyPlayer( int ad, int ss, int ws, double dt );

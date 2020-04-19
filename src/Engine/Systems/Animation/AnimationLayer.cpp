@@ -3,7 +3,7 @@
 AnimationLayer::AnimationLayer(std::string layer_name) {
 	name = layer_name;
 	cur_time = 0;
-	max_time = 0;
+	max_time = .1;
 }
 
 AnimationLayer::~AnimationLayer() {

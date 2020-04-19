@@ -11,6 +11,7 @@ PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* p
 
     // Assume off ground by default
     on_ground = false;
+    current_ground = nullptr;
 
     jump_cool_down = 0;
 }
@@ -82,17 +83,18 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         btVector3 player_move_dir( -sin(current_th), 0.f, -cos(current_th) );
 
         if( on_ground ) {
-            // Project the movement vector along the plane the player is currently on
-            // btVector3 player_move_along_plane = ground_contact_normal.cross( player_move_dir.cross( ground_contact_normal ) ).normalize();
-            btVector3 player_move_along_plane = player_move_dir;
+            // OLD - use for test
+            // btVector3 player_move_along_plane = player_move_dir;
 
-            // if( player_move_along_plane.getY() > .7071 ) {
-            //     player_move_along_plane.setY( 0.f );
-            //     player_body->setLinearFactor( btVector3(1.f, 0.f, 1.f) );
-            // }
-            // else {
-            //     player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
-            // }
+            // NEW - Project the movement vector along the plane the player is currently on
+            btVector3 player_move_along_plane = ground_contact_normal.cross( player_move_dir.cross( ground_contact_normal ) ).normalize();
+            if( player_move_along_plane.getY() > .7071 ) {
+                player_move_along_plane.setY( 0.f );
+                player_body->setLinearFactor( btVector3(1.f, 0.f, 1.f) );
+            }
+            else {
+                player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
+            }
 
             // Set the linear velocity of the player body in the desired direction of movement
             btVector3 new_player_velocity = player_move_along_plane * (shift ? GROUND_SPRINT_SPEED : GROUND_MOVE_SPEED);
@@ -101,7 +103,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
             player_body->setDamping( 0.f, 0.f );
         }
         else {
-            // player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
+            player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
 
             // Set the linear velocity to the player body in the desired direction of movement
             btVector3 applied_force = player_move_dir * AIR_MOVE_FORCE;
@@ -110,7 +112,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         }
     }
     else {
-        // player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
+        player_body->setLinearFactor( btVector3(1.f, 1.f, 1.f) );
         // NOT MOVING
         if( on_ground ) {
             // Set friction high to prevent sliding
@@ -127,6 +129,15 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         on_ground = false;
         jump_cool_down = JUMP_COOLDOWN_TIME;
     }
+}
+
+void PlayerMovementSystem::makePostPhysicsAdjustments() {
+    // btVector3 current_position = player_body->getWorldTransform().getOrigin();
+    // btVector3 ray_from( player_pos.x, btScalar(player_pos.y+PLAYER_DIAMETER/2.f), player_pos.z );
+
+    // btVector3 ray_to( player_pos.x, player_pos.y-PLAYER_DIAMETER/2.f, player_pos.z );
+    // btCollisionWorld::ClosestRayResultCallback callback( ray_from, ray_to );
+    // physics_system->closestRayCast( ray_from, ray_to, callback );
 }
 
 void PlayerMovementSystem::flyPlayer( int ad, int ss, int ws, double dt ){
@@ -152,6 +163,7 @@ void PlayerMovementSystem::testOnGround() {
 
     // Assume not on ground and test if the player should be
     on_ground = false;
+    current_ground = nullptr;
     if( callback.hasHit() ) {
         // std::cout << "Callback results:" << std::endl;
         // std::cout << "    Pos:  " << callback.m_hitPointWorld.getX() << ", " << callback.m_hitPointWorld.getY() << ", " << callback.m_hitPointWorld.getZ() << std::endl;
@@ -162,6 +174,7 @@ void PlayerMovementSystem::testOnGround() {
             on_ground = true;
             ground_contact_position = callback.m_hitPointWorld;
             ground_contact_normal = callback.m_hitNormalWorld;
+            current_ground = (Obstacle *)callback.m_collisionObject->getUserPointer();
         }
     }
     if( !on_ground ) {
@@ -185,6 +198,7 @@ void PlayerMovementSystem::testOnGround() {
                     on_ground = true;
                     ground_contact_position = angled_callback.m_hitPointWorld;
                     ground_contact_normal = angled_callback.m_hitNormalWorld;
+                    current_ground = (Obstacle *)angled_callback.m_collisionObject->getUserPointer();
                     break;
                 }
             }
@@ -192,7 +206,13 @@ void PlayerMovementSystem::testOnGround() {
     }
 
     if( on_ground ) {
-        std::cout << "Norm: " << ground_contact_normal.length2() << " " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
-        std::cout << "Pos:: " << ground_contact_position.getX() << ", " << ground_contact_position.getY() << ", " << ground_contact_position.getZ() << std::endl;
+        if( current_ground != nullptr ) {
+            glm::vec3 ground_scale = current_ground->getScale();
+            btVector3 bt_ground_scale = btVector3( ground_scale.x, ground_scale.y, ground_scale.z );
+            btVector3 new_ground_normal = ground_contact_normal / bt_ground_scale;
+            ground_contact_normal = new_ground_normal.normalize();
+        }
+        // std::cout << "Norm: " << ground_contact_normal.length2() << " " << ground_contact_normal.getX() << ", " << ground_contact_normal.getY() << ", " << ground_contact_normal.getZ() << std::endl;
+        // std::cout << "Pos:: " << ground_contact_position.getX() << ", " << ground_contact_position.getY() << ", " << ground_contact_position.getZ() << std::endl;
     }
 }
