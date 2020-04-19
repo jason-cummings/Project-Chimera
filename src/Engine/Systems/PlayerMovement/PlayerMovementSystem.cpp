@@ -2,8 +2,10 @@
 
 PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr ): physics_system(physics_in), player(playerptr), camera(nullptr) {
     player_body = player->getPhysicsComponent()->getCollisionObject();
+    last_tick_position = player_body->getWorldTransform().getOrigin();
+    last_tick_time = 1.f / 60.f;
     
-    // Restrict any player hitbox rotation to only be around the y axis 
+    // Restrict any player hitbox rotation to only be around the y axis
     player_body->setAngularFactor( btVector3(0.f, 1.f, 0.f) );
     
     // Prevent the player from disabling itself
@@ -22,6 +24,8 @@ PlayerMovementSystem::~PlayerMovementSystem() {}
 void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt ) {
     // Ensure player_body has an up to date collision object
     player_body = player->getPhysicsComponent()->getCollisionObject();
+    last_tick_position = player_body->getWorldTransform().getOrigin();
+    last_tick_time = dt;
 
     // Calculate control variables for this timestep
     if( !on_ground && in_air_time > 0 ) in_air_time -= (float)dt;
@@ -50,6 +54,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
 
     // Set friction to 0 by default and change as necessary
     player_body->setFriction(0.f);
+    player_body->setDamping(0.f, 0.f);
 
     // Only rotate if there is a non-canceled movement input
     if( (f ^ b) || (r ^ l) ) {
@@ -122,7 +127,10 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         if( on_ground ) {
             // Set friction high to prevent sliding
             player_body->setFriction(10.f);
-            player_body->applyCentralImpulse( btVector3(0.f, -1000.f, 0.f) );
+            player_body->setDamping(.999f, .999f);
+            if( moved_last_tick ) {
+                player_body->applyCentralImpulse( btVector3(0.f, -1000.f, 0.f) );
+            }
         }
     }
 
@@ -139,8 +147,11 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
 }
 
 void PlayerMovementSystem::makePostPhysicsAdjustments() {
+    btVector3 current_position = player_body->getWorldTransform().getOrigin();
+    btScalar last_speed = ((current_position - last_tick_position) / last_tick_time).length2();
+
     // If the player was on the ground before the last physics tick, attempt to keep them on the ground
-    if( moved_last_tick && on_ground ) {
+    if( last_speed > .4 && on_ground ) {
         btVector3 current_position = player_body->getWorldTransform().getOrigin();
         btVector3 ray_to = current_position - btVector3( 0.f, 500.f, 0.f );
         btCollisionWorld::ClosestRayResultCallback callback( current_position, ray_to );
@@ -149,12 +160,12 @@ void PlayerMovementSystem::makePostPhysicsAdjustments() {
         if( callback.hasHit() ) {
             btScalar dist = current_position.distance2( callback.m_hitPointWorld );
             btScalar ground_dot = callback.m_hitNormalWorld.getY();
-            if( dist < PLAYER_HEIGHT/2.f+.5f ) {
+            if( dist < PLAYER_HEIGHT/2.f+1.f ) {
                 float adjust_value = (.3f * (1.f - ground_dot));
                 float adjusted_y = PLAYER_HEIGHT/2.f + adjust_value;
                 player_body->getWorldTransform().setOrigin( callback.m_hitPointWorld + btVector3(0.f, adjusted_y, 0.f) );
             }
-        }
+        }        
     }
 }
 

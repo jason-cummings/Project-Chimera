@@ -31,10 +31,10 @@ private:
     btRigidBody *player_body;
 
     bool on_ground, moved_last_tick;
-    btVector3 ground_contact_normal, ground_contact_position;
+    btVector3 ground_contact_normal, ground_contact_position, last_tick_position;
     Obstacle *current_ground;
     
-    float jump_cool_down, in_air_time;
+    float jump_cool_down, in_air_time, last_tick_time;
 
 public:
     PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr );
