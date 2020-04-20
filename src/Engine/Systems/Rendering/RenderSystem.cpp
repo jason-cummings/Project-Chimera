@@ -12,32 +12,26 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( quad_vao );
 	
 	// Create the VBO for the quad
-	glGenBuffers( 1 , &quad_vbo );
+	glGenBuffers( 1, &quad_vbo );
 	glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
 	glBufferData( GL_ARRAY_BUFFER, sizeof(float) * 30, &quad_vbo_data, GL_STATIC_DRAW );
 
 	glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
-    glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
+	glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
 	glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
-    glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
+	glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
 
-    glBindVertexArray(0);
-    
+	glBindVertexArray(0);
 
 	// Get the shader manager
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
-	
+
 	texture_width = 3840;
 	texture_height = 2160;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
-
-	std::string color_tex_path = Asset::assetPath().append("Textures/codercat.jpg").string();
-	std::string emissive_tex_path = Asset::assetPath().append("Textures/black.jpg").string();
-	GLuint color_tex = TextureLoader::loadTexture( color_tex_path, false );
-	GLuint emissive_tex = TextureLoader::loadTexture( emissive_tex_path, false );
 }
 
 // Create and return the singleton instance of RenderSystem

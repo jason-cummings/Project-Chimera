@@ -1,5 +1,7 @@
 #include "LevelLoader.hpp"
 
+#define DEBUG_LOADER
+
 // Calls loadLevel with the passed in level name
 LevelLoader::LevelLoader( std::string level_name ) {
     scene = nullptr;
@@ -132,29 +134,33 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
 }
 
 void LevelLoader::loadMeshes( fs::path dir ) {
-    // Loop through all folders in the mesh dir and added them to the loaded_meshes
-    for( auto& mesh_dir: fs::directory_iterator(dir) ) {
-        // Create the mesh from the found VBO and IBO
-        fs::path mesh_path = mesh_dir.path();
-        Mesh* created_mesh = MeshFactory::createBasicMesh( mesh_path );
-        
-        // Test if the mesh has a material
-        fs::path material_path = mesh_dir.path();
-        material_path.append( OBJECT_MATERIAL_FNAME );
-        if( fs::exists( material_path ) ) {
-            // Use the found material
-            std::string material_name = getPropertyContents( material_path );
-            created_mesh->setMaterial( loaded_materials[material_name] );
+    if( fs::exists(dir) ) {
+        // Loop through all folders in the mesh dir and added them to the loaded_meshes
+        for( auto& mesh_dir: fs::directory_iterator(dir) ) {
+            // Create the mesh from the found VBO and IBO
+            fs::path mesh_path = mesh_dir.path();
+            Mesh* created_mesh = MeshFactory::createBasicMesh( mesh_path );
+            
+            // Test if the mesh has a material
+            fs::path material_path = mesh_dir.path();
+            material_path.append( OBJECT_MATERIAL_FNAME );
+            if( fs::exists( material_path ) ) {
+                // Use the found material
+                std::string material_name = getPropertyContents( material_path );
+                created_mesh->setMaterial( loaded_materials[material_name] );
+            }
+            loaded_meshes[mesh_path.filename().string()] = created_mesh;
         }
-        loaded_meshes[mesh_path.filename().string()] = created_mesh;
     }
 }
 
 void LevelLoader::loadCollisionShapes( fs::path dir ) {
-    // Loop through all folders in the mesh dir and added them to the loaded_meshes
-    for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
-        fs::path col_shape_path = col_shape_dir.path();
-        loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
+    if( fs::exists(dir) ) {
+        // Loop through all folders in the mesh dir and added them to the loaded_meshes
+        for( auto& col_shape_dir: fs::directory_iterator(dir) ) {
+            fs::path col_shape_path = col_shape_dir.path();
+            loaded_collision_shapes[col_shape_path.filename().string()] = RigidBodyFactory::createBvhTriangleMeshFromFiles( col_shape_path );
+        }
     }
 }
 
@@ -204,6 +210,9 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
         btBvhTriangleMeshShape * use_shape = loaded_collision_shapes[obj_props->collision_shape_id];
         RigidBodyPhysicsComponent *use_physics = RigidBodyFactory::createBvhTriangleMeshComponent( obj_props->identifier, use_shape, obj_props->scaling );
         obj = new Obstacle( obj_props->identifier, use_mesh, use_physics );
+
+        // Add a reference from the collision object to the GameObject it represents
+        use_physics->getCollisionObject()->setUserPointer( (void *)obj );
     }
     else if( has_mesh && !has_collision_shape ) {
         // std::cout << "Creating a scene renderable: " << obj_props->identifier << std::endl;
