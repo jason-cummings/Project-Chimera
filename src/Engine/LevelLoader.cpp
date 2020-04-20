@@ -261,23 +261,25 @@ void LevelLoader::loadAnimations(fs::path dir) {
 }
 
 void LevelLoader::loadJointList(fs::path dir) {
-    fs::path joints_size_dir = dir;
-    joints_size_dir.append("JointListSize");
+    if( fs::exists(dir) ) {
+        fs::path joints_size_dir = dir;
+        joints_size_dir.append("JointListSize");
 
 
-    Asset size(joints_size_dir);
-    int num_joints = *((int *)size.getBuffer());
+        Asset size(joints_size_dir);
+        int num_joints = *((int *)size.getBuffer());
 
-    std::cout << "Loading joints: " << num_joints << std::endl;
-    
-    if(num_joints > 0) {
+        std::cout << "Loading joints: " << num_joints << std::endl;
+        
+        if(num_joints > 0) {
 
-        joint_list = new JointList();
+            joint_list = new JointList();
 
-        for(int i = 0; i < num_joints; i++) {
-            fs::path index_dir = dir;
-            index_dir.append(std::to_string(i));
-            joint_list->addJoint(loadJoint(index_dir));
+            for(int i = 0; i < num_joints; i++) {
+                fs::path index_dir = dir;
+                index_dir.append(std::to_string(i));
+                joint_list->addJoint(loadJoint(index_dir));
+            }
         }
     }
 }
