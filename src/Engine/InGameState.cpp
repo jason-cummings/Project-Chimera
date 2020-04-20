@@ -133,6 +133,8 @@ void InGameState::prePhysics() {
 }
 
 void InGameState::postPhysics() {
+    playerMovement->makePostPhysicsAdjustments();
+
     scene->updateTransformFromPhysics( glm::vec3(1.f), glm::mat4(1.f) );
 }
 

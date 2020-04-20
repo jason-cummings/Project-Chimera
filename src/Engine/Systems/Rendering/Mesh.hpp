@@ -14,10 +14,10 @@ private:
 	GLuint vbo;
 	GLuint ibo;
 	int num_vertices;
-	Material* material;
+	Material *material;
 
 public:
-	Mesh() {vao=0;vbo=0;ibo=0;num_vertices=0;}
+	Mesh(): vao(0), vbo(0), ibo(0), num_vertices(0), material(nullptr) {}
 	Mesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in);
 	~Mesh();
 

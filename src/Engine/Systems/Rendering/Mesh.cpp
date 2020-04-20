@@ -5,8 +5,9 @@ Mesh::Mesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
 	vbo = vbo_in;
 	ibo = ibo_in;
 	num_vertices = num_vertices_in;
+	material = Material::getDefaultMaterial();
 
-	glGenVertexArrays( 1, &vao);
+	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
 
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
@@ -30,7 +31,7 @@ Mesh::Mesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
 }
 
 Mesh::~Mesh() {
-	glDeleteVertexArrays(1,&vao);
+	glDeleteVertexArrays( 1, &vao );
 }
 
 void Mesh::draw() {

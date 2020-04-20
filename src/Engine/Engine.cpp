@@ -25,6 +25,9 @@ bool Engine::init( std::string level_to_load ) {
 
     // Call to initialize RenderSystem singleton
     RenderSystem &rs = RenderSystem::getRenderSystem();
+
+    // Load the default material now that all GL stuff is initialized
+    Material::loadDefaultMaterial();
     
     // Create a new state
     state = new InGameState( level_to_load );

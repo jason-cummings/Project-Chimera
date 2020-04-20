@@ -12,7 +12,6 @@
 
 #include "Systems/Rendering/MeshFactory.hpp"
 #include "Systems/Rendering/Material.hpp"
-#include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
 #include "Systems/Animation/AnimationFactory.hpp"
 #include "Systems/Animation/Joint.hpp"
@@ -55,7 +54,6 @@ struct LoadedObjectProperties {
     std::string mesh_id = "";
     std::string skinned_mesh_id = "";
     std::string collision_shape_id = "";
-    std::string material_id = "";
 
     // corresponds to a bone file in the directory. the value of the file does not matter,
     // just its existence

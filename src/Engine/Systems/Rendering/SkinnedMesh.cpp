@@ -52,6 +52,8 @@ SkinnedMesh::SkinnedMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in, Join
     glVertexAttribPointer( ShaderAttrib::Joint_Weight_4,   1, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(22*sizeof(GLfloat) + 4*sizeof(GLint)) );
 
     glBindVertexArray( 0 );
+
+    material = Material::getDefaultMaterial();
 }
 
 SkinnedMesh::~SkinnedMesh() {
