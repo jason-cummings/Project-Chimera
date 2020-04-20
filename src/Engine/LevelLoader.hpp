@@ -8,21 +8,25 @@
 #include "GameObject.hpp"
 #include "GameObjects/Obstacle.hpp"
 #include "GameObjects/SceneRenderable.hpp"
+#include "GameObjects/Player.hpp"
 
 #include "Systems/Rendering/MeshFactory.hpp"
 #include "Systems/Rendering/Material.hpp"
 #include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
 #include "Systems/Animation/AnimationFactory.hpp"
+#include "Systems/Animation/Joint.hpp"
 
 #include "WAIWrapper.hpp"
 #include "FilesystemWrapper.hpp"
 
 // Root directory for any levels
 #define LEVELS_DIRECTORY "Assets/Levels/"
+#define PLAYER_MODEL_DIRECTORY "Assets/Player_Model"
 
 // Directories of stored properties under the level root directory 
 #define LEVEL_MESH_DNAME                "Meshes"
+#define LEVEL_SKINNED_MESH_DNAME        "SkinnedMeshes"
 #define LEVEL_MATERIALS_DNAME           "Materials"
 #define LEVEL_COLLISION_SHAPES_DNAME    "Hitboxes"
 #define LEVEL_TEXTURES_DNAME            "Textures"
@@ -34,11 +38,13 @@
 
 // Filenames of property files in object hierarchy
 #define OBJECT_MESH_FNAME               "Mesh.txt"
+#define OBJECT_SKINNED_MESH_FNAME       "SkinnedMesh.txt"
 #define OBJECT_MATERIAL_FNAME           "Material.txt"
 #define OBJECT_COLLISION_SHAPE_FNAME    "Hitbox.txt"
 #define OBJECT_ROTATION_FNAME           "rotation"
 #define OBJECT_SCALING_FNAME            "scaling"
 #define OBJECT_TRANSLATION_FNAME        "translation"
+#define OBJECT_BONE_FNAME               "bone"
 
 // Struct to store all the necessary properties to construct a GameObject from the level hierarchy
 struct LoadedObjectProperties {
@@ -47,8 +53,13 @@ struct LoadedObjectProperties {
     // Correspond to filenames under the approriate directory for the level
     // If left empty, the object does not have that property
     std::string mesh_id = "";
+    std::string skinned_mesh_id = "";
     std::string collision_shape_id = "";
     std::string material_id = "";
+
+    // corresponds to a bone file in the directory. the value of the file does not matter,
+    // just its existence
+    bool is_bone = false;
 
     // Transformation values
     glm::vec3 scaling = glm::vec3(1.f);
@@ -67,9 +78,11 @@ private:
     GameObject *scene;
 
     std::vector<AnimationStack*> animation_stacks;
+    JointList * joint_list;
 
     // The objects loaded for the scene
     std::map<std::string, Mesh*> loaded_meshes;
+    std::map<std::string, SkinnedMesh*> loaded_skinned_meshes;
     std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
     std::map<std::string, Material*> loaded_materials;
 
@@ -86,10 +99,13 @@ private:
     
     // Create meshes, collision objects, materirals, and animations for the level from their directories
     void loadMeshes( fs::path dir );
+    void loadSkinnedMeshes( fs::path dir );
     void loadCollisionShapes( fs::path dir );
 
     void loadMaterials( fs::path dir, fs::path textures_dir );
     void loadAnimations(fs::path dir);
+    void loadJointList(fs::path dir);
+    Joint loadJoint(fs::path dir);
 
     // Create the scene GameObject and all of its children
     void createScene( LoadedObjectProperties * scene_root_props );
@@ -111,6 +127,12 @@ public:
     // inline getters for animations
     int getNumAnimationStacks() {return animation_stacks.size();};
     AnimationStack* getAnimationStack(int i) {return animation_stacks[i];};
+
+    // return the joint list, null if no joints in this file
+    JointList * getJointList() {return joint_list;}
+
+    static LevelLoader * loadCharacterModel();
+    static LevelLoader * loadLevelFile(std::string name);
 }; 
 
 #endif

@@ -28,8 +28,8 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
 	
-	texture_width = 3840;
-	texture_height = 2160;
+	texture_width = 2880;//3840;
+	texture_height = 1800;//2160;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
@@ -98,14 +98,37 @@ void RenderSystem::drawQuad() {
 }
 
 void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
-	for(int i = 0; i < meshList.size(); i++) {
-		glm::mat4 transform = meshList[i]->getWorldTransform();
+	for(int i = 0; i < mesh_list.size(); i++) {
+		glm::mat4 transform = mesh_list[i]->getWorldTransform();
 		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(transform)));
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		Mesh *to_draw = meshList[i]->getMesh();
+		Mesh *to_draw = mesh_list[i]->getMesh();
 		Material *mat_to_use = to_draw->getMaterial();
+		
+		// mat_to_use->bind( shader );
+		TEMP_material->bind( shader );
+		to_draw->draw();
+	}
+}
+
+void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
+	for(int i = 0; i < skinned_mesh_list.size(); i++) {
+		glm::mat4 transform = skinned_mesh_list[i]->getWorldTransform();
+		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(transform)));
+		shader->setUniformMat4( "Model", transform );
+		shader->setUniformMat3( "NormalMatrix", normal_matrix );
+
+		SkinnedMesh *to_draw = skinned_mesh_list[i]->getSkinnedMesh();
+
+		JointList * joint_list = to_draw->getJointList();
+		int num_bones = joint_list->getNumBones();
+		std::vector<glm::mat4> * buffer = joint_list->getTransformMatrices();
+		for(int i = 0; i < num_bones; i++) {
+			shader->setUniformMat4("boneMatrices[" + std::to_string(i) + "]", (*buffer)[i]);
+		}
+		//Material *mat_to_use = to_draw->getMaterial();
 		
 		// mat_to_use->bind( shader );
 		TEMP_material->bind( shader );
@@ -137,11 +160,16 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 
 	// Perform shading
 	shadingStep();
+
+	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
 	if(game_object->hasMesh()) {
-		meshList.push_back(game_object);
+		mesh_list.push_back(game_object);
+	}
+	if(game_object->hasSkinnedMesh()) {
+		skinned_mesh_list.push_back(game_object);
 	}
 	for(int i = 0; i < game_object->getNumChildren(); i++) {
 		populateRenderLists(game_object->getChild(i));
@@ -180,13 +208,25 @@ void RenderSystem::deferredRenderStep() {
 	// Perform rendering
 	drawMeshList(true,deferred_shader);
 
+	Shader *skinned_deferred_shader = sm->getShader("skinned-deferred");
+	skinned_deferred_shader->bind();
+	deferred_buffer.bind();
+
+	skinned_deferred_shader->setUniformMat4( "View", view_mat );
+	skinned_deferred_shader->setUniformMat4( "Projection", proj_mat );
+
+	skinned_deferred_shader->setUniformFloat( "materialShininess", 32.f );
+
+	drawSkinnedMeshList(true, skinned_deferred_shader);
+
 	// Return to default framebuffer and program
 	glDisable( GL_DEPTH_TEST );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
 	testGLError("Deferred Rendering");
 
-	meshList.clear(); // this probably should be moved
+	mesh_list.clear(); // this probably should be moved
+	skinned_mesh_list.clear();
 }
 
 void RenderSystem::shadingStep() {

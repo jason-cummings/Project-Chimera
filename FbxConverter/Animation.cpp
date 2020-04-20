@@ -89,8 +89,24 @@ std::vector<ControlPointBoneWeights> SkeletonProcessor::processDeformers(FbxNode
 }
 
 void SkeletonProcessor::exportJointList(std::string directory) {
-		std::ofstream joint_list_file (directory + "/Joints", std::ios::out | std::ios::binary);
-		joint_list_file.write((const char *)&joint_hierarchy[0],joint_hierarchy.size() * sizeof(Joint));
-		joint_list_file.close();
+		std::ofstream joint_list_size_file (directory + "/JointListSize", std::ios::out | std::ios::binary);
+		int size = joint_hierarchy.size();
+		joint_list_size_file.write((const char *)&size,sizeof(int));
+		joint_list_size_file.close();
+
+
+		for( int i = 0; i < joint_hierarchy.size(); i++ ) {
+			std::string index_dir = directory + "/" + std::to_string(i);
+			createFolder(index_dir);
+
+			std::ofstream name_file;
+			name_file.open(index_dir + "/name");
+			name_file << joint_hierarchy[i].name;
+			name_file.close();
+
+			std::ofstream parent_index_file (index_dir + "/parent", std::ios::out | std::ios::binary);
+			parent_index_file.write((const char *)&(joint_hierarchy[i].parent_index),sizeof(int));
+			parent_index_file.close();
+		}
 }
 

@@ -1,4 +1,4 @@
-#include "FBXParser.h"
+#include "FbxParser.h"
 
 // build
 // g++ -I/Applications/Autodesk/FBX\ SDK/2020.0.1/include  -L/Applications/Autodesk/FBX\ SDK/2020.0.1/lib/clang/release/ -lfbxsdk FbxParser.cpp
@@ -95,14 +95,19 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	FbxDouble3 rotation = node->LclRotation.Get();
 	FbxDouble3 scaling = node->LclScaling.Get();
 
+	FbxVector4 postTargetRotation = node->GetTargetUpVector();
+
 	glm::vec3 translationVector = glm::vec3(translation[0],translation[1],translation[2]);
-	glm::vec3 rotationVector = glm::vec3(rotation[0],rotation[1],rotation[2]);
+	glm::vec3 rotationVector = glm::vec3(rotation[0] + postTargetRotation[0],
+										 rotation[1] + postTargetRotation[1],
+										 rotation[2] + postTargetRotation[2]);
 	glm::vec3 scalingVector = glm::vec3(scaling[0],scaling[1],scaling[2]);
 
 
 	std::cout << depth << "Node: " << node->GetName() << std::endl;
 	std::cout << depth << " - translation: " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
 	std::cout << depth << " - rotation: " << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << std::endl;
+	std::cout << depth << " - rotation2: " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2] << std::endl;
 	std::cout << depth << " - scaling: " << scaling[0] << ", " << scaling[1] << ", " << scaling[2] << std::endl;
 
 	//store transform data
@@ -119,9 +124,12 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	scalingFile.write((const char *)&scalingVector[0],sizeof(glm::vec3));
 	scalingFile.close();
 
+
+
 	processNodeForAnimation(node);
 
 	FbxNodeAttribute * attribute = node->GetNodeAttribute();
+
 	if(attribute) {
 		if(attribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
 			std::cout << depth << " - Node has mesh" << std::endl;
@@ -131,9 +139,16 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 			std::cout << depth << " - Mesh has " << mesh->GetDeformerCount() << " deformers" << std::endl;
 			if(mesh->GetDeformerCount() > 0) {
 				std::cout << depth << " - Processing deformers for this mesh" << std::endl;
-				processSkinnedMesh(mesh,node_directory,skeleton_processor.processDeformers(node));
+				std::vector<ControlPointBoneWeights> temp = skeleton_processor.processDeformers(node);
+				processSkinnedMesh(mesh,node_directory,temp);
 			}
 			else processMesh(mesh,node_directory);
+		}
+
+		if(attribute->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
+			std::ofstream boneFile(node_directory + "/bone");
+			boneFile << "1";
+			boneFile.close();
 		}
 	}
 
@@ -202,7 +217,7 @@ void FbxParser::processMesh(FbxMesh * mesh, std::string parent_directory) {
 }
 
 
-void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights> bone_weights) {
+void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights>& bone_weights) {
 	int mesh_index = 0;
 	if(skinned_mesh_optimizer.checkExists(mesh)) {
 		std::cout << "Mesh exists: " << skinned_mesh_optimizer.getIndex(mesh) << std::endl;
@@ -238,6 +253,13 @@ void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,
 
 				v.joint_index_3 = bone_weights[vertex_index].indexes[3];
 				v.joint_weight_3 = bone_weights[vertex_index].weights[3];
+
+				std::cout << " - index: " << bone_weights[vertex_index].indexes[0] << ", " <<bone_weights[vertex_index].weights[0] <<std::endl;
+				std::cout << "   index: " << bone_weights[vertex_index].indexes[1] << ", " <<bone_weights[vertex_index].weights[1] <<std::endl;
+				std::cout << "   index: " << bone_weights[vertex_index].indexes[2] << ", " <<bone_weights[vertex_index].weights[2] <<std::endl;
+				std::cout << "   index: " << bone_weights[vertex_index].indexes[3] << ", " <<bone_weights[vertex_index].weights[3] <<std::endl;
+
+				std::cout << " - index: " << v.joint_index_0 << ", " << v.joint_weight_0 <<std::endl;
 
 				me.addVertex(v);
 

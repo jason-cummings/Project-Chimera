@@ -12,20 +12,50 @@ void InGameState::init() {
     camera = new Camera();
     render_system.registerCamera( camera );
 
-    LevelLoader level_loader(current_level);
-    scene = level_loader.getScene();
-    for(int i = 0; i < level_loader.getNumAnimationStacks(); i++) {
-        animation_system->addAnimationStack(level_loader.getAnimationStack(i));
+    LevelLoader * level_loader = LevelLoader::loadLevelFile(current_level);
+    scene = level_loader->getScene();
+    for(int i = 0; i < level_loader->getNumAnimationStacks(); i++) {
+        animation_system->addAnimationStack(level_loader->getAnimationStack(i));
+    }
+
+    if(level_loader->getJointList() != nullptr) {
+        animation_system->addJointList(level_loader->getJointList());
     }
     addPhysicsThings();
 
+    delete level_loader;
+
     // Create a player and add it to the scene
-    Player* player = new Player();
-    glm::vec3 pscale(1.f);
-    // glm::vec3 pscale(.01f);
-    player->setTransform( pscale, glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 10.f, 0.f) );
-    scene->addChild( player );
-    player->addChild( camera );
+    // Player* player = new Player();
+    // glm::vec3 pscale(1.f);
+    // player->setTransform( pscale, glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 10.f, 0.f) );
+    // scene->addChild( player );
+    // player->addChild( camera );
+
+    // load the player file and put it into the scene
+    LevelLoader * player_loader = LevelLoader::loadCharacterModel();
+    GameObject * character_scene = player_loader->getScene();
+
+    for(int i = 0; i < player_loader->getNumAnimationStacks(); i++) {
+        animation_system->addAnimationStack(player_loader->getAnimationStack(i));
+    }
+
+    if(player_loader->getJointList() != nullptr) {
+        animation_system->addJointList(player_loader->getJointList());
+    }
+
+    Player * player = (Player *)(character_scene->getGameObject("chimera"));
+    player->addChild(camera);
+
+    //add character scene to the level
+    for(int i = 0; i < character_scene->getNumChildren(); i++) {
+        scene->addChild(character_scene->getChild(i));
+    }
+
+    delete player_loader;
+
+
+
     
     playerMovement = new PlayerMovementSystem( physics_system, player );
     playerMovement->registerCamera( camera );

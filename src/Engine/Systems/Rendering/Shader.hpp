@@ -19,7 +19,15 @@ enum ShaderAttrib {
     Normal = 2,
     Tangent = 3,
     Bitangent = 4,
-    Texture = 5
+    Texture = 5,
+    Joint_Index_1 = 6,
+    Joint_Weight_1 = 7,
+    Joint_Index_2 = 8,
+    Joint_Weight_2 = 9,
+    Joint_Index_3 = 10,
+    Joint_Weight_3 = 11,
+    Joint_Index_4 = 12,
+    Joint_Weight_4 = 13
 };
 
 enum ShaderAttrib2D {

@@ -181,6 +181,20 @@ GameObject * GameObject::getGameObject(std::string id) {
 	return NULL;
 }
 
+void GameObject::print() {
+	print("");
+}
+void GameObject::print(std::string depth) {
+	std::cout << depth << "GameObject: " << identifier << std::endl;
+	std::cout << depth << " - translation: (" << translation[0] << ", " << translation[1] << ", " << translation[2] << ")" <<std::endl;
+	std::cout << depth << " - rotation: (" << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << ", " << rotation[3] << ")" <<std::endl;
+	std::cout << depth << " - scale: (" << scale[0] << ", " << scale[1] << ", " << scale[2] << ")" <<std::endl;
+
+	for(int i = 0; i < children.size(); i++) {
+		children[i]->print(depth + "    ");
+	}
+}
+
 
 // tests
 

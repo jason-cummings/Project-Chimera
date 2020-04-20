@@ -8,8 +8,9 @@
 #include <glm/glm.hpp>
 #include "MeshExporter.h"
 #include "DataOptimizer.h"
-#include "FolderCreator.h"
 #include "Animation.h"
+#include "FolderCreator.h"
+
 
 struct Keyframe {
 	double time;
@@ -39,7 +40,7 @@ public:
 	void processNodes(FbxNode * node, std::string depth, std::string parent_directory);
 	void processNodesForHitbox(FbxNode * node, std::string depth, std::string parent_directory);
 	void processMesh(FbxMesh * mesh, std::string parent_directory);
-	void processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights> bone_weights);
+	void processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights>& bone_weights);
 	void processMeshForHitbox(FbxMesh * mesh, std::string parent_directory);
 	glm::vec3 getNormal(FbxMesh * mesh, int control_point_index, int vertex_index);
 	glm::vec2 getUV(FbxMesh * mesh,  int control_point_index, int vertex_index);
