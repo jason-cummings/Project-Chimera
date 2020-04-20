@@ -1,6 +1,73 @@
 #include "PlayerMovementSystem.hpp"
 
-PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr ): physics_system(physics_in), player(playerptr), camera(nullptr) {
+
+void PlayerMovementSystem::setPlayerAnimations() {
+    if(player_current_state != player_previous_state) {
+        
+        // structural stuff for blending - keep for now
+
+        // switch(player_previous_state) {
+        //     case PlayerState::Idle:
+        //         switch(player_current_state) {
+        //             case PlayerState::Walking:
+        //                 //start walking animation - blend
+        //             case PlayerState::Running:
+        //                 // start running animation
+        //             case PlayerState::InAir:
+        //                 // start jumping animation
+        //         }
+        //     case PlayerState::Walking:
+        //         switch(player_current_state) {
+        //                 case PlayerState::Idle:
+        //                     //start idle animation - blend
+        //                 case PlayerState::Running:
+        //                     // start running animation
+        //                 case PlayerState::InAir:
+        //                     // start jumping animation
+        //             }
+        //     case PlayerState::Running:
+        //         switch(player_current_state) {
+        //                 case PlayerState::Walking:
+        //                     //start walking animation - blend
+        //                 case PlayerState::Idle:
+        //                     // start idle animation
+        //                 case PlayerState::InAir:
+        //                     // start jumping animation
+        //             }
+        //     case PlayerState::InAir:
+        //         switch(player_current_state) {
+        //                 case PlayerState::Walking:
+        //                     //start walking animation - blend
+        //                 case PlayerState::Running:
+        //                     // start running animation
+        //                 case PlayerState::Idle:
+        //                     // start idle animation
+        //             }
+        // }
+        animation_stack->pauseAnimation(animation_names[player_previous_state]);
+        animation_stack->startAnimation(animation_names[player_current_state]);
+        
+    }
+}
+void PlayerMovementSystem::setPlayerState( bool f, bool b, bool r, bool l, bool space, bool shift ) {
+    player_previous_state = player_current_state;
+
+    if(on_ground) {
+        if((f || b || r || l) && !space) {
+            if(shift) {
+                player_current_state = PlayerState::Running;
+            }
+            else player_current_state = PlayerState::Walking;
+        }
+        else if(space) {
+            player_current_state = PlayerState::InAir;
+        }
+        else player_current_state = PlayerState::Idle;
+    }
+    else player_current_state = PlayerState::InAir;
+}
+
+PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr,  AnimationStack * animation_stack_in): physics_system(physics_in), player(playerptr), camera(nullptr), animation_stack(animation_stack_in) {
     player_body = player->getPhysicsComponent()->getCollisionObject();
     last_tick_position = player_body->getWorldTransform().getOrigin();
     last_tick_time = 1.f / 60.f;
@@ -17,6 +84,9 @@ PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* p
 
     jump_cool_down = 0;
     in_air_time = 0;
+
+    player_current_state = PlayerState::Idle;
+    player_previous_state = PlayerState::Idle;
 }
 
 PlayerMovementSystem::~PlayerMovementSystem() {}
@@ -144,6 +214,9 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         jump_cool_down = JUMP_COOLDOWN_TIME;
         in_air_time = .2f;
     }
+
+    setPlayerState( f, b, r, l, space, shift );
+    setPlayerAnimations();
 }
 
 void PlayerMovementSystem::makePostPhysicsAdjustments() {

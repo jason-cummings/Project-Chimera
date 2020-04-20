@@ -5,7 +5,7 @@ int main( int argc, char *argv[] )
 {
 	std::cout << "Welcome to Project Chimera" << std::endl;
 
-	std::string level_to_load( "RaptorLand" );
+	std::string level_to_load( "Diving" );
 	if( argc > 1 ) {
 		level_to_load = argv[1];
 	}

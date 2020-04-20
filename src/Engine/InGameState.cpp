@@ -57,7 +57,7 @@ void InGameState::init() {
 
 
     
-    playerMovement = new PlayerMovementSystem( physics_system, player );
+    playerMovement = new PlayerMovementSystem( physics_system, player, player_loader->getAnimationStack(0) );
     playerMovement->registerCamera( camera );
 
     // Add the scene graph to Bullet and set the transforms appropriately

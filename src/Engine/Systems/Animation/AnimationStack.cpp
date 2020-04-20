@@ -13,7 +13,7 @@ void AnimationStack::addAnimationLayer(AnimationLayer * layer) {
 	int index = animations.size();
 	animations.push_back(layer);
 	animation_indexes.insert ( std::pair<std::string,int>(layer->getName(),index) );
-	active_animations.push_back(true);
+	active_animations.push_back(false);
 }
 
 void AnimationStack::evaluateAnimations(double dt) {
