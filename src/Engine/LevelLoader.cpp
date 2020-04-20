@@ -199,25 +199,27 @@ void LevelLoader::loadMeshes( fs::path dir ) {
 
 void LevelLoader::loadSkinnedMeshes( fs::path dir ) {
     // Loop through all folders in the mesh dir and added them to the loaded_meshes
-    for( auto& skinned_mesh_dir: fs::directory_iterator(dir) ) {
-        // Create the mesh from the found VBO and IBO
-        fs::path skinned_mesh_path = skinned_mesh_dir.path();
-        SkinnedMesh* created_mesh = MeshFactory::createSkinnedMesh( skinned_mesh_path, joint_list );
-        
-        // Test if the mesh has a material
-        fs::path material_path = skinned_mesh_dir.path();
-        material_path.append( OBJECT_MATERIAL_FNAME );
-        if(fs::exists( material_path )){
-            // Use the found material
-            std::string material_name = getPropertyContents( material_path );
-            created_mesh->setMaterial( loaded_materials[material_name] );
+    if( fs::exists(dir) ) {
+        for( auto& skinned_mesh_dir: fs::directory_iterator(dir) ) {
+            // Create the mesh from the found VBO and IBO
+            fs::path skinned_mesh_path = skinned_mesh_dir.path();
+            SkinnedMesh* created_mesh = MeshFactory::createSkinnedMesh( skinned_mesh_path, joint_list );
+            
+            // Test if the mesh has a material
+            fs::path material_path = skinned_mesh_dir.path();
+            material_path.append( OBJECT_MATERIAL_FNAME );
+            if(fs::exists( material_path )){
+                // Use the found material
+                std::string material_name = getPropertyContents( material_path );
+                created_mesh->setMaterial( loaded_materials[material_name] );
+            }
+            // else { 
+            //     // Use the default material
+            //     created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
+            // }
+            std::cout << "Created skinned mesh: " << skinned_mesh_path.filename().string() << " pointer: " << created_mesh << std::endl;
+            loaded_skinned_meshes[skinned_mesh_path.filename().string()] = created_mesh;
         }
-        // else { 
-        //     // Use the default material
-        //     created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
-        // }
-        std::cout << "Created skinned mesh: " << skinned_mesh_path.filename().string() << " pointer: " << created_mesh << std::endl;
-        loaded_skinned_meshes[skinned_mesh_path.filename().string()] = created_mesh;
     }
 }
 
