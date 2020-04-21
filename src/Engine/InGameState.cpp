@@ -23,7 +23,6 @@ void InGameState::init() {
     }
     addPhysicsThings();
 
-    delete level_loader;
 
     // Create a player and add it to the scene
     // Player* player = new Player();
@@ -52,8 +51,6 @@ void InGameState::init() {
         scene->addChild(character_scene->getChild(i));
     }
 
-    delete player_loader;
-
 
 
     
@@ -71,6 +68,9 @@ void InGameState::init() {
     d = false;
     shift = false;
     space = false;
+
+    delete level_loader;
+    delete player_loader;
 }
 
 
