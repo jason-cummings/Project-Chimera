@@ -35,7 +35,7 @@ void MainMenu::handleMouseButtonDown( SDL_Event e ) {
         for(int i = 0; i < buttons.size(); i++){
             if(buttons[i]->clickTest(menu_x,menu_y)){
                 lastpressed = buttons[i];
-                std::cout << "Downed " << lastpressed->getID() << std::endl;
+                // std::cout << "Downed " << lastpressed->getID() << std::endl;
             }
         }
     }

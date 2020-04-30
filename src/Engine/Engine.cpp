@@ -28,10 +28,9 @@ bool Engine::init( std::string level_to_load ) {
 
     // Load the default material now that all GL stuff is initialized
     Material::loadDefaultMaterial();
-    
+
     // Create a new state
     state = new MainMenu();
-
 
     // Reshape the state with the window size
     glm::vec2 window_size = window.getDrawableSize();
@@ -80,8 +79,11 @@ void Engine::quitEngine() {
 // Update all systems and states, then render
 void Engine::tick() {
 
-    if( state != state->getNextState() ) {
+    if( state->getNextState() != nullptr ) {
         state = state->getNextState();
+        glm::vec2 draw_size = window.getDrawableSize();
+        state->reshape( (int)draw_size.x, (int)draw_size.y );
+        window.setMouseLock( state->shouldLockMouse() );
     }
     // Test for input events
     handleSDLEvents();

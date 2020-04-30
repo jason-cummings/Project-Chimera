@@ -27,6 +27,8 @@ public:
     void handleMouseButtonUp( SDL_Event e ) override;
 
     void gameLoop() override {}
+    
+    bool shouldLockMouse() override { return false; }
 };
 
 

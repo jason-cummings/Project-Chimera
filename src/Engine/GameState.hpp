@@ -43,7 +43,7 @@ protected:
 
 public:
     virtual ~GameState() {}
-    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; init_success = true; }
+    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; init_success = true; next_state = nullptr; }
 
     inline bool getInitSuccess() { return init_success; }
 
@@ -74,6 +74,8 @@ public:
     inline GameState* getNextState() const { return next_state; }
 
     inline bool getQuitGame() { return quit_game; }
+
+    virtual bool shouldLockMouse() { return true; }
 
 };
 
