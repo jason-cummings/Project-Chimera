@@ -21,6 +21,8 @@ MainMenu::~MainMenu(){
 void MainMenu::handleMouseButtonDown( SDL_Event e ) {
     // On Left Click
     if( e.button.button == SDL_BUTTON_LEFT ) {
+        lastpressed = nullptr;
+
         // Click coordinates (in pixels)
         int x = 0, y = 0;
         SDL_GetMouseState( &x, &y );
@@ -32,8 +34,8 @@ void MainMenu::handleMouseButtonDown( SDL_Event e ) {
         float menu_y = y / (float)w_height;
 
         // Find button clicked - set to lastpressed
-        for(int i = 0; i < buttons.size(); i++){
-            if(buttons[i]->clickTest(menu_x,menu_y)){
+        for( int i = 0; i < buttons.size(); i++ ) {
+            if( buttons[i]->clickTest(menu_x,menu_y) ) {
                 lastpressed = buttons[i];
                 // std::cout << "Downed " << lastpressed->getID() << std::endl;
             }
@@ -54,7 +56,7 @@ void MainMenu::handleMouseButtonUp( SDL_Event e ){
         float menu_x = x / (float)w_height - (((w_width / (float)w_height) - 1) / 2.f);
         float menu_y = y / (float)w_height;
 
-        if(lastpressed->clickTest(menu_x,menu_y)) {
+        if( lastpressed != nullptr && lastpressed->clickTest(menu_x,menu_y) ) {
             handleButtonEvent(lastpressed);
         }
     }
