@@ -20,6 +20,7 @@ btRigidBody * RigidBodyFactory::createRigidBody( btCollisionShape *collision_sha
     btDefaultMotionState *motion_state = new btDefaultMotionState( default_transform );
     btRigidBody::btRigidBodyConstructionInfo rb_info( bt_mass, motion_state, collision_shape, local_inertia );
     btRigidBody *body = new btRigidBody( rb_info );
+    body->setUserPointer( (void *) nullptr );
 
     return body;
 }
@@ -105,9 +106,9 @@ btBvhTriangleMeshShape * RigidBodyFactory::createBvhTriangleMeshFromFiles( fs::p
         indexed_mesh.m_numTriangles =         indices.getBytes() / sizeof(int) / 3; // 3 indices for a triangle
         indexed_mesh.m_triangleIndexBase =    (const unsigned char*)(indices.copyBuffer());
         indexed_mesh.m_triangleIndexStride =  3 * sizeof(int);
-        indexed_mesh.m_numVertices =          vertices.getBytes() / (3 * sizeof(float)); // 19 data points per vertex
+        indexed_mesh.m_numVertices =          vertices.getBytes() / (3 * sizeof(float)); // 3 data points per vertex (old - 19)
         indexed_mesh.m_vertexBase =           (const unsigned char*)(vertices.copyBuffer());
-        indexed_mesh.m_vertexStride =         3 * sizeof(float); // 19 data points per vertex
+        indexed_mesh.m_vertexStride =         3 * sizeof(float); // 3 data points per vertex (old - 19)
 
         // Create a triangle vertex array with the indexed mesh
         btTriangleIndexVertexArray *mesh_data = new btTriangleIndexVertexArray();
@@ -125,6 +126,7 @@ RigidBodyPhysicsComponent * RigidBodyFactory::createBvhTriangleMeshComponent( st
     // Create a scaled bvh mesh if necessary
     btCollisionShape *use_shape = collision_shape;
     if( scale.x != 1.f || scale.x != 1.f || scale.x != 1.f ) {
+        // std::cout << "Scaling by " << glm::to_string(scale) << std::endl;
         btVector3 bt_scale( scale.x, scale.y, scale.z );
         use_shape = new btScaledBvhTriangleMeshShape( collision_shape, bt_scale );
     }
