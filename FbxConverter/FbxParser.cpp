@@ -110,6 +110,14 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	std::cout << depth << " - rotation2: " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2] << std::endl;
 	std::cout << depth << " - scaling: " << scaling[0] << ", " << scaling[1] << ", " << scaling[2] << std::endl;
 
+	const FbxVector4 lT = node->GetGeometricTranslation(FbxNode::eSourcePivot); 
+    const FbxVector4 lR = node->GetGeometricRotation(FbxNode::eSourcePivot); 
+    const FbxVector4 lS = node->GetGeometricScaling(FbxNode::eSourcePivot); 
+
+    std::cout << depth << " - lT: " << lT[0] << ", " << lT[1] << ", " << lT[2] << ", " << lT[3] << std::endl;
+    std::cout << depth << " - lR: " << lR[0] << ", " << lR[1] << ", " << lR[2] << ", " << lR[3] << std::endl;
+    std::cout << depth << " - lS: " << lS[0] << ", " << lS[1] << ", " << lS[2] << ", " << lS[3] << std::endl;
+
 	//store transform data
 
 	std::ofstream translationFile (node_directory + "/translation", std::ios::out | std::ios::binary);
@@ -242,24 +250,42 @@ void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,
 				v.position = position;
 				v.normal = normal;
 				v.uv = uv;
-				v.joint_index_0 = bone_weights[vertex_index].indexes[0];
-				v.joint_weight_0 = bone_weights[vertex_index].weights[0];
+				// v.joint_index_0 = bone_weights[vertex_index].indexes[0];
+				// v.joint_weight_0 = bone_weights[vertex_index].weights[0];
 
-				v.joint_index_1 = bone_weights[vertex_index].indexes[1];
-				v.joint_weight_1 = bone_weights[vertex_index].weights[1];
+				// v.joint_index_1 = bone_weights[vertex_index].indexes[1];
+				// v.joint_weight_1 = bone_weights[vertex_index].weights[1];
 
-				v.joint_index_2 = bone_weights[vertex_index].indexes[2];
-				v.joint_weight_2 = bone_weights[vertex_index].weights[2];
+				// v.joint_index_2 = bone_weights[vertex_index].indexes[2];
+				// v.joint_weight_2 = bone_weights[vertex_index].weights[2];
 
-				v.joint_index_3 = bone_weights[vertex_index].indexes[3];
-				v.joint_weight_3 = bone_weights[vertex_index].weights[3];
+				// v.joint_index_3 = bone_weights[vertex_index].indexes[3];
+				// v.joint_weight_3 = bone_weights[vertex_index].weights[3];
 
+				for(int i = 0; i < 22; i++) {
+					v.weight_array[i] = 0.0f;
+				}
+				for(int i = 0; i < 4; i++) {
+					v.weight_array[bone_weights[vertex_index].indexes[i]] = bone_weights[vertex_index].weights[i];
+				}
+				// int max = 0;
+				// float max_val = 0;
+				// for(int i = 0; i < 4; i++) {
+				// 	if(bone_weights[vertex_index].weights[i] > max_val) {
+				// 		max = i;
+				// 		max_val = bone_weights[vertex_index].weights[i];
+				// 	}
+				// }
+
+				// v.weight_array[bone_weights[vertex_index].indexes[max]] = 1.0f;
+				
+				std::cout << "Vertex: (" << position[0] << ", " << position[1] << ", " << position[2] << ")" <<std::endl;
 				std::cout << " - index: " << bone_weights[vertex_index].indexes[0] << ", " <<bone_weights[vertex_index].weights[0] <<std::endl;
 				std::cout << "   index: " << bone_weights[vertex_index].indexes[1] << ", " <<bone_weights[vertex_index].weights[1] <<std::endl;
 				std::cout << "   index: " << bone_weights[vertex_index].indexes[2] << ", " <<bone_weights[vertex_index].weights[2] <<std::endl;
 				std::cout << "   index: " << bone_weights[vertex_index].indexes[3] << ", " <<bone_weights[vertex_index].weights[3] <<std::endl;
 
-				std::cout << " - index: " << v.joint_index_0 << ", " << v.joint_weight_0 <<std::endl;
+				// std::cout << " - index: " << v.joint_index_0 << ", " << v.joint_weight_0 <<std::endl;
 
 				me.addVertex(v);
 
