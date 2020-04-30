@@ -33,6 +33,20 @@ void ShaderManager::loadShaders() {
     basic_deferred_shader->addUniform( "emissiveTexture" );
     shaders["basic-deferred"] = basic_deferred_shader;
 
+    Shader *skinned_deferred_shader = new Shader( "skinned-deferred", "SkinnedDeferredShading.vert", "BasicDeferredShading.frag" );
+    skinned_deferred_shader->addUniform( "Model" );
+    skinned_deferred_shader->addUniform( "NormalMatrix" );
+    skinned_deferred_shader->addUniform( "View" );
+    skinned_deferred_shader->addUniform( "Projection" );
+    skinned_deferred_shader->addUniform( "materialShininess" );
+    skinned_deferred_shader->addUniform( "colorTexture" );
+    skinned_deferred_shader->addUniform( "emissiveTexture" );
+
+    for(int i = 0; i < 25; i++) {
+        skinned_deferred_shader->addUniform("boneMatrices[" + std::to_string(i) + "]");
+    }
+    shaders["skinned-deferred"] = skinned_deferred_shader;
+
     Shader *quad_shader = new Shader( "quad", "DrawQuad.vert", "DrawQuad.frag" );
     quad_shader->addUniform( "colorTexture" );
     shaders["quad"] = quad_shader;

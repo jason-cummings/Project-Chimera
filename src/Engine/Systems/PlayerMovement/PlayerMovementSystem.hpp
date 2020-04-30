@@ -9,6 +9,7 @@
 #include "./../../GameObjects/Obstacle.hpp"
 #include "./../../GameObjects/Camera.hpp"
 #include "./../Physics/PhysicsSystem.hpp"
+#include "./../Animation/AnimationStack.hpp"
 
 #define GROUND_MOVE_SPEED 7.f // m/s
 #define GROUND_SPRINT_SPEED 12.f // m/s
@@ -22,6 +23,20 @@
 #define JUMP_COOLDOWN_TIME 0.15f // s
 #define TURN_TIMEFACTOR .1f // s
 
+enum PlayerState {
+    Idle = 0,
+    Walking = 1,
+    Running = 2,
+    InAir = 3
+};
+
+const std::string animation_names[4] = {
+    "idle",
+    "walk",
+    "sprint",
+    "in_air"
+};
+
 class PlayerMovementSystem
 {
 private:
@@ -29,6 +44,7 @@ private:
     Camera *camera;
     PhysicsSystem *physics_system;
     btRigidBody *player_body;
+    AnimationStack * animation_stack;
 
     bool on_ground, moved_last_tick;
     btVector3 ground_contact_normal, ground_contact_position, last_tick_position;
@@ -36,8 +52,15 @@ private:
     
     float jump_cool_down, in_air_time, last_tick_time;
 
+    PlayerState player_current_state;
+    PlayerState player_previous_state;
+
+
+    void setPlayerAnimations();
+    void setPlayerState( bool f, bool b, bool r, bool l, bool space, bool shift );
+
 public:
-    PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr );
+    PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr, AnimationStack * animation_stack_in );
     ~PlayerMovementSystem();
 
     // On ground movement

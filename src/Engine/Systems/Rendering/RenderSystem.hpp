@@ -16,6 +16,7 @@
 #include "Framebuffer.hpp"
 #include "../../GameObject.hpp"
 #include "Mesh.hpp"
+#include "SkinnedMesh.hpp"
 #include "Material.hpp"
 #include "TextureLoader.hpp"
 #include "../../Asset.hpp"
@@ -48,7 +49,8 @@ private:
 
     // vectors for lists of different types of geometry. This will be used to optimize the rendering pipeline by reducing 
     // how often the shader is switched during rendering
-    std::vector<GameObject*> meshList;
+    std::vector<GameObject*> mesh_list;
+    std::vector<GameObject*> skinned_mesh_list;
 
 
     /**
@@ -76,6 +78,7 @@ private:
 
     // draws the meshList
     void drawMeshList(bool useMaterials, Shader * shader);
+    void drawSkinnedMeshList(bool useMaterials, Shader * shader);
 
 
 
