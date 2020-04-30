@@ -51,6 +51,7 @@ std::string LevelLoader::getPropertyContents( fs::path property_path ) const {
 void LevelLoader::createLevel( std::string level_name ) {
     // Ensure that the level can be opened
     fs::path level_path = levelPath(level_name);
+
     if( !fs::exists(level_path) ) {
         std::cerr << "Could not open level " << level_name << std::endl;
         std::cerr << "Directory at path " << level_path << " could not be opened" << std::endl;
@@ -98,6 +99,11 @@ void LevelLoader::createLevel( std::string level_name ) {
     fs::path animation_path = level_path;
     animation_path.append( LEVEL_ANIMATION_DNAME );
     loadAnimations(animation_path);
+
+    //load endgame coordinates
+    fs::path endgame_path = level_path;
+    endgame_path.append( LEVEL_ENDGAME_DNAME );
+    loadEndGame( endgame_path );
 
     //set pointers for joint objects as they need pointers to gameobjects
     if(joint_list) {
@@ -260,6 +266,15 @@ void LevelLoader::loadAnimations(fs::path dir) {
     }
 }
 
+void LevelLoader::loadEndGame(fs::path dir){
+    dir.append(LEVEL_ENDGAME_FNAME);
+    if( fs::exists(dir) ){
+        Asset endGameCoord(dir);
+        endGameCoordVec = *(glm::vec3*)endGameCoord.getBuffer();
+    }
+}
+
+
 void LevelLoader::loadJointList(fs::path dir) {
     if( fs::exists(dir) ) {
         fs::path joints_size_dir = dir;
@@ -283,6 +298,8 @@ void LevelLoader::loadJointList(fs::path dir) {
         }
     }
 }
+
+
 
 Joint LevelLoader::loadJoint(fs::path dir) {
     Joint j;

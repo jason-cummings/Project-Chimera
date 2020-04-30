@@ -79,8 +79,7 @@ void Engine::quitEngine() {
 // Update all systems and states, then render
 void Engine::tick() {
     // Test for input events
-    handleSDLEvents();
-    
+    handleSDLEvents();    
     if( !quit ) {
         // Update the game state
         state->gameLoop();
