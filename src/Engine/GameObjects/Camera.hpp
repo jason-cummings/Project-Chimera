@@ -26,12 +26,16 @@ public:
     inline float getTh() { return th; }
     inline float getPh() { return ph; }
 
+    inline float getOffset() { return offset; }
+    inline void setOffset( float input ) { offset = input; }
+
 private:
     glm::mat4 view_mat;
     glm::mat4 proj_mat;
     float th, ph ;
     int view_width, view_height;
     float aspect_ratio, fov = 55.f;
+    float offset; //Nothing done with offset as of yet
 };
 
 

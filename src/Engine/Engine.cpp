@@ -30,7 +30,8 @@ bool Engine::init( std::string level_to_load ) {
     Material::loadDefaultMaterial();
     
     // Create a new state
-    state = new InGameState( level_to_load );
+    state = new MainMenu();
+
 
     // Reshape the state with the window size
     glm::vec2 window_size = window.getDrawableSize();
@@ -78,8 +79,16 @@ void Engine::quitEngine() {
 // Tick the engine
 // Update all systems and states, then render
 void Engine::tick() {
+
+    if( state != state->getNextState() ) {
+        state = state->getNextState();
+    }
     // Test for input events
     handleSDLEvents();
+
+    if( state->getQuitGame() ) {
+        quitEngine();
+    }
     
     if( !quit ) {
         // Update the game state
