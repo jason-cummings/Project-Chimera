@@ -7,12 +7,12 @@
 #include <glm/glm.hpp>
 #include <vector>
 #include <fstream>
+#include "FolderCreator.h"
 
 struct Joint {
 	int parent_index;
 	std::string name;
 	void * bone_pointer = NULL;
-
 };
 
 struct ControlPointBoneWeights {

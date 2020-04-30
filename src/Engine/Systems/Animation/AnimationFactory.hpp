@@ -6,6 +6,7 @@
 #include "AnimationLayer.hpp"
 #include "AnimationStack.hpp"
 
+#include "../../Asset.hpp"
 #include "../../FilesystemWrapper.hpp"
 
 class AnimationFactory {

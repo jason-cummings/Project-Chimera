@@ -13,15 +13,15 @@
 
 class Player : public GameObject {
 private:
-    Mesh *mesh;
+    SkinnedMesh *skinned_mesh;
     RigidBodyPhysicsComponent *physics;
     
 public:
-    Player();
+    Player(std::string identifier, SkinnedMesh * skinned_mesh_in);
     ~Player();
 
-    inline bool hasMesh() const override { return true; }
-	inline Mesh * getMesh() const override { return mesh; }
+    inline bool hasSkinnedMesh() const override { return true; }
+	inline SkinnedMesh * getSkinnedMesh() const override { return skinned_mesh; }
     inline bool hasPhysicsComponent() const override { return true; }
 	inline RigidBodyPhysicsComponent * getPhysicsComponent() const override { return physics; }
 

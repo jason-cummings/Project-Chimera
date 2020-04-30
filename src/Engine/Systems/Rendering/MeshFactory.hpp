@@ -5,6 +5,7 @@
 #include <string>
 #include <GL/glew.h>
 #include "Mesh.hpp"
+#include "SkinnedMesh.hpp"
 #include "./../../Asset.hpp"
 #include "../../FilesystemWrapper.hpp"
 
@@ -15,7 +16,11 @@ public:
 	//Takes directory as parameter creates assets for the meshes.
 	static Mesh* createBasicMesh(std::string input_directory);
 	static Mesh* createBasicMesh(fs::path input_directory);
+	static SkinnedMesh* createSkinnedMesh(std::string input_directory, JointList * joint_list);
+	static SkinnedMesh* createSkinnedMesh(fs::path input_directory, JointList * joint_list);
 private:
+	static GLuint createVBO(Asset& asset);
+	static GLuint createIBO(Asset& asset);
 };
 
 

@@ -1,4 +1,4 @@
-#include "FBXParser.h"
+#include "FbxParser.h"
 
 // build
 // g++ -I/Applications/Autodesk/FBX\ SDK/2020.0.1/include  -L/Applications/Autodesk/FBX\ SDK/2020.0.1/lib/clang/release/ -lfbxsdk FbxParser.cpp
@@ -95,15 +95,28 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	FbxDouble3 rotation = node->LclRotation.Get();
 	FbxDouble3 scaling = node->LclScaling.Get();
 
+	FbxVector4 postTargetRotation = node->GetTargetUpVector();
+
 	glm::vec3 translationVector = glm::vec3(translation[0],translation[1],translation[2]);
-	glm::vec3 rotationVector = glm::vec3(rotation[0],rotation[1],rotation[2]);
+	glm::vec3 rotationVector = glm::vec3(rotation[0] + postTargetRotation[0],
+										 rotation[1] + postTargetRotation[1],
+										 rotation[2] + postTargetRotation[2]);
 	glm::vec3 scalingVector = glm::vec3(scaling[0],scaling[1],scaling[2]);
 
 
 	std::cout << depth << "Node: " << node->GetName() << std::endl;
 	std::cout << depth << " - translation: " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
 	std::cout << depth << " - rotation: " << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << std::endl;
+	std::cout << depth << " - rotation2: " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2] << std::endl;
 	std::cout << depth << " - scaling: " << scaling[0] << ", " << scaling[1] << ", " << scaling[2] << std::endl;
+
+	const FbxVector4 lT = node->GetGeometricTranslation(FbxNode::eSourcePivot); 
+    const FbxVector4 lR = node->GetGeometricRotation(FbxNode::eSourcePivot); 
+    const FbxVector4 lS = node->GetGeometricScaling(FbxNode::eSourcePivot); 
+
+    std::cout << depth << " - lT: " << lT[0] << ", " << lT[1] << ", " << lT[2] << ", " << lT[3] << std::endl;
+    std::cout << depth << " - lR: " << lR[0] << ", " << lR[1] << ", " << lR[2] << ", " << lR[3] << std::endl;
+    std::cout << depth << " - lS: " << lS[0] << ", " << lS[1] << ", " << lS[2] << ", " << lS[3] << std::endl;
 
 	//store transform data
 
@@ -119,9 +132,12 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	scalingFile.write((const char *)&scalingVector[0],sizeof(glm::vec3));
 	scalingFile.close();
 
+
+
 	processNodeForAnimation(node);
 
 	FbxNodeAttribute * attribute = node->GetNodeAttribute();
+
 	if(attribute) {
 		if(attribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
 			std::cout << depth << " - Node has mesh" << std::endl;
@@ -131,9 +147,16 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 			std::cout << depth << " - Mesh has " << mesh->GetDeformerCount() << " deformers" << std::endl;
 			if(mesh->GetDeformerCount() > 0) {
 				std::cout << depth << " - Processing deformers for this mesh" << std::endl;
-				processSkinnedMesh(mesh,node_directory,skeleton_processor.processDeformers(node));
+				std::vector<ControlPointBoneWeights> temp = skeleton_processor.processDeformers(node);
+				processSkinnedMesh(mesh,node_directory,temp);
 			}
 			else processMesh(mesh,node_directory);
+		}
+
+		if(attribute->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
+			std::ofstream boneFile(node_directory + "/bone");
+			boneFile << "1";
+			boneFile.close();
 		}
 	}
 
@@ -202,7 +225,7 @@ void FbxParser::processMesh(FbxMesh * mesh, std::string parent_directory) {
 }
 
 
-void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights> bone_weights) {
+void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights>& bone_weights) {
 	int mesh_index = 0;
 	if(skinned_mesh_optimizer.checkExists(mesh)) {
 		std::cout << "Mesh exists: " << skinned_mesh_optimizer.getIndex(mesh) << std::endl;
@@ -227,17 +250,42 @@ void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,
 				v.position = position;
 				v.normal = normal;
 				v.uv = uv;
-				v.joint_index_0 = bone_weights[vertex_index].indexes[0];
-				v.joint_weight_0 = bone_weights[vertex_index].weights[0];
+				// v.joint_index_0 = bone_weights[vertex_index].indexes[0];
+				// v.joint_weight_0 = bone_weights[vertex_index].weights[0];
 
-				v.joint_index_1 = bone_weights[vertex_index].indexes[1];
-				v.joint_weight_1 = bone_weights[vertex_index].weights[1];
+				// v.joint_index_1 = bone_weights[vertex_index].indexes[1];
+				// v.joint_weight_1 = bone_weights[vertex_index].weights[1];
 
-				v.joint_index_2 = bone_weights[vertex_index].indexes[2];
-				v.joint_weight_2 = bone_weights[vertex_index].weights[2];
+				// v.joint_index_2 = bone_weights[vertex_index].indexes[2];
+				// v.joint_weight_2 = bone_weights[vertex_index].weights[2];
 
-				v.joint_index_3 = bone_weights[vertex_index].indexes[3];
-				v.joint_weight_3 = bone_weights[vertex_index].weights[3];
+				// v.joint_index_3 = bone_weights[vertex_index].indexes[3];
+				// v.joint_weight_3 = bone_weights[vertex_index].weights[3];
+
+				for(int i = 0; i < 22; i++) {
+					v.weight_array[i] = 0.0f;
+				}
+				for(int i = 0; i < 4; i++) {
+					v.weight_array[bone_weights[vertex_index].indexes[i]] = bone_weights[vertex_index].weights[i];
+				}
+				// int max = 0;
+				// float max_val = 0;
+				// for(int i = 0; i < 4; i++) {
+				// 	if(bone_weights[vertex_index].weights[i] > max_val) {
+				// 		max = i;
+				// 		max_val = bone_weights[vertex_index].weights[i];
+				// 	}
+				// }
+
+				// v.weight_array[bone_weights[vertex_index].indexes[max]] = 1.0f;
+				
+				std::cout << "Vertex: (" << position[0] << ", " << position[1] << ", " << position[2] << ")" <<std::endl;
+				std::cout << " - index: " << bone_weights[vertex_index].indexes[0] << ", " <<bone_weights[vertex_index].weights[0] <<std::endl;
+				std::cout << "   index: " << bone_weights[vertex_index].indexes[1] << ", " <<bone_weights[vertex_index].weights[1] <<std::endl;
+				std::cout << "   index: " << bone_weights[vertex_index].indexes[2] << ", " <<bone_weights[vertex_index].weights[2] <<std::endl;
+				std::cout << "   index: " << bone_weights[vertex_index].indexes[3] << ", " <<bone_weights[vertex_index].weights[3] <<std::endl;
+
+				// std::cout << " - index: " << v.joint_index_0 << ", " << v.joint_weight_0 <<std::endl;
 
 				me.addVertex(v);
 

@@ -14,9 +14,11 @@ AnimationLayer::~AnimationLayer() {
 
 // updates the cur_time variable and evaluates the animation curves
 void AnimationLayer::evaluate(double dt) {
-	cur_time += dt;
-	while(cur_time > max_time) {
-		cur_time -= max_time;
+	if(max_time > 0) {
+		cur_time += dt;
+		while(cur_time > max_time) {
+			cur_time -= max_time;
+		}
 	}
 
 	for(int i = 0; i < curves.size(); i++) {

@@ -37,8 +37,8 @@ void Camera::reshape(int new_width, int new_height){
 }
 
 void Camera::createMatrices(){
-    float offset = 10;
-    glm::vec3 viewpos = glm::vec3( parent->getWorldTransform() * glm::vec4(0.f,0.f,0.f,1.f) );
+    float offset = 3;
+    glm::vec3 viewpos = glm::vec3( parent->getWorldTransform() * glm::vec4(0.f,1.f,0.f,1.f) );
     glm::vec3 eyepos = viewpos + offset * glm::vec3(sin(th) * cos(ph), sin(ph), cos(th) * cos(ph));
     glm::vec3 updir = glm::vec3( 0.f, 1.f, 0.f );
     view_mat = glm::lookAt( eyepos, viewpos, updir );

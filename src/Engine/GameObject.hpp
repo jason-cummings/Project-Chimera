@@ -1,6 +1,8 @@
 #ifndef GAMEOBJECT_HPP
 #define GAMEOBJECT_HPP
 
+class GameObject;
+
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,7 +13,10 @@
 
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
-#include "Systems/Rendering/Mesh.hpp"
+// #include "Systems/Rendering/Mesh.hpp"
+class Mesh;
+// #include "Systems/Rendering/SkinnedMesh.hpp"
+class SkinnedMesh;
 #include "Systems/Physics/RigidBodyPhysicsComponent.hpp"
 
 
@@ -37,10 +42,15 @@ public:
 	GameObject(std::string id);
 	virtual ~GameObject();
 
+	virtual void print();
+	virtual void print(std::string depth);
+
 	std::string getID() const { return identifier; }
 
 	virtual bool hasMesh() const { return false; }
 	virtual Mesh * getMesh() const { return (Mesh *) nullptr; }
+	virtual bool hasSkinnedMesh() const { return false; }
+	virtual SkinnedMesh * getSkinnedMesh() const { return (SkinnedMesh *) nullptr; }
 	virtual bool hasPhysicsComponent() const { return false; }
 	virtual RigidBodyPhysicsComponent * getPhysicsComponent() const { return nullptr; }
 
