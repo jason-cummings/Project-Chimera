@@ -65,7 +65,7 @@ void MainMenu::handleMouseButtonUp( SDL_Event e ){
 
 void MainMenu::handleButtonEvent( MenuButton *clicked ) {
     if( clicked->getID() == PLAY_GAME_BUTTON_ID ) {
-        InGameState *to_set = new InGameState("RaptorLand");
+        InGameState *to_set = new InGameState("Diving");
         setNextState( to_set );
     }
     else if( clicked->getID() == EXIT_GAME_BUTTON_ID ) {
