@@ -7,8 +7,11 @@
 #include "Material.hpp"
 #include "./../Animation/Joint.hpp"
 
-#define N_FLOAT_ATTRIBUTES 23
-#define N_INT_ATTRIBUTES 4
+// #define N_FLOAT_ATTRIBUTES 23
+// #define N_INT_ATTRIBUTES 4
+
+#define N_INT_ATTRIBUTES 0
+#define N_FLOAT_ATTRIBUTES 41
 
 class SkinnedMesh {
 private:

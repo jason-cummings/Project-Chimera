@@ -32,9 +32,9 @@ enum PlayerState {
 
 const std::string animation_names[4] = {
     "idle",
-    "walking_cycle",
-    "walking_cycle",
-    "jump"
+    "walk",
+    "sprint",
+    "in_air"
 };
 
 class PlayerMovementSystem

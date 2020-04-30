@@ -42,7 +42,7 @@ void ShaderManager::loadShaders() {
     skinned_deferred_shader->addUniform( "colorTexture" );
     skinned_deferred_shader->addUniform( "emissiveTexture" );
 
-    for(int i = 0; i < 100; i++) {
+    for(int i = 0; i < 25; i++) {
         skinned_deferred_shader->addUniform("boneMatrices[" + std::to_string(i) + "]");
     }
     shaders["skinned-deferred"] = skinned_deferred_shader;
