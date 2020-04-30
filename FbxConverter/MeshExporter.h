@@ -51,14 +51,21 @@ struct SkinnedVertex {
 	glm::vec3 bitangent;
 	glm::vec2 uv;
 
-	int joint_index_0 = 0;
-	float joint_weight_0 = 0.0f;
-	int joint_index_1 = 0;
-	float joint_weight_1 = 0.0f;
-	int joint_index_2 = 0;
-	float joint_weight_2 = 0.0f;
-	int joint_index_3 = 0;
-	float joint_weight_3 = 0.0f;
+	// int joint_index_0 = 0;
+	// float joint_weight_0 = 0.0f;
+	// int joint_index_1 = 0;
+	// float joint_weight_1 = 0.0f;
+	// int joint_index_2 = 0;
+	// float joint_weight_2 = 0.0f;
+	// int joint_index_3 = 0;
+	// float joint_weight_3 = 0.0f;
+
+	float weight_array[22];/* = {0.0,0.0,0.0,0.0,
+							 0.0,0.0,0.0,0.0,
+							 0.0,0.0,0.0,0.0,
+							 0.0,0.0,0.0,0.0,
+							 0.0,0.0,0.0,0.0,
+							 0.0,0.0};*/
 
 
 	// bool operator<(const Vertex& v2) const{

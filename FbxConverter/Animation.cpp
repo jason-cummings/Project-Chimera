@@ -9,7 +9,7 @@ void SkeletonProcessor::processSkeletonHierarchyRecursive(FbxNode * node, int de
 		joint_hierarchy.push_back(j);
 
 		// debug
-		std::cout << "Joint: " << j.name << ", Depth: " << depth << std::endl;
+		std::cout << "Joint: " << j.name << ", Depth: " << depth << ", Index: " << index << std::endl;
 	}
 
 	for(int i = 0; i < node->GetChildCount(); i++) {
