@@ -11,8 +11,8 @@
 #include "./../Physics/PhysicsSystem.hpp"
 #include "./../Animation/AnimationStack.hpp"
 
-#define GROUND_MOVE_SPEED 7.f // m/s
-#define GROUND_SPRINT_SPEED 12.f // m/s
+#define GROUND_MOVE_SPEED 3.f // m/s
+#define GROUND_SPRINT_SPEED 6.f // m/s
 #define AIR_MOVE_FORCE 1000.f // ?
 #define JUMP_IMPULSE_VALUE 700.f // Newtons?
 
