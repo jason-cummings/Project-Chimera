@@ -43,6 +43,7 @@ private:
     //Check if player is in endgame location 
     bool endGame();
     bool isNear(float input, float goal, float threshold);
+    bool fell();
 
 
 

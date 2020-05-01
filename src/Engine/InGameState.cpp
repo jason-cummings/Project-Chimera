@@ -129,6 +129,14 @@ void InGameState::gameLoop() {
     // Render all
     render_system.render( dt, scene );
 
+    if(fell()){
+        std::cout << "Respawning" <<std::endl;
+        glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
+        player->setTranslation(spawnPoint);
+
+    }
+
+
     //If player reaches end goal
     if(endGame()){
         //TODO Make end game better than spamming you won~
@@ -213,6 +221,11 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
 
 bool InGameState::isNear(float input, float goal, float threshold){
     return abs(goal - input) < threshold;
+}
+
+//If Player falls more than 30m below spawn point
+bool InGameState::fell(){
+    return (player->getWorldTransform()[3][1] < -30)
 }
 
 
