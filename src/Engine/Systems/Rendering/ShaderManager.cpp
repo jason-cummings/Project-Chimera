@@ -65,6 +65,14 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("light.directional");
     cartoon_shading->addUniform("ambientAmount");
     shaders["cartoon"] = cartoon_shading;
+
+    Shader *overlay_shader = new Shader( "overlay", "OverlayShading.vert", "OverlayShading.frag" );
+    overlay_shader->addUniform( "Model" );
+    overlay_shader->addUniform( "View" );
+    overlay_shader->addUniform( "Projection" );
+    overlay_shader->addUniform( "colorTexture" );
+    overlay_shader->addUniform( "emissiveTexture" );
+    shaders["overlay"] = overlay_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

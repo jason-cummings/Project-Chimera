@@ -69,6 +69,7 @@ public:
 
     virtual void reshape( int new_width, int new_height ) {
         camera->reshape( new_width, new_height );
+        render_system.reshape( new_width, new_height );
     }
 
     inline GameState* getNextState() const { return next_state; }

@@ -22,18 +22,12 @@ public:
     MainMenu();
     ~MainMenu();
 
-
     void handleMouseButtonDown( SDL_Event e ) override;
     void handleMouseButtonUp( SDL_Event e ) override;
 
-    void gameLoop() override {}
+    void gameLoop() override;
     
     bool shouldLockMouse() override { return false; }
 };
-
-
-
-
-
 
 #endif

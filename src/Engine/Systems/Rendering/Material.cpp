@@ -10,8 +10,10 @@ Material::Material(GLuint texture_, GLuint emissive_, float shininess_){
     shininess = shininess_;
 }
 
-void Material::bind(Shader *shader) {
-    shader->setUniformFloat( "materialShininess", shininess );
+void Material::bind(Shader *shader, bool use_shininess) {
+    if( use_shininess ) {
+        shader->setUniformFloat( "materialShininess", shininess );
+    }
 
     glActiveTexture( GL_TEXTURE0 );
     glBindTexture( GL_TEXTURE_2D, texture );
@@ -34,6 +36,13 @@ void Material::loadDefaultMaterial() {
 
 
 // MaterialFactory Implementation
+
+Material* MaterialFactory::createMaterial(fs::path input_directory){
+    fs::path default_tex_path = Asset::assetPath();
+    default_tex_path.append("Textures");
+    return createMaterial( input_directory, default_tex_path );
+}
+
 
 Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path textures_folder){
     GLuint texture, emissive;
