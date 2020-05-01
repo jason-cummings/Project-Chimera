@@ -304,7 +304,6 @@ void RenderSystem::renderOverlay() {
 	createOrthoMatrices();
 
 	overlay_shader->setUniformMat4( "Projection", proj_mat );
-	overlay_shader->setUniformMat4( "View", view_mat );
 
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

@@ -68,7 +68,6 @@ void ShaderManager::loadShaders() {
 
     Shader *overlay_shader = new Shader( "overlay", "OverlayShading.vert", "OverlayShading.frag" );
     overlay_shader->addUniform( "Model" );
-    overlay_shader->addUniform( "View" );
     overlay_shader->addUniform( "Projection" );
     overlay_shader->addUniform( "colorTexture" );
     overlay_shader->addUniform( "emissiveTexture" );
