@@ -49,11 +49,12 @@ void PlayerMovementSystem::setPlayerAnimations() {
         
     }
 }
+
 void PlayerMovementSystem::setPlayerState( bool f, bool b, bool r, bool l, bool space, bool shift ) {
     player_previous_state = player_current_state;
 
     if(on_ground) {
-        if((f || b || r || l) && !space) {
+        if(((f ^ b) || (r ^ l)) && !space) {
             if(shift) {
                 player_current_state = PlayerState::Running;
             }
@@ -120,7 +121,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
     }
     
     // Get a vector of the input movements relative to the camera
-    btVector3 camera_relative_move_dir = btVector3( int(f-b) * sin(camera_th) + int(l-r) * cos(camera_th), 0.f, int(f-b) * cos(camera_th) + int(l-r) * -sin(camera_th) );
+    btVector3 camera_relative_move_dir = -btVector3( int(f-b) * sin(camera_th) + int(l-r) * cos(camera_th), 0.f, int(f-b) * cos(camera_th) + int(l-r) * -sin(camera_th) );
 
     // Set friction to 0 by default and change as necessary
     player_body->setFriction(0.f);
@@ -159,7 +160,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
         moved_last_tick = true;
 
         // Create a normal vector in the direction the player is moving
-        btVector3 player_move_dir( -sin(current_th), 0.f, -cos(current_th) );
+        btVector3 player_move_dir( sin(current_th), 0.f, cos(current_th) );
 
         if( on_ground ) {
             // OLD - use for test
