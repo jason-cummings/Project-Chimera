@@ -225,7 +225,7 @@ bool InGameState::isNear(float input, float goal, float threshold){
 
 //If Player falls more than 30m below spawn point
 bool InGameState::fell(){
-    return (player->getWorldTransform()[3][1] < -30)
+    return (player->getWorldTransform()[3][1] < -30);
 }
 
 
