@@ -158,6 +158,9 @@ void InGameState::handleKeyDown( SDL_Event e ) {
     else if( key == SDLK_LSHIFT ) {
         shift = true;
     }
+    else if( key == SDLK_ESCAPE ) {
+        setNextState( new MainMenu() );
+    }
 }
 
 void InGameState::handleKeyUp( SDL_Event e ) {

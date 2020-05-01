@@ -55,10 +55,6 @@ void Engine::handleSDLEvents() {
             // Temporary quit button
             quitEngine();
         }
-        else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE ) {
-            // Temporary mouse lock toggle button
-            window.toggleMouseLock();
-        }
         else if( e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED ) {
             // Resize everything
             glm::vec2 draw_size = window.getDrawableSize();
