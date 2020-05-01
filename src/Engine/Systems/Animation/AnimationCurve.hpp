@@ -24,6 +24,8 @@ public:
 
 	virtual void evaluate(float time) = 0;
 
+	virtual void evaluateWithBlend(float time, float blend_amount) = 0;
+
 	// use friend for factory?
 
 };
@@ -32,6 +34,7 @@ class TranslationAnimationCurve : public AnimationCurve {
 	std::vector<VecKeyframe> keyframes;
 public:
 	void evaluate(float time);
+	void evaluateWithBlend(float time, float blend_amount);
 	void addKeyframe(VecKeyframe keyframe);
 };
 
@@ -39,6 +42,7 @@ class RotationAnimationCurve : public AnimationCurve {
 	std::vector<QuatKeyframe> keyframes;
 public:
 	void evaluate(float time);
+	void evaluateWithBlend(float time, float blend_amount);
 	void addKeyframe(QuatKeyframe keyframe);
 };
 

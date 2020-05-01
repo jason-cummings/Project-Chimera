@@ -2,6 +2,7 @@
 
 AnimationStack::AnimationStack(std::string stack_name) {
 	name = stack_name;
+	sequence_active = false;
 }
 AnimationStack::~AnimationStack() {
 	for(int i = 0; i < animations.size(); i++) {
@@ -20,6 +21,39 @@ void AnimationStack::evaluateAnimations(double dt) {
 	for(int i = 0; i < animations.size(); i++) {
 		if(active_animations[i]) {
 			animations[i]->evaluate(dt);
+		}
+	}
+
+	if(sequence_active) {
+		if(sequence.anim1_complete) {
+			if(sequence.anim2_complete) {
+				sequence_active = false;
+			}
+			else {
+				animations[sequence.anim2_index]->evaluate(dt);
+				if(!sequence.anim2_loop && animations[sequence.anim2_index]->getComplete()) {
+					sequence.anim2_complete = true;
+				}
+			}
+		}
+		else {
+			if(sequence.blend_mode) {
+				sequence.blend_cur_time += dt;
+				if(sequence.blend_cur_time > sequence.blend_duration) {
+					sequence.anim1_complete = true;
+				}
+				else {
+					animations[sequence.anim1_index]->evaluate(dt);
+					animations[sequence.anim2_index]->evaluateWithBlend(dt, sequence.blend_cur_time / sequence.blend_duration);
+				}
+
+			}
+			else {
+				animations[sequence.anim1_index]->evaluate(dt);
+				if(!sequence.anim1_loop && animations[sequence.anim1_index]->getComplete()) {
+					sequence.anim1_complete = true;
+				}
+			}
 		}
 	}
 }
