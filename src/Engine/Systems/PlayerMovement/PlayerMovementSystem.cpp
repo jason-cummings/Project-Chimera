@@ -3,49 +3,110 @@
 
 void PlayerMovementSystem::setPlayerAnimations() {
     if(player_current_state != player_previous_state) {
+
+        AnimationSequenceInfo new_sequence = AnimationSequenceInfo();
+
+        // default animation sequence settings, not used by all blends
+        new_sequence.blend_mode = true;
+
+        new_sequence.animation1 = animation_names[player_previous_state];
+        new_sequence.anim1_start_from_beginning = false;
+        new_sequence.anim1_loop = true;
+
+
+        new_sequence.animation2 = animation_names[player_current_state];
+        new_sequence.anim2_start_from_beginning = true;
+        new_sequence.anim2_loop = true;
         
         // structural stuff for blending - keep for now
 
-        // switch(player_previous_state) {
-        //     case PlayerState::Idle:
-        //         switch(player_current_state) {
-        //             case PlayerState::Walking:
-        //                 //start walking animation - blend
-        //             case PlayerState::Running:
-        //                 // start running animation
-        //             case PlayerState::InAir:
-        //                 // start jumping animation
-        //         }
-        //     case PlayerState::Walking:
-        //         switch(player_current_state) {
-        //                 case PlayerState::Idle:
-        //                     //start idle animation - blend
-        //                 case PlayerState::Running:
-        //                     // start running animation
-        //                 case PlayerState::InAir:
-        //                     // start jumping animation
-        //             }
-        //     case PlayerState::Running:
-        //         switch(player_current_state) {
-        //                 case PlayerState::Walking:
-        //                     //start walking animation - blend
-        //                 case PlayerState::Idle:
-        //                     // start idle animation
-        //                 case PlayerState::InAir:
-        //                     // start jumping animation
-        //             }
-        //     case PlayerState::InAir:
-        //         switch(player_current_state) {
-        //                 case PlayerState::Walking:
-        //                     //start walking animation - blend
-        //                 case PlayerState::Running:
-        //                     // start running animation
-        //                 case PlayerState::Idle:
-        //                     // start idle animation
-        //             }
-        // }
-        animation_stack->pauseAnimation(animation_names[player_previous_state]);
-        animation_stack->startAnimation(animation_names[player_current_state]);
+        switch(player_previous_state) {
+            case PlayerState::Idle:
+                switch(player_current_state) {
+                    case PlayerState::Walking:
+                        //start walking animation - blend
+                        
+                        new_sequence.blend_duration = .3f;
+                        break;
+
+                    case PlayerState::Running:
+                        // start running animation
+                        new_sequence.blend_duration = .3f;
+                        break;
+
+                    case PlayerState::InAir:
+                        // start jumping animation
+                        new_sequence.blend_duration = .3f;
+                        break;
+
+                        
+                }
+                break;
+            case PlayerState::Walking:
+                switch(player_current_state) {
+                        case PlayerState::Idle:
+                            //start idle animation - blend
+                            new_sequence.blend_duration = .3f;
+                            break;
+                        case PlayerState::Running:
+                            // start running animation
+                            new_sequence.blend_duration = .2f;
+                            break;
+                        case PlayerState::InAir:
+                            // start jumping animation
+                            new_sequence.blend_duration = .3f;
+                            break;
+                    }
+                    break;
+            case PlayerState::Running:
+                switch(player_current_state) {
+                        case PlayerState::Walking:
+                            //start walking animation - blend
+                            new_sequence.blend_duration = 1.0f;
+                            break;
+                        case PlayerState::Idle:
+                            // start idle animation
+                            new_sequence.blend_duration = .2f;
+                            break;
+                        case PlayerState::InAir:
+                            // start jumping animation
+                            new_sequence.blend_duration = .3f;
+                            break;
+                    }
+                    break;
+            case PlayerState::InAir:
+                new_sequence.blend_mode = true;
+
+                new_sequence.animation1 = animation_names[PlayerState::Landing];
+                new_sequence.anim1_start_from_beginning = true;
+                new_sequence.anim1_loop = false;
+
+
+                new_sequence.animation2 = animation_names[player_current_state];
+                new_sequence.anim2_start_from_beginning = true;
+                new_sequence.anim2_loop = true;
+
+                switch(player_current_state) {
+                        case PlayerState::Walking:
+                            //start walking animation - blend
+                            new_sequence.blend_duration = .3f;
+                            break;
+                        case PlayerState::Running:
+                            // start running animation
+                            new_sequence.blend_duration = .3f;
+                            break;
+                        case PlayerState::Idle:
+                            // start idle animation
+                            new_sequence.blend_duration = .3f;
+                            break;
+                    }
+                    break;
+        }
+        // animation_stack->pauseAnimation(animation_names[player_previous_state]);
+        // animation_stack->startAnimation(animation_names[player_current_state]);
+
+
+        animation_stack->setAnimationSequence(new_sequence);
         
     }
 }

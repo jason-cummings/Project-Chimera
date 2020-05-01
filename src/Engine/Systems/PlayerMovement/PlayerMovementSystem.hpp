@@ -27,14 +27,16 @@ enum PlayerState {
     Idle = 0,
     Walking = 1,
     Running = 2,
-    InAir = 3
+    InAir = 3,
+    Landing = 4
 };
 
-const std::string animation_names[4] = {
+const std::string animation_names[5] = {
     "idle",
     "walk",
     "sprint",
-    "in_air"
+    "in_air",
+    "land"
 };
 
 class PlayerMovementSystem

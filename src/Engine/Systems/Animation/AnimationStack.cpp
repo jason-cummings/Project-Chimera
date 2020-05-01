@@ -77,3 +77,20 @@ bool AnimationStack::isActive(std::string animation_name) {
 	int index = animation_indexes[animation_name];
 	return active_animations[index];
 }
+
+void AnimationStack::setAnimationSequence(AnimationSequenceInfo sequence_in) { 
+	sequence = sequence_in; 
+	sequence_active = true;
+
+	sequence.anim1_index = animation_indexes[sequence.animation1];
+	sequence.anim2_index = animation_indexes[sequence.animation2];
+
+	if(sequence.anim1_start_from_beginning) {
+		animations[sequence.anim1_index]->resetTime();
+	}
+
+	if(sequence.anim2_start_from_beginning) {
+		animations[sequence.anim2_index]->resetTime();
+	}
+}
+

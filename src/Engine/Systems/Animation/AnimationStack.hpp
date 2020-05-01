@@ -76,7 +76,7 @@ public:
 	bool isActive(std::string animation_name);
 
 	AnimationSequenceInfo getAnimationSequence() { return sequence; }
-	void setAnimationSequence(AnimationSequenceInfo sequence_in) { sequence = sequence_in; sequence_active = true;}
+	void setAnimationSequence(AnimationSequenceInfo sequence_in);
 
 	//blend animation
 
