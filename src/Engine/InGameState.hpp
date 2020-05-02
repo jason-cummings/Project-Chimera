@@ -16,6 +16,7 @@ private:
     bool w, a, s, d, shift, space;
     Player* player;
     std::string current_level;
+    bool first_tick;
 
     // Subsystems for this state
     PlayerMovementSystem* playerMovement;
