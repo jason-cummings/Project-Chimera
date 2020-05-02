@@ -69,6 +69,8 @@ void InGameState::init() {
     shift = false;
     space = false;
 
+    first_tick = true;
+
     delete level_loader;
     delete player_loader;
 }
@@ -101,6 +103,10 @@ void InGameState::addPhysicsThings() {
 
 void InGameState::gameLoop() {
     double dt = timer->getLastTickTime();
+    if( first_tick ) {
+        dt = 0;
+        first_tick = false;
+    }
 
     int xmove = int(d-a);
     int ymove = int(space-shift);
