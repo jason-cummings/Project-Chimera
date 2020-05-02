@@ -69,6 +69,8 @@ public:
 	void evaluateAnimations(double dt);
 
 
+	void startAllAnimations();
+	void stopAllAnimations();
 	void startAnimation(std::string animation_name);
 	void pauseAnimation(std::string animation_name);
 	void unpauseAnimation(std::string animation_name);

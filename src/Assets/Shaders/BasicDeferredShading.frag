@@ -25,7 +25,6 @@ void main() {
 	
 	// diffuse = fragCol;
 	diffuse.a = shininess;
-	emissive = texture(emissiveTexture, texCoords);
-	emissive = vec4(0.0);
+	emissive = vec4(texture(emissiveTexture, texCoords).xyz,1.0);
 	occlusion = vec4(vec3(0.0), 1.0);
 }

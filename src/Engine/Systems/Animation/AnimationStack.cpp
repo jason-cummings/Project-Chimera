@@ -58,6 +58,17 @@ void AnimationStack::evaluateAnimations(double dt) {
 	}
 }
 
+void AnimationStack::startAllAnimations() {
+	for(int i = 0; i < active_animations.size(); i++) {
+		active_animations[i] = true;
+	}
+}
+
+void AnimationStack::stopAllAnimations() {
+	for(int i = 0; i < active_animations.size(); i++) {
+		active_animations[i] = false;
+	}
+}
 
 void AnimationStack::startAnimation(std::string animation_name) {
 	int index = animation_indexes[animation_name];
