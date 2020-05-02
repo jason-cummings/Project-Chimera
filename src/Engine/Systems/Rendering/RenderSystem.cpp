@@ -277,14 +277,22 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformVec3("cameraLoc",glm::vec3(0.0f,0.0f,10.0f));
 
-	cartoon_shading->setUniformFloat("ambientAmount", .2);
+	cartoon_shading->setUniformFloat("ambientAmount", 0.3);
 
-	cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
-	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
-	cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
+	// OLD LIGHT
+	// cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
+	// cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
+	// cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
+	// cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
+	// cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
+	// cartoon_shading->setUniformFloat("light.directional",0.0f);
+
+	cartoon_shading->setUniformVec3("light.location",glm::vec3(1.f,3.f,1.f));
+	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(0.5f,0.5f,0.4f));
+	cartoon_shading->setUniformVec3("light.specular",glm::vec3(0.0f,0.0f,0.0f));
 	cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
 	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
-	//cartoon_shading->setUniformFloat("light.directional",0.0f);
+	cartoon_shading->setUniformFloat("light.directional",1.0f);
 
 	drawQuad();
 

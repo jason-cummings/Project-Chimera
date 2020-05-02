@@ -55,8 +55,8 @@ void main()
 	float shadowVal = 1.0;//shadow.r;
 	
 
-	// vec3 lightDirection = light.directional ? normalize(light.location) : normalize(light.location - fragPos);
-	vec3 lightDirection = normalize(light.location - fragPos);
+	vec3 lightDirection = light.directional ? normalize(light.location) : normalize(light.location - fragPos);
+	// vec3 lightDirection = normalize(light.location - fragPos);
 	float diffuseAmount = max(dot(normalize(normal), lightDirection),0.0);
 	
 	
@@ -71,7 +71,7 @@ void main()
 	if(specularAmount > .4) {
 		specularAmount = .4;
 	}
-	else specularAmount = 0.0f;
+	else specularAmount = 0.0;
 	
 
 	vec3 specular = vec3(0.0);
@@ -80,7 +80,7 @@ void main()
 
 
 	float d = length(light.location - fragPos);
-	float attenuation = 1.0 / (1.0 + light.linearAttenuation * d + light.quadraticAttenuation * d * d);
+	float attenuation = light.directional ? 1.0 : 1.0 / (1.0 + light.linearAttenuation * d + light.quadraticAttenuation * d * d);
 
 	//finalColor += shadowVal * (diffuse * attenuation + specular * attenuation);
 
@@ -88,9 +88,9 @@ void main()
 
 	diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
 
-	finalColor += (diffuseAmount * light.diffuse + specular) * attenuation;// * diffuseColor;
+	finalColor += (diffuseAmount * diffuseColor * light.diffuse + specular) * attenuation;// * diffuseColor;
 
-	luminosity += (diffuseAmount + specularAmount) * attenuation * shadowVal;
+	// luminosity += (diffuseAmount + specularAmount) * attenuation * shadowVal;
 
 	BrightColor += vec4(shadowVal * (specular * attenuation),0.0);
 
