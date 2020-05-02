@@ -10,7 +10,12 @@
 #include "./Systems/Animation/AnimationSystem.hpp"
 #include "Systems/Physics/PhysicsSystem.hpp"
 #include "./GameObjects/Player.hpp"
+
+class InGameState;
 #include "MainMenu.hpp"
+#include "PauseMenu.hpp"
+#include "WinMenu.hpp"
+
 
 class InGameState: public GameState {
 private:

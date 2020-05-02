@@ -72,11 +72,13 @@ public:
         render_system.reshape( new_width, new_height );
     }
 
-    inline GameState* getNextState() const { return next_state; }
+    inline GameState* getNextState() { GameState *ret = next_state; next_state = nullptr; return ret; }
 
     inline bool getQuitGame() { return quit_game; }
 
     virtual bool shouldLockMouse() { return true; }
+
+    GameObject* getScene() { return scene; }
 
 };
 

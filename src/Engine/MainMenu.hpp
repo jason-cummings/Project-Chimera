@@ -4,11 +4,13 @@
 #include "GameState.hpp"
 #include "InGameState.hpp"
 #include "./GameObjects/MenuButton.hpp"
+#include "Menu.hpp"
+#include "LoadMenu.hpp"
 
 #define PLAY_GAME_BUTTON_ID "Play Game"
 #define EXIT_GAME_BUTTON_ID "Exit"
 
-class MainMenu : public GameState
+class MainMenu : public Menu
 {
 private:
     MenuButton * lastpressed;
