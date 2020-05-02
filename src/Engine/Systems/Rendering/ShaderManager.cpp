@@ -73,6 +73,25 @@ void ShaderManager::loadShaders() {
     overlay_shader->addUniform( "colorTexture" );
     overlay_shader->addUniform( "emissiveTexture" );
     shaders["overlay"] = overlay_shader;
+    
+    Shader *depth_shader = new Shader( "depth", "RenderDepth.vert", "RenderDepth.frag" );
+    depth_shader->addUniform( "Model" );
+    depth_shader->addUniform( "View" );
+    depth_shader->addUniform( "Projection" );
+    shaders["depth"] = depth_shader;
+
+    Shader *skinned_depth_shader = new Shader( "skinned-depth", "RenderSkinnedDepth.vert", "RenderDepth.frag" );
+    skinned_depth_shader->addUniform( "Model" );
+    skinned_depth_shader->addUniform( "View" );
+    skinned_depth_shader->addUniform( "Projection" );
+    for(int i = 0; i < 25; i++) {
+        skinned_depth_shader->addUniform("boneMatrices[" + std::to_string(i) + "]");
+    }
+    shaders["skinned-depth"] = skinned_depth_shader;
+
+    Shader *depth_tex_shader = new Shader( "draw-depth-tex", "DrawQuad.vert", "DrawDepthTex.frag" );
+    depth_tex_shader->addUniform( "depthMap" );
+    shaders["draw-depth-tex"] = depth_tex_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

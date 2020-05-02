@@ -23,6 +23,8 @@
 #include "../../Asset.hpp"
 #include "../../GameObjects/Camera.hpp"
 
+#define SHADOW_MAP_DIMENSION 2048
+
 class RenderSystem {
 private:
     Camera *camera;
@@ -38,6 +40,9 @@ private:
 
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
+
+    // The depth-only framebuffer for shadows
+    ShadowFramebuffer shadow_buffer;
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;
@@ -83,6 +88,8 @@ private:
     void drawSkinnedMeshList(bool useMaterials, Shader * shader);
     void drawOverlayMeshList(bool useMaterials, Shader * shader);
 
+    void drawMeshListVerticesOnly(Shader * shader);
+    void drawSkinnedMeshListVerticesOnly(Shader * shader);
 
 
     /**
@@ -99,6 +106,8 @@ private:
     void deferredRenderStep();
 
     // shadows
+    void renderShadowTexture();
+    void drawDepthTexture( GLuint tex );
 
     // shading step
     void shadingStep();

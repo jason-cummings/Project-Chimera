@@ -27,8 +27,8 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
 
-	texture_width = 2880;//3840;
-	texture_height = 1800;//2160;
+	texture_width = 3840;//3840;
+	texture_height = 2160;//2160;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
@@ -65,6 +65,11 @@ void RenderSystem::createFramebuffers() {
 	deferred_buffer.addColorTexture( "emissive", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "occlusion", texture_width, texture_height );
 	deferred_buffer.addDepthBuffer( texture_width, texture_height );
+
+	// Add the depth texture for the shadow buffer
+	shadow_buffer.addDepthBuffer( SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	shadow_buffer.addDepthTexture( "shadow_depth", SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+
 	testGLError( "Framebuffer Setup" );
 }
 
@@ -79,6 +84,19 @@ void RenderSystem::drawTexture( GLuint tex ) {
 	Shader *quad_shader = sm->getShader( "quad" );
 	quad_shader->bind();
 	quad_shader->setUniformInt( "colorTexture", 0 );
+
+	// Bind the texture to render
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, tex );
+
+	drawQuad();
+}
+
+void RenderSystem::drawDepthTexture( GLuint tex ) {
+	// Bind the quad program
+	Shader *draw_depth_shader = sm->getShader( "draw-depth-tex" );
+	draw_depth_shader->bind();
+	draw_depth_shader->setUniformInt( "depthMap", 0 );
 
 	// Bind the texture to render
 	glActiveTexture( GL_TEXTURE0 );
@@ -127,7 +145,6 @@ void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader );
-		//TEMP_material->bind( shader );
 		to_draw->draw();
 	}
 }
@@ -142,6 +159,32 @@ void RenderSystem::drawOverlayMeshList( bool useMaterials, Shader * shader ) {
 		
 		mat_to_use->bind( shader, false );
 		to_draw->draw();
+	}
+}
+
+void RenderSystem::drawMeshListVerticesOnly( Shader * shader ) {
+	for(int i = 0; i < mesh_list.size(); i++) {
+		glm::mat4 transform = mesh_list[i]->getWorldTransform();
+		shader->setUniformMat4( "Model", transform );
+		mesh_list[i]->getMesh()->drawVerticesOnly();
+	}
+}
+
+void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
+	for(int i = 0; i < skinned_mesh_list.size(); i++) {
+		glm::mat4 transform = skinned_mesh_list[i]->getWorldTransform();
+		shader->setUniformMat4( "Model", transform );
+
+		SkinnedMesh *to_draw = skinned_mesh_list[i]->getSkinnedMesh();
+
+		JointList *joint_list = to_draw->getJointList();
+		int num_bones = joint_list->getNumBones();
+		std::vector<glm::mat4> *buffer = joint_list->getTransformMatrices();
+		for(int i = 0; i < num_bones; i++) {
+			shader->setUniformMat4("boneMatrices[" + std::to_string(i) + "]", (*buffer)[i]);
+		}
+		
+		to_draw->drawVerticesOnly();
 	}
 }
 
@@ -167,6 +210,9 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Do the deferred rendering
 	deferredRenderStep();
 
+	// Render shadow maps
+	renderShadowTexture();
+
 	// Perform shading
 	shadingStep();
 
@@ -174,6 +220,12 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	renderOverlay();
 
 	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
+	drawDepthTexture( shadow_buffer.getDepthTexture()->getID() );
+	// drawDepthTexture( deferred_buffer.getTexture( "normal" )->getID() );
+	
+	mesh_list.clear(); // this probably should be moved
+	skinned_mesh_list.clear();
+	overlay_mesh_list.clear();
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
@@ -217,7 +269,7 @@ void RenderSystem::deferredRenderStep() {
 	// Clear the framebuffer
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
-	glEnable(GL_CULL_FACE);
+	glEnable( GL_CULL_FACE );
 	glViewport( 0, 0, texture_width, texture_height );
 
 	// Perform rendering
@@ -239,9 +291,38 @@ void RenderSystem::deferredRenderStep() {
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
 	testGLError("Deferred Rendering");
+}
 
-	mesh_list.clear(); // this probably should be moved
-	skinned_mesh_list.clear();
+// Render all meshes to the shadow buffer
+void RenderSystem::renderShadowTexture() {
+	// Get the necessary shaders for this step
+	Shader *depth_shader = sm->getShader("depth");
+	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
+
+	// Bind and clear the depth only framebuffer
+	shadow_buffer.bind();
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_CULL_FACE );
+	glViewport( 0, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+
+	// Bind the shader and render everything for normal meshes
+	depth_shader->bind();
+	depth_shader->setUniformMat4( "View", view_mat );
+	depth_shader->setUniformMat4( "Projection", proj_mat );
+	drawMeshListVerticesOnly( depth_shader );
+	
+	// Bind the shader and render everything for skinned meshes
+	skinned_depth_shader->bind();
+	skinned_depth_shader->setUniformMat4( "View", view_mat );
+	skinned_depth_shader->setUniformMat4( "Projection", proj_mat );
+	drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
+	
+	// End Render
+	glDisable( GL_DEPTH_TEST );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	testGLError("Shadow Map render");
 }
 
 void RenderSystem::shadingStep() {
@@ -325,5 +406,4 @@ void RenderSystem::renderOverlay() {
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	overlay_mesh_list.clear();
 }

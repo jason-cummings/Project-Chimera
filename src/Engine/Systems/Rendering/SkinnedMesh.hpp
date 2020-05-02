@@ -15,7 +15,7 @@
 
 class SkinnedMesh {
 private:
-	GLuint vao;
+	GLuint vao, vertex_vao;
 	GLuint vbo;
 	GLuint ibo;
 	int num_vertices;
@@ -28,6 +28,7 @@ public:
 	~SkinnedMesh();
 
 	void draw();
+	void drawVerticesOnly();
 
 	void setMaterial( Material *input );
 	inline Material * getMaterial() { return material; }

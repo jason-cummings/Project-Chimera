@@ -10,7 +10,7 @@
 
 class Mesh {
 private:
-	GLuint vao;
+	GLuint vao, vertex_vao;
 	GLuint vbo;
 	GLuint ibo;
 	int num_vertices;
@@ -22,6 +22,7 @@ public:
 	~Mesh();
 
 	void draw();
+	void drawVerticesOnly();
 
 	void setMaterial( Material *input );
 	inline Material * getMaterial() { return material; }

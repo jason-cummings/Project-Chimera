@@ -30,7 +30,9 @@ bool Engine::init( std::string level_to_load ) {
     Material::loadDefaultMaterial();
 
     // Create a new state
-    state = new MainMenu();
+    // state = new MainMenu();
+    state = new InGameState("Diving");
+    window.setMouseLock( state->shouldLockMouse() );
 
     // Reshape the state with the window size
     glm::vec2 window_size = window.getDrawableSize();
