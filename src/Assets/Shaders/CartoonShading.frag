@@ -6,7 +6,7 @@ uniform sampler2D positionTexture;
 uniform sampler2D normalTexture;
 uniform sampler2D diffuseTexture;
 uniform sampler2D emissiveTexture;
-//uniform usampler2D shadowTexture;
+uniform sampler2D shadowTexture;
 
 in vec2 texCoords;
 
@@ -39,7 +39,7 @@ void main()
 	vec3 diffuseColor = texture(diffuseTexture, texCoords).rgb;
 	float shininess = texture(diffuseTexture, texCoords).a;
 	vec4 emission = texture(emissiveTexture, texCoords);
-	//vec3 shadow = texture(shadowTexture, texCoords).rgb;
+	vec3 shadow = texture(shadowTexture, texCoords).rgb;
 	// vec4 reflectivity = texture(reflectivityTexture, texCoords);
 
 	vec3 finalColor = diffuseColor * ambientAmount; // replace diffuseColor with ambient color
@@ -51,8 +51,6 @@ void main()
 	BrightColor = vec4(0.0);
 
 	// lighting
-
-	float shadowVal = 1.0;//shadow.r;
 	
 
 	vec3 lightDirection = light.directional ? normalize(light.location) : normalize(light.location - fragPos);
@@ -88,11 +86,11 @@ void main()
 
 	diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
 
-	finalColor += (diffuseAmount * diffuseColor * light.diffuse + specular) * attenuation;// * diffuseColor;
+	finalColor += shadow * (diffuseAmount * diffuseColor * light.diffuse + specular) * attenuation;// * diffuseColor;
 
 	// luminosity += (diffuseAmount + specularAmount) * attenuation * shadowVal;
 
-	BrightColor += vec4(shadowVal * (specular * attenuation),0.0);
+	BrightColor += vec4(shadow * (specular * attenuation), 0.0);
 
 
 	//end lighting

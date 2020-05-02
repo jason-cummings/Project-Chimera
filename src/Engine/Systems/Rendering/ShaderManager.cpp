@@ -56,6 +56,7 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("normalTexture");
     cartoon_shading->addUniform("diffuseTexture");
     cartoon_shading->addUniform("emissiveTexture");
+    cartoon_shading->addUniform("shadowTexture");
     cartoon_shading->addUniform("cameraLoc");
     cartoon_shading->addUniform("light.location");
     cartoon_shading->addUniform("light.diffuse");
@@ -92,6 +93,15 @@ void ShaderManager::loadShaders() {
     Shader *depth_tex_shader = new Shader( "draw-depth-tex", "DrawQuad.vert", "DrawDepthTex.frag" );
     depth_tex_shader->addUniform( "depthMap" );
     shaders["draw-depth-tex"] = depth_tex_shader;
+    
+    Shader *directional_shadows_shader = new Shader( "directional-shadows", "DrawQuad.vert", "CreateDirectionalShadowMap.frag" );
+    directional_shadows_shader->addUniform( "positionTexture" );
+    directional_shadows_shader->addUniform( "normalTexture" );
+    directional_shadows_shader->addUniform( "depthTexture" );
+    directional_shadows_shader->addUniform( "lightView" );
+    directional_shadows_shader->addUniform( "lightProjection" );
+    directional_shadows_shader->addUniform( "lightLocation" );
+    shaders["directional-shadows"] = directional_shadows_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

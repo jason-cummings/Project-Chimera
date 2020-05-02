@@ -1,5 +1,7 @@
 #include "RenderSystem.hpp"
 
+#define SHADOW_MAP_DIMENSION 4096
+
 RenderSystem::RenderSystem() {
 	camera = nullptr;
 
@@ -32,6 +34,14 @@ RenderSystem::RenderSystem() {
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
+
+	// And in the last step, Jason said "Let there be light"
+	sun.location = glm::vec3(1.f,3.f,1.f);
+	sun.diffuse = glm::vec3(0.5f,0.5f,0.4f);
+	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
+	sun.linear_attenuation = 0.08f;
+	sun.quadratic_attenuation = 0.0f;
+	sun.directional = 1.0f;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -67,8 +77,11 @@ void RenderSystem::createFramebuffers() {
 	deferred_buffer.addDepthBuffer( texture_width, texture_height );
 
 	// Add the depth texture for the shadow buffer
-	shadow_buffer.addDepthBuffer( SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-	shadow_buffer.addDepthTexture( "shadow_depth", SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	depth_shadow_buffer.addDepthBuffer( SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	depth_shadow_buffer.addDepthTexture( "shadow_depth", SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+
+	// Add an output shadow texture for the shadow mapping buffer
+	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
 
 	testGLError( "Framebuffer Setup" );
 }
@@ -211,7 +224,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	deferredRenderStep();
 
 	// Render shadow maps
-	renderShadowTexture();
+	renderDirectionalDepthTexture( &sun );
+	createDirectionalShadowMap( &sun );
 
 	// Perform shading
 	shadingStep();
@@ -220,8 +234,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	renderOverlay();
 
 	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
-	drawDepthTexture( shadow_buffer.getDepthTexture()->getID() );
-	// drawDepthTexture( deferred_buffer.getTexture( "normal" )->getID() );
+	// drawDepthTexture( depth_shadow_buffer.getDepthTexture()->getID() );
+	// drawTexture( shadow_mapping_buffer.getTexture("shadow_map")->getID() );
 	
 	mesh_list.clear(); // this probably should be moved
 	skinned_mesh_list.clear();
@@ -288,19 +302,25 @@ void RenderSystem::deferredRenderStep() {
 
 	// Return to default framebuffer and program
 	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_CULL_FACE );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
 	testGLError("Deferred Rendering");
 }
 
 // Render all meshes to the shadow buffer
-void RenderSystem::renderShadowTexture() {
+void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	// Get the necessary shaders for this step
 	Shader *depth_shader = sm->getShader("depth");
 	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
 
+	// Create the view and projection matrices for the light's view
+	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
+	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_proj_mat = glm::ortho( -50.f, 50.f, -50.f, 50.f, -100.f, 100.f );
+
 	// Bind and clear the depth only framebuffer
-	shadow_buffer.bind();
+	depth_shadow_buffer.bind();
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
@@ -308,18 +328,62 @@ void RenderSystem::renderShadowTexture() {
 
 	// Bind the shader and render everything for normal meshes
 	depth_shader->bind();
-	depth_shader->setUniformMat4( "View", view_mat );
-	depth_shader->setUniformMat4( "Projection", proj_mat );
+	depth_shader->setUniformMat4( "View", light_view_mat );
+	depth_shader->setUniformMat4( "Projection", light_proj_mat );
 	drawMeshListVerticesOnly( depth_shader );
 	
 	// Bind the shader and render everything for skinned meshes
 	skinned_depth_shader->bind();
-	skinned_depth_shader->setUniformMat4( "View", view_mat );
-	skinned_depth_shader->setUniformMat4( "Projection", proj_mat );
+	skinned_depth_shader->setUniformMat4( "View", light_view_mat );
+	skinned_depth_shader->setUniformMat4( "Projection", light_proj_mat );
 	drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
 	
 	// End Render
 	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_CULL_FACE );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	testGLError("Depth Texture render");
+}
+
+// Create the shadow map texture to pass to the shading step
+void RenderSystem::createDirectionalShadowMap( Light *light ) {
+	// Get the necessary shaders for this step
+	Shader *mapping_shader = sm->getShader("directional-shadows");
+
+	// Create the view and projection matrices for the light's view
+	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
+	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_proj_mat = glm::ortho( -50.f, 50.f, -50.f, 50.f, -100.f, 100.f );
+
+	// Bind and clear the mapping buffer
+	shadow_mapping_buffer.bind();
+	glClear( GL_COLOR_BUFFER_BIT );
+	glViewport( 0, 0, texture_width, texture_height );
+
+	mapping_shader->bind();
+
+	// Bind the necessary textures for shadow mapping
+	mapping_shader->setUniformInt( "positionTexture", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "position" )->getID() );
+
+	mapping_shader->setUniformInt( "normalTexture", 1 );
+	glActiveTexture( GL_TEXTURE1 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "normal" )->getID() );
+	
+	mapping_shader->setUniformInt( "depthTexture", 2 );
+	glActiveTexture( GL_TEXTURE2 );
+	glBindTexture( GL_TEXTURE_2D, depth_shadow_buffer.getDepthTexture()->getID() );
+
+	// Load the lightspace transform matrices
+	mapping_shader->setUniformMat4( "lightView", light_view_mat );
+	mapping_shader->setUniformMat4( "lightProjection", light_proj_mat );
+	mapping_shader->setUniformVec3( "lightLocation", light->location );
+
+	drawQuad();
+
+	// End Render
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
 	testGLError("Shadow Map render");
@@ -355,6 +419,10 @@ void RenderSystem::shadingStep() {
 	cartoon_shading->setUniformInt("emissiveTexture",3);
 	glActiveTexture( GL_TEXTURE3 );
 	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "emissive" )->getID());
+	
+	cartoon_shading->setUniformInt("shadowTexture",4);
+	glActiveTexture( GL_TEXTURE4 );
+	glBindTexture( GL_TEXTURE_2D, shadow_mapping_buffer.getTexture( "shadow_map" )->getID());
 
 	cartoon_shading->setUniformVec3("cameraLoc",glm::vec3(0.0f,0.0f,10.0f));
 
@@ -368,12 +436,12 @@ void RenderSystem::shadingStep() {
 	// cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
 	// cartoon_shading->setUniformFloat("light.directional",0.0f);
 
-	cartoon_shading->setUniformVec3("light.location",glm::vec3(1.f,3.f,1.f));
-	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(0.5f,0.5f,0.4f));
-	cartoon_shading->setUniformVec3("light.specular",glm::vec3(0.0f,0.0f,0.0f));
-	cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
-	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
-	cartoon_shading->setUniformFloat("light.directional",1.0f);
+	cartoon_shading->setUniformVec3( "light.location", sun.location );
+	cartoon_shading->setUniformVec3( "light.diffuse", sun.diffuse );
+	cartoon_shading->setUniformVec3( "light.specular", sun.specular );
+	cartoon_shading->setUniformFloat( "light.linearAttenuation", sun.linear_attenuation );
+	cartoon_shading->setUniformFloat( "light.quadraticAttenuation", sun.quadratic_attenuation );
+	cartoon_shading->setUniformFloat( "light.directional", sun.directional );
 
 	drawQuad();
 

@@ -23,11 +23,21 @@
 #include "../../Asset.hpp"
 #include "../../GameObjects/Camera.hpp"
 
-#define SHADOW_MAP_DIMENSION 2048
+struct Light {
+    glm::vec3 location;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float linear_attenuation;
+    float quadratic_attenuation;
+    float directional;
+};
 
 class RenderSystem {
 private:
     Camera *camera;
+
+    // A hard coded light to act as the sun
+    Light sun;
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -41,8 +51,10 @@ private:
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
 
-    // The depth-only framebuffer for shadows
-    ShadowFramebuffer shadow_buffer;
+    // The depth-only framebuffer for shadows and buffer for shadow mapping
+    ShadowFramebuffer depth_shadow_buffer;
+    Framebuffer shadow_mapping_buffer;
+
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;
@@ -106,7 +118,8 @@ private:
     void deferredRenderStep();
 
     // shadows
-    void renderShadowTexture();
+    void renderDirectionalDepthTexture( Light *light );
+    void createDirectionalShadowMap( Light *light );
     void drawDepthTexture( GLuint tex );
 
     // shading step
