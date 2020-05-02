@@ -21,6 +21,8 @@ void InGameState::init() {
     if(level_loader->getJointList() != nullptr) {
         animation_system->addJointList(level_loader->getJointList());
     }
+
+    end_coords = level_loader->getEndGameCoords();
     addPhysicsThings();
 
 
@@ -43,7 +45,7 @@ void InGameState::init() {
         animation_system->addJointList(player_loader->getJointList());
     }
 
-    Player * player = (Player *)(character_scene->getGameObject("chimera"));
+    player = (Player *)(character_scene->getGameObject("chimera"));
     player->addChild(camera);
 
     //add character scene to the level
@@ -54,8 +56,8 @@ void InGameState::init() {
 
 
     
-    playerMovement = new PlayerMovementSystem( physics_system, player, player_loader->getAnimationStack(0) );
-    playerMovement->registerCamera( camera );
+    player_movement = new PlayerMovementSystem( physics_system, player, player_loader->getAnimationStack(0) );
+    player_movement->registerCamera( camera );
 
     // Add the scene graph to Bullet and set the transforms appropriately
     physics_system->addSceneComponents( scene );
@@ -105,8 +107,8 @@ void InGameState::gameLoop() {
     int xmove = int(d-a);
     int ymove = int(space-shift);
     int zmove = int(s-w);
-    //sends movement info to PlayerMovementSystem.
-    playerMovement->movePlayer( w, s, d, a, space, shift, dt );
+    //sends movement info to Player_movementSystem.
+    player_movement->movePlayer( w, s, d, a, space, shift, dt );
 
     animation_system->evaluateAnimations(dt);
 
@@ -126,6 +128,21 @@ void InGameState::gameLoop() {
 
     // Render all
     render_system.render( dt, scene );
+
+    if(fell()){
+        std::cout << "Respawning" <<std::endl;
+        glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
+        player->setTranslation(spawnPoint);
+
+    }
+
+
+    //If player reaches end goal
+    if(endGame()){
+        //TODO Make end game better than spamming you won~
+        std::cout << "YOU WON" <<std::endl;
+        
+    }
 }
 
 void InGameState::prePhysics() {
@@ -133,7 +150,7 @@ void InGameState::prePhysics() {
 }
 
 void InGameState::postPhysics() {
-    playerMovement->makePostPhysicsAdjustments();
+    player_movement->makePostPhysicsAdjustments();
 
     scene->updateTransformFromPhysics( glm::vec3(1.f), glm::mat4(1.f) );
 }
@@ -160,6 +177,14 @@ void InGameState::handleKeyDown( SDL_Event e ) {
     }
     else if( key == SDLK_ESCAPE ) {
         setNextState( new PauseMenu(this));
+    }
+    else if( key == SDLK_F3 ){
+        //Prints out coordinates in terminal
+        glm::vec4 tempo = player->getWorldTransform()[3];
+        std::cout << "COORDS -> " << std::endl;
+        std::cout << "x -> "  << tempo[0] <<std::endl;
+        std::cout << "y -> " << tempo[1]<<std::endl;
+        std::cout << "z -> " << tempo[2]<<std::endl;
     }
 }
 
@@ -195,4 +220,23 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
 
     camera->updateCamera(dx,dy);
         // std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
+}
+
+bool InGameState::isNear(float input, float goal, float threshold){
+    return abs(goal - input) < threshold;
+}
+
+//If Player falls more than 30m below spawn point
+bool InGameState::fell(){
+    return (player->getWorldTransform()[3][1] < -30);
+}
+
+
+bool InGameState::endGame() {
+    glm::vec4 coords = player->getWorldTransform()[3];
+    float x,y,z;
+    x = coords[0];
+    y = coords[1];
+    z = coords[2];
+    return (isNear( x, end_coords[0], 2.f ) && isNear(y , end_coords[1], 2.f) && isNear( z, end_coords[2], 2.f ));
 }

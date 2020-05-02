@@ -22,9 +22,10 @@ private:
     bool w, a, s, d, shift, space;
     Player* player;
     std::string current_level;
+    glm::vec3 end_coords;
 
     // Subsystems for this state
-    PlayerMovementSystem* playerMovement;
+    PlayerMovementSystem* player_movement;
     PhysicsSystem *physics_system;
     AnimationSystem * animation_system;
 
@@ -44,6 +45,11 @@ private:
 
     // Perform any necessary updates after the physics step
     void postPhysics();
+
+    //Check if player is in endgame location 
+    bool endGame();
+    bool isNear(float input, float goal, float threshold);
+    bool fell();
 
 
     // TEMP

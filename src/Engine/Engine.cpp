@@ -85,9 +85,6 @@ void Engine::tick() {
     // Test for input events
     handleSDLEvents();
 
-    if( state->getQuitGame() ) {
-        quitEngine();
-    }
     
     if( !quit ) {
         // Update the game state
