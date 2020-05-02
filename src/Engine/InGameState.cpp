@@ -140,7 +140,7 @@ void InGameState::gameLoop() {
     //If player reaches end goal
     if(endGame()){
         //TODO Make end game better than spamming you won~
-        std::cout << "YOU WON" <<std::endl;
+        setNextState( new WinMenu() );
         
     }
 }
