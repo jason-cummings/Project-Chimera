@@ -24,8 +24,6 @@
 #include "../../GameObjects/Camera.hpp"
 #include "Skybox.hpp"
 
-#define BLOOM_PASSES 16
-
 struct Light {
     glm::vec3 location;
     glm::vec3 diffuse;
@@ -41,7 +39,7 @@ private:
 
     // A hard coded light to act as the sun
     Light sun;
-    glm::mat4 sun_proj_mat;
+    glm::mat4 sun_proj_mats[4];
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;

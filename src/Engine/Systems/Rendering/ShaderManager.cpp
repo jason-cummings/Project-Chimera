@@ -97,9 +97,13 @@ void ShaderManager::loadShaders() {
     directional_shadows_shader->addUniform( "positionTexture" );
     directional_shadows_shader->addUniform( "normalTexture" );
     directional_shadows_shader->addUniform( "depthTexture" );
-    directional_shadows_shader->addUniform( "lightView" );
-    directional_shadows_shader->addUniform( "lightProjection" );
     directional_shadows_shader->addUniform( "lightLocation" );
+    directional_shadows_shader->addUniform( "lightView" );
+    for( int i=0; i<4; i++ ) {
+        directional_shadows_shader->addUniform( "lightProjections[" + std::to_string(i) + "]" );
+        directional_shadows_shader->addUniform( "lightDistanceThresholds[" + std::to_string(i) + "]" );
+    }
+    directional_shadows_shader->addUniform( "cameraLocation" );
     shaders["directional-shadows"] = directional_shadows_shader;
     
     Shader *skybox_shader = new Shader("skybox", "SkyboxDeferred.vert", "SkyboxDeferred.frag");
