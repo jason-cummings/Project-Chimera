@@ -139,8 +139,7 @@ void InGameState::gameLoop() {
 
     //If player reaches end goal
     if(endGame()){
-        //TODO Make end game better than spamming you won~
-        setNextState( new WinMenu() );
+        setNextState( new WinMenu(this) );
         
     }
 }

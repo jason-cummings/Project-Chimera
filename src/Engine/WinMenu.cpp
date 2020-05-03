@@ -1,9 +1,10 @@
 #include "WinMenu.hpp"
 
-WinMenu::WinMenu(){
+WinMenu::WinMenu(InGameState* input){
+    last_state = input;
     scene = new GameObject("root");
-
 	lastpressed = nullptr;
+    scene->addChild( input->getScene() );
 
 	//Insert buttons here like such:
 	//buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
@@ -32,6 +33,7 @@ void WinMenu::handleButtonEvent( MenuButton *clicked ) {
 	// In the format of :
 
     if(clicked->getID() == MAIN_MENU_BUTTON_ID){
+        scene->removeChild(last_state->getScene());
         setNextState( new MainMenu() );
     }
 

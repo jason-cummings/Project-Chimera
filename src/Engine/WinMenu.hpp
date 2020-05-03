@@ -12,11 +12,12 @@
 
 class WinMenu : public Menu {
 public:
-    WinMenu();
+    WinMenu(InGameState* input);
     ~WinMenu();
 
 private:
     void handleButtonEvent( MenuButton* clicked ) override;
+    GameState* last_state;
 
 };
 
