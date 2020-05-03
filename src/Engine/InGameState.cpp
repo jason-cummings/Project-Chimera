@@ -71,6 +71,9 @@ void InGameState::init() {
 
     delete level_loader;
     delete player_loader;
+
+    Skybox * skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
+    render_system.setSkybox(skybox);
 }
 
 
