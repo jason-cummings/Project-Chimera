@@ -70,7 +70,7 @@ void RenderSystem::testGLError( const char *loc ) {
 
 void RenderSystem::createFramebuffers() {
 	// Add the color textures to render to in the deffered rendering step
-	deferred_buffer.addColorTexture( "position", texture_width, texture_height );
+	deferred_buffer.addColorTextureHighPrecision( "position", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "normal", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "diffuse", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "emissive", texture_width, texture_height );

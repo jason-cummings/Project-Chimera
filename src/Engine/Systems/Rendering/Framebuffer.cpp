@@ -18,6 +18,14 @@ void Framebuffer::bind() {
 }
 
 void Framebuffer::addColorTexture( std::string texture_name, int width, int height ) {
+    addColorTextureHelper(texture_name, width, height, false);
+}
+
+void Framebuffer::addColorTextureHighPrecision( std::string texture_name, int width, int height ) {
+    addColorTextureHelper(texture_name, width, height, true);
+}
+
+void Framebuffer::addColorTextureHelper( std::string texture_name, int width, int height, bool high_precision) {
     // Bind this framebuffer 
     bind();
 
@@ -29,19 +37,19 @@ void Framebuffer::addColorTexture( std::string texture_name, int width, int heig
     
     // Set the appropriate texture paramenters
     glBindTexture( GL_TEXTURE_2D, new_texture_id );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+    glTexImage2D( GL_TEXTURE_2D, 0, high_precision?GL_RGBA32F:GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
     // Set the texture as a color attachment for the framebuffer and keep track of which it is
     GLenum current_attachment = GL_COLOR_ATTACHMENT0 + color_attachments.size();
-	glFramebufferTexture2D( GL_FRAMEBUFFER, current_attachment, GL_TEXTURE_2D, new_texture_id, 0 );
-	color_attachments.push_back( current_attachment );
+    glFramebufferTexture2D( GL_FRAMEBUFFER, current_attachment, GL_TEXTURE_2D, new_texture_id, 0 );
+    color_attachments.push_back( current_attachment );
 
     // Tell the framebuffer how many color attachments it has
-	glDrawBuffers( color_attachments.size(), &color_attachments[0] );
+    glDrawBuffers( color_attachments.size(), &color_attachments[0] );
 
     // Unbind the framebuffer and created texture
     glBindTexture( GL_TEXTURE_2D, 0 );

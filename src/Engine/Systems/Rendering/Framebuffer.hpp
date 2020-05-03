@@ -16,6 +16,7 @@ private:
     std::map<std::string, FBTexture*> textures;
     std::vector<GLenum> color_attachments;
 
+    void addColorTextureHelper( std::string texture_name, int width, int height, bool high_precision);
 public:
     Framebuffer();
     ~Framebuffer();
@@ -23,6 +24,7 @@ public:
     // Set this framebuffer as the active framebuffer
     void bind();
     void addColorTexture( std::string texture_name, int width, int height );
+    void addColorTextureHighPrecision( std::string texture_name, int width, int height );
     void addDepthBuffer( int width, int height );
 
     FBTexture * getTexture( std::string texture_name );
