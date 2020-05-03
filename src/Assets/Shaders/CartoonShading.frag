@@ -25,6 +25,7 @@ struct Light {
 uniform Light light;
 
 uniform float ambientAmount;
+uniform bool applyShadows;
 
 float tempGamma = 2.2;
 
@@ -39,7 +40,7 @@ void main()
 	vec3 diffuseColor = texture(diffuseTexture, texCoords).rgb;
 	float shininess = texture(diffuseTexture, texCoords).a;
 	vec4 emission = texture(emissiveTexture, texCoords);
-	vec3 shadow = texture(shadowTexture, texCoords).rgb;
+	vec3 shadow = vec3(1.0); if( applyShadows ) shadow = texture(shadowTexture, texCoords).rgb;
 	// vec4 reflectivity = texture(reflectivityTexture, texCoords);
 
 	vec3 finalColor = diffuseColor * ambientAmount; // replace diffuseColor with ambient color
