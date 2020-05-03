@@ -153,6 +153,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Perform shading
 	shadingStep();
 
+	glFinish();
+
 	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 }
 
