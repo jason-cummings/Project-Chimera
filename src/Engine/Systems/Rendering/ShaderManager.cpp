@@ -104,6 +104,7 @@ void ShaderManager::loadShaders() {
         directional_shadows_shader->addUniform( "lightDistanceThresholds[" + std::to_string(i) + "]" );
     }
     directional_shadows_shader->addUniform( "cameraLocation" );
+    directional_shadows_shader->addUniform( "iterate" );
     shaders["directional-shadows"] = directional_shadows_shader;
     
     Shader *skybox_shader = new Shader("skybox", "SkyboxDeferred.vert", "SkyboxDeferred.frag");

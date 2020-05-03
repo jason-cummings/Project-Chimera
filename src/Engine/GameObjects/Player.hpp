@@ -7,8 +7,8 @@
 #include "./../Systems/Physics/RigidBodyPhysicsComponent.hpp"
 #include "./../Systems/Physics/RigidBodyFactory.hpp"
 
-#define PLAYER_HEIGHT 2.f
-#define PLAYER_DIAMETER 1.f
+#define PLAYER_HEIGHT 1.5f
+#define PLAYER_DIAMETER .5f
 #define PLAYER_MASS 100.f
 
 class Player : public GameObject {

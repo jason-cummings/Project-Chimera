@@ -1,7 +1,9 @@
 #include "RenderSystem.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
-#define BLOOM_PASSES 8
+#define BLOOM_PASSES 4
+
+// #define ITERATE_SHADOWS
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 
@@ -35,15 +37,16 @@ RenderSystem::RenderSystem() {
 
 	// texture_width = 2880;//3840;
 	// texture_height = 1800;//2160;
-	texture_width = 3840;
-	texture_height = 2160;
+	texture_width = 2880;
+	texture_height = 1880;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
 
 	// And in the last step, Jason said "Let there be light"
-	sun.location = glm::vec3(1.f,3.f,1.f);
-	sun.diffuse = glm::vec3(0.5f,0.5f,0.4f);
+	// sun.location = glm::vec3(1.f,3.f,1.f);
+	sun.location = glm::vec3(.707f,.3f,-.707f);
+	sun.diffuse = glm::vec3(0.7f,0.5f,0.4f);
 	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
@@ -87,8 +90,13 @@ void RenderSystem::createFramebuffers() {
 	deferred_buffer.addDepthBuffer( texture_width, texture_height );
 
 	// Add the depth texture for the shadow buffer
-	depth_shadow_buffer.addDepthBuffer( 4*SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-	depth_shadow_buffer.addDepthTexture( "shadow_depth", 4*SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+#ifdef ITERATE_SHADOWS
+	depth_shadow_buffer.addDepthBuffer( 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	depth_shadow_buffer.addDepthTexture( "shadow_depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+#else
+	depth_shadow_buffer.addDepthBuffer( SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	depth_shadow_buffer.addDepthTexture( "shadow_depth", SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+#endif
 
 	// Add an output shadow texture for the shadow mapping buffer
 	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
@@ -366,8 +374,13 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
 
+#ifdef ITERATE_SHADOWS
 	for( int i=0; i<4; i++ ) {
 		glViewport( SHADOW_MAP_DIMENSION*i, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+#else
+		int i = 2;
+		glViewport( 0, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+#endif
 
 		// Bind the shader and render everything for normal meshes
 		depth_shader->bind();
@@ -380,8 +393,11 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 		skinned_depth_shader->setUniformMat4( "View", light_view_mat );
 		skinned_depth_shader->setUniformMat4( "Projection", sun_proj_mats[i] );
 		drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
+
+#ifdef ITERATE_SHADOWS
 	}
-	
+#endif
+
 	// End Render
 	glDisable( GL_DEPTH_TEST );
 	glDisable( GL_CULL_FACE );
@@ -429,8 +445,41 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	mapping_shader->setUniformVec3( "lightLocation", light->location );
 
 	mapping_shader->setUniformVec3( "cameraLocation", light_look_at );
+#ifdef ITERATE_SHADOWS
+	mapping_shader->setUniformFloat( "iterate", 1.0 );
+#else
+	mapping_shader->setUniformFloat( "iterate", 0.0 );
+#endif
 
+	// Render the shadow map
 	drawQuad();
+
+
+	// // Blur the shadow map
+	// Shader *blur_shader = sm->getShader("blur");
+	// blur_shader->bind();
+	// blur_shader->setUniformInt( "colorTexture", 0 );
+	// glActiveTexture( GL_TEXTURE0 );
+
+	// current_blur_buffer = 0;
+
+	// for( int i=0; i<8; i++ ) { // BLOOM_PASSES
+	// 	blur_shader->bind();
+	// 	blur_buffer[current_blur_buffer].bind();
+	// 	glViewport( 0, 0, texture_width, texture_height );
+	// 	glClear( GL_COLOR_BUFFER_BIT );
+		
+	// 	blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
+	// 	GLuint tex_to_use = i == 0 ? shadow_mapping_buffer.getTexture( "shadow_map" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
+	// 	glBindTexture( GL_TEXTURE_2D, tex_to_use );
+
+	// 	drawQuad();
+
+	// 	current_blur_buffer = !current_blur_buffer;
+	// }
+
+	// shadow_mapping_buffer.bind();
+	// drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
 
 	// End Render
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
