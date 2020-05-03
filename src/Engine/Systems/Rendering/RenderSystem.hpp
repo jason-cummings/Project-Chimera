@@ -38,6 +38,7 @@ private:
 
     // A hard coded light to act as the sun
     Light sun;
+    glm::mat4 sun_proj_mat;
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -130,7 +131,7 @@ private:
     // volumetric light scattering
 
     // 2D overlay elements
-    void renderOverlay();    
+    void renderOverlay();
 
 
     RenderSystem();

@@ -1,6 +1,9 @@
 #version 330 core
 
 layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 Secondary;
+layout (location = 2) out vec4 Three;
+layout (location = 3) out vec4 Four;
 
 in vec2 texCoords;
 
@@ -18,7 +21,6 @@ void main() {
 	vec3 worldLoc = texture(positionTexture, texCoords).rgb;
 	vec3 worldNorm = normalize( texture(normalTexture, texCoords).rgb );
 	vec3 lightDir = -normalize( lightLocation );
-    float depthValue = texture(depthTexture, texCoords).r;
 
     // Make sure that lighting can be applied to this fragment
     if( dot(lightDir, worldNorm) < 0.0 ) {
@@ -34,6 +36,10 @@ void main() {
             // Get the depth of the fragment in consideration
             float fragDepth = projLoc.z;
 
+            float temp = closestDepth * 10.0 - 5.0;
+            Secondary = vec4(temp, temp, temp, 1.0);
+            Three = vec4(projLoc.xy, 0.0, 1.0);
+        
             // Test if the fragment minus a bias is closer than the current depth
             float bias = 0.001;
             if( fragDepth - bias < closestDepth ) {
@@ -43,6 +49,6 @@ void main() {
         }
     }
 
-    // FragColor = vec4(vec3(depthValue), 1.0); // orthographic
     FragColor = vec4(outCol, 1.0);
+    Four = vec4(vec3(texture(depthTexture, texCoords).r * 10.0 - 5.0), 1.0);
 }
