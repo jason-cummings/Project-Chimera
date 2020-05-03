@@ -65,6 +65,12 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("light.directional");
     cartoon_shading->addUniform("ambientAmount");
     shaders["cartoon"] = cartoon_shading;
+
+    Shader *skybox_shader = new Shader("skybox", "SkyboxDeferred.vert", "SkyboxDeferred.frag");
+    skybox_shader->addUniform( "View" );
+    skybox_shader->addUniform( "Projection" );
+    skybox_shader->addUniform( "skybox" );
+    shaders["skybox"] = skybox_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {
