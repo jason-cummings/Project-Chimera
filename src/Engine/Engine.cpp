@@ -77,8 +77,9 @@ void Engine::quitEngine() {
 // Update all systems and states, then render
 void Engine::tick() {
 
-    if( state->getNextState() != nullptr ) {
-        state = state->getNextState();
+    GameState *next;
+    if( (next = state->getNextState()) != nullptr ) {
+        state = next;
         glm::vec2 draw_size = window.getDrawableSize();
         state->reshape( (int)draw_size.x, (int)draw_size.y );
         window.setMouseLock( state->shouldLockMouse() );
@@ -86,7 +87,7 @@ void Engine::tick() {
     // Test for input events
     handleSDLEvents();
 
-    if( state->getQuitGame() ) {
+    if(state->getQuitGame()){
         quitEngine();
     }
     
