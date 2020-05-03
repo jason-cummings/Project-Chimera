@@ -38,6 +38,7 @@ private:
 
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
+    Framebuffer shading_buffer;
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;

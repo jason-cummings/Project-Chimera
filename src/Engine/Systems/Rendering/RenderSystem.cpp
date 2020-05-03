@@ -61,6 +61,10 @@ void RenderSystem::createFramebuffers() {
 	deferred_buffer.addColorTexture( "emissive", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "occlusion", texture_width, texture_height );
 	deferred_buffer.addDepthBuffer( texture_width, texture_height );
+
+	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
+	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
+
 	testGLError( "Framebuffer Setup" );
 }
 
@@ -138,9 +142,12 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	populateRenderLists( sceneGraph );
 	
 	// Attempt to get the camera's matrices
+	int vw = 1920, vh = 1080;
 	try {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
+		vw = camera->getViewWidth();
+		vh = camera->getViewHeight();
 	} catch ( std::exception &e ) {
 		// If failed, use some default matrices
 		std::cerr << "Exception retrieving camera - using default matrices" << std::endl;
@@ -155,7 +162,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 
 	glFinish();
 
-	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
+	glViewport( 0, 0, vw, vh );
+	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
@@ -238,19 +246,12 @@ void RenderSystem::deferredRenderStep() {
 }
 
 void RenderSystem::shadingStep() {
+	// Bind the shading framebuffer
+	shading_buffer.bind();
 
-	int vw = 1920, vh = 1080;
-	try {
-		vw = camera->getViewWidth();
-		vh = camera->getViewHeight();
-	} catch( std::exception &e ) {
-		std::cerr << "Error retrieving view width and height from camera" << std::endl;
-	}
-
-	glViewport( 0, 0, vw, vh );
+	glViewport( 0, 0, texture_width, texture_height );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	cartoon_shading->setUniformInt("positionTexture",0);
 	glActiveTexture( GL_TEXTURE0 );
@@ -282,4 +283,7 @@ void RenderSystem::shadingStep() {
 	testGLError("shading");
 
 	drawQuad();
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
 }
