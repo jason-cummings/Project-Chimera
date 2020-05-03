@@ -53,7 +53,7 @@ void PhysicsSystem::addSceneComponents( GameObject *obj ) {
 
 // Step the physics simulation by time dt
 void PhysicsSystem::stepPhysics( double dt ) {
-    dynamics_world->stepSimulation( btScalar(dt), 10, btScalar(dt) );
+    dynamics_world->stepSimulation( btScalar(dt), 100, btScalar(dt) );
     // dynamics_world->stepSimulation( btScalar(dt), 1, 1/60.f );
     // dynamics_world->stepSimulation( 1/60.f, 1, 1/60.f );
 }

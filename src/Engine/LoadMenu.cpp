@@ -24,7 +24,7 @@ LoadMenu::~LoadMenu(){
 
 void LoadMenu::gameLoop(){
     if(loaded){
-        InGameState* to_set = new InGameState("Diving");
+        InGameState* to_set = new InGameState("Towers");
         setNextState( to_set );
     }
     else{
