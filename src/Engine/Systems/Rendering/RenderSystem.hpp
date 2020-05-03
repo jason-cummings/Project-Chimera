@@ -17,15 +17,31 @@
 #include "../../GameObject.hpp"
 #include "Mesh.hpp"
 #include "SkinnedMesh.hpp"
+#include "OverlayMesh.hpp"
 #include "Material.hpp"
 #include "TextureLoader.hpp"
 #include "../../Asset.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "Skybox.hpp"
 
+#define BLOOM_PASSES 8
+
+struct Light {
+    glm::vec3 location;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float linear_attenuation;
+    float quadratic_attenuation;
+    float directional;
+};
+
 class RenderSystem {
 private:
     Camera *camera;
+
+    // A hard coded light to act as the sun
+    Light sun;
+    glm::mat4 sun_proj_mat;
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -39,9 +55,19 @@ private:
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
     Framebuffer shading_buffer;
+    
+    bool current_blur_buffer;
+    Framebuffer blur_buffer[2];
+
+
+    // The depth-only framebuffer for shadows and buffer for shadow mapping
+    ShadowFramebuffer depth_shadow_buffer;
+    Framebuffer shadow_mapping_buffer;
+
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;
+    int view_width, view_height;
 
     // The shader manager for the render system
     ShaderManager *sm;
@@ -56,6 +82,7 @@ private:
     // how often the shader is switched during rendering
     std::vector<GameObject*> mesh_list;
     std::vector<GameObject*> skinned_mesh_list;
+    std::vector<GameObject*> overlay_mesh_list;
 
 
     /**
@@ -67,7 +94,6 @@ private:
 
     // Set up the framebuffers necessary for the rendering process
     void createFramebuffers();
-
 
 
     /**
@@ -84,7 +110,10 @@ private:
     // draws the meshList
     void drawMeshList(bool useMaterials, Shader * shader);
     void drawSkinnedMeshList(bool useMaterials, Shader * shader);
+    void drawOverlayMeshList(bool useMaterials, Shader * shader);
 
+    void drawMeshListVerticesOnly(Shader * shader);
+    void drawSkinnedMeshListVerticesOnly(Shader * shader);
 
 
     /**
@@ -95,22 +124,26 @@ private:
     void populateRenderLists(GameObject * gameObject);
 
     // Create the necessary matrices for rendering
-    void createDefaultMatrices();
+    void createOrthoMatrices();
 
     // Do the deferred rendering step
     void deferredRenderStep();
 
     // shadows
+    void renderDirectionalDepthTexture( Light *light );
+    void createDirectionalShadowMap( Light *light );
+    void drawDepthTexture( GLuint tex );
 
     // shading step
     void shadingStep();
 
     // bloom
+    void applyBloom( int vw, int vh );
 
     // volumetric light scattering
 
-    
-
+    // 2D overlay elements
+    void renderOverlay();
 
 
     RenderSystem();
@@ -123,8 +156,11 @@ public:
     // RENDER
     void render( double dt, GameObject * sceneGraph );
 
+    void reshape( int x_size, int y_size );
+
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 };
 

@@ -27,6 +27,11 @@ protected:
     //Camera
     Camera *camera;
 
+    // Variables to be accessed by Engine for transitioning between states
+    bool quit_game = false;
+    GameState *next_state;
+    inline void setNextState( GameState * input ) { next_state = input; }
+
     // Event handlers default to doing nothing, so a state can implement only what it needs
     virtual void handleKeyDown( SDL_Event e ) {}
     virtual void handleKeyUp( SDL_Event e ) {}
@@ -34,11 +39,11 @@ protected:
     virtual void handleMouseButtonDown( SDL_Event e ) {}
     virtual void handleMouseButtonUp( SDL_Event e ) {}
     virtual void handleMouseWheel( SDL_Event e ) {}
-    
+
 
 public:
     virtual ~GameState() {}
-    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; init_success = true; }
+    GameState(): render_system( RenderSystem::getRenderSystem() ) { scene = nullptr; init_success = true; next_state = nullptr; }
 
     inline bool getInitSuccess() { return init_success; }
 
@@ -51,7 +56,7 @@ public:
 
     // Call the appropriate event handler for an SDL_Event
     // This can be overwritten if additional event handling is necessary in a subclass
-    virtual void handleSDLEvent( SDL_Event e )  {
+    virtual void handleSDLEvent( SDL_Event e ) {
         switch( e.type ) {
             case SDL_KEYDOWN:           handleKeyDown( e );         break;
             case SDL_KEYUP:             handleKeyUp( e );           break;
@@ -64,7 +69,17 @@ public:
 
     virtual void reshape( int new_width, int new_height ) {
         camera->reshape( new_width, new_height );
+        render_system.reshape( new_width, new_height );
     }
+
+    inline GameState* getNextState() { GameState *ret = next_state; next_state = nullptr; return ret; }
+
+    inline bool getQuitGame() { return quit_game; }
+
+    virtual bool shouldLockMouse() { return true; }
+
+    GameObject* getScene() { return scene; }
+
 };
 
 #endif

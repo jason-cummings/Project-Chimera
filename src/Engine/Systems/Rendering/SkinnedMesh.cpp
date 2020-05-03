@@ -7,7 +7,7 @@ SkinnedMesh::SkinnedMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in, Join
 	num_vertices = num_vertices_in;
 	joints = joints_in;
 
-	glGenVertexArrays( 1, &vao);
+	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
 
 	glBindBuffer( GL_ARRAY_BUFFER, vbo );
@@ -72,6 +72,31 @@ SkinnedMesh::SkinnedMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in, Join
 
     glBindVertexArray( 0 );
 
+
+    // Create the vao for rendering depth only
+    glGenVertexArrays( 1, &vertex_vao );
+	glBindVertexArray( vertex_vao );
+	glBindBuffer( GL_ARRAY_BUFFER, vbo );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
+
+	glEnableVertexAttribArray( ShaderAttrib::Vertex );
+    glEnableVertexAttribArray( ShaderAttrib::Joint1to4 );
+    glEnableVertexAttribArray( ShaderAttrib::Joint5to8 );
+    glEnableVertexAttribArray( ShaderAttrib::Joint9to12 );
+    glEnableVertexAttribArray( ShaderAttrib::Joint13to16 );
+    glEnableVertexAttribArray( ShaderAttrib::Joint17to20 );
+    glEnableVertexAttribArray( ShaderAttrib::Joint21to22 );
+
+    glVertexAttribPointer( ShaderAttrib::Vertex,    4, GL_FLOAT, GL_FALSE, N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(0) );
+    glVertexAttribPointer( ShaderAttrib::Joint1to4,   4, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(19*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Joint5to8,   4, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(23*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Joint9to12,   4, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(27*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Joint13to16,   4, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(31*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Joint17to20,   4, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(35*sizeof(GLfloat)) );
+    glVertexAttribPointer( ShaderAttrib::Joint21to22,   2, GL_FLOAT, GL_FALSE,  N_FLOAT_ATTRIBUTES * sizeof(GLfloat) + N_INT_ATTRIBUTES * sizeof(GLint), (GLvoid*)(39*sizeof(GLfloat)) );
+    glBindVertexArray( 0 );
+
+
     material = Material::getDefaultMaterial();
 }
 
@@ -81,9 +106,13 @@ SkinnedMesh::~SkinnedMesh() {
 
 void SkinnedMesh::draw() {
 	glBindVertexArray( vao );
-
 	glDrawElements( GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0 );
+	glBindVertexArray( 0 );
+}
 
+void SkinnedMesh::drawVerticesOnly() {
+	glBindVertexArray( vertex_vao );
+	glDrawElements( GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0 );
 	glBindVertexArray( 0 );
 }
 

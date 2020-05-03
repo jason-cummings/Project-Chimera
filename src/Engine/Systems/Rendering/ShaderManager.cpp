@@ -56,6 +56,7 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("normalTexture");
     cartoon_shading->addUniform("diffuseTexture");
     cartoon_shading->addUniform("emissiveTexture");
+    cartoon_shading->addUniform("shadowTexture");
     cartoon_shading->addUniform("cameraLoc");
     cartoon_shading->addUniform("light.location");
     cartoon_shading->addUniform("light.diffuse");
@@ -66,11 +67,51 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("ambientAmount");
     shaders["cartoon"] = cartoon_shading;
 
+    Shader *overlay_shader = new Shader( "overlay", "OverlayShading.vert", "OverlayShading.frag" );
+    overlay_shader->addUniform( "Model" );
+    overlay_shader->addUniform( "Projection" );
+    overlay_shader->addUniform( "colorTexture" );
+    overlay_shader->addUniform( "emissiveTexture" );
+    shaders["overlay"] = overlay_shader;
+    
+    Shader *depth_shader = new Shader( "depth", "RenderDepth.vert", "RenderDepth.frag" );
+    depth_shader->addUniform( "Model" );
+    depth_shader->addUniform( "View" );
+    depth_shader->addUniform( "Projection" );
+    shaders["depth"] = depth_shader;
+
+    Shader *skinned_depth_shader = new Shader( "skinned-depth", "RenderSkinnedDepth.vert", "RenderDepth.frag" );
+    skinned_depth_shader->addUniform( "Model" );
+    skinned_depth_shader->addUniform( "View" );
+    skinned_depth_shader->addUniform( "Projection" );
+    for(int i = 0; i < 25; i++) {
+        skinned_depth_shader->addUniform("boneMatrices[" + std::to_string(i) + "]");
+    }
+    shaders["skinned-depth"] = skinned_depth_shader;
+
+    Shader *depth_tex_shader = new Shader( "draw-depth-tex", "DrawQuad.vert", "DrawDepthTex.frag" );
+    depth_tex_shader->addUniform( "depthMap" );
+    shaders["draw-depth-tex"] = depth_tex_shader;
+    
+    Shader *directional_shadows_shader = new Shader( "directional-shadows", "DrawQuad.vert", "CreateDirectionalShadowMap.frag" );
+    directional_shadows_shader->addUniform( "positionTexture" );
+    directional_shadows_shader->addUniform( "normalTexture" );
+    directional_shadows_shader->addUniform( "depthTexture" );
+    directional_shadows_shader->addUniform( "lightView" );
+    directional_shadows_shader->addUniform( "lightProjection" );
+    directional_shadows_shader->addUniform( "lightLocation" );
+    shaders["directional-shadows"] = directional_shadows_shader;
+    
     Shader *skybox_shader = new Shader("skybox", "SkyboxDeferred.vert", "SkyboxDeferred.frag");
     skybox_shader->addUniform( "View" );
     skybox_shader->addUniform( "Projection" );
     skybox_shader->addUniform( "skybox" );
     shaders["skybox"] = skybox_shader;
+    
+    Shader *blur_shader = new Shader("blur", "DrawQuad.vert", "GaussianBlur.frag");
+    blur_shader->addUniform( "horizontal" );
+    blur_shader->addUniform( "colorTexture" );
+    shaders["blur"] = blur_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

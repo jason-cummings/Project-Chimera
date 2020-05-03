@@ -31,6 +31,7 @@
 #define LEVEL_TEXTURES_DNAME            "Textures"
 #define LEVEL_ROOTNODE_DNAME            "RootNode"
 #define LEVEL_ANIMATION_DNAME           "AnimationStacks"
+#define LEVEL_ENDGAME_DNAME             "Endgame"
 
 // Object subdirectory names for children or properties
 #define OBJECT_CHILDREN_DNAME           "children"
@@ -44,6 +45,7 @@
 #define OBJECT_SCALING_FNAME            "scaling"
 #define OBJECT_TRANSLATION_FNAME        "translation"
 #define OBJECT_BONE_FNAME               "bone"
+#define LEVEL_ENDGAME_FNAME             "endgame"
 
 // Struct to store all the necessary properties to construct a GameObject from the level hierarchy
 struct LoadedObjectProperties {
@@ -83,6 +85,8 @@ private:
     std::map<std::string, SkinnedMesh*> loaded_skinned_meshes;
     std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
     std::map<std::string, Material*> loaded_materials;
+    //End Game Coordinates
+    glm::vec3 endGameCoordVec;
 
     // Convenience functions
     fs::path levelPath( std::string level_name ) const;
@@ -102,6 +106,7 @@ private:
 
     void loadMaterials( fs::path dir, fs::path textures_dir );
     void loadAnimations(fs::path dir);
+    void loadEndGame(fs::path dir);
     void loadJointList(fs::path dir);
     Joint loadJoint(fs::path dir);
 
@@ -128,6 +133,10 @@ public:
 
     // return the joint list, null if no joints in this file
     JointList * getJointList() {return joint_list;}
+
+    //return end game coordinates
+    glm::vec3 getEndGameCoords(){ return endGameCoordVec; }
+
 
     static LevelLoader * loadCharacterModel();
     static LevelLoader * loadLevelFile(std::string name);
