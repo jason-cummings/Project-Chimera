@@ -34,3 +34,21 @@ GLuint TextureLoader::loadTexture( std::string &filename, bool undoGamma ){
 	std::cout << "Failed to load texture: " << filename << std::endl;
 	return 0;
 }
+
+void TextureLoader::loadTextureForCubeMap(std::string & filename, bool undoGamma, GLenum cube_map_side) {
+	stbi_set_flip_vertically_on_load(false);
+
+	int width;
+	int height;
+	int numChannels;
+	unsigned char* image = stbi_load(filename.c_str(), &width, &height, &numChannels, STBI_rgb_alpha);
+
+	if(image) {
+		glTexImage2D(cube_map_side, 0, numChannels == 3? GL_SRGB:GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
+		glGenerateMipmap(GL_TEXTURE_2D);
+		stbi_image_free(image);
+	}
+	else {
+		std::cout << "Failed to load texture: " << filename << std::endl;
+	}
+}

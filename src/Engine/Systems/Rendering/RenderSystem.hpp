@@ -22,6 +22,7 @@
 #include "TextureLoader.hpp"
 #include "../../Asset.hpp"
 #include "../../GameObjects/Camera.hpp"
+#include "Skybox.hpp"
 
 struct Light {
     glm::vec3 location;
@@ -66,6 +67,9 @@ private:
 
     // Model, View, and Projection matrices for the program
     glm::mat4 view_mat, proj_mat;
+
+    // skybox data
+    Skybox * skybox;
 
     // vectors for lists of different types of geometry. This will be used to optimize the rendering pipeline by reducing 
     // how often the shader is switched during rendering
@@ -148,17 +152,20 @@ public:
 
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    
+    inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 };
 
 // The VBO for rendering a quad over the whole viewport
 const GLfloat quad_vbo_data[] = {
-//   x  y  w    u  v
-    -1,-1, 0,   0, 0,
-     1,-1, 0,   1, 0,
-    -1, 1, 0,   0, 1,
-	-1, 1, 0,   0, 1,
-     1,-1, 0,   1, 0,
-     1, 1, 0,   1, 1
+//   x     y     w       u     v
+    -1.0f,-1.0f, 0.0f,   0.0f, 0.0f,
+     1.0f,-1.0f, 0.0f,   1.0f, 0.0f,
+    -1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+	-1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
+     1.0f,-1.0f, 0.0f,   1.0f, 0.0f,
+     1.0f, 1.0f, 0.0f,   1.0f, 1.0f
 };
+
 
 #endif

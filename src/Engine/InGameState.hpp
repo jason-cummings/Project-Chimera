@@ -11,6 +11,7 @@
 #include "Systems/Physics/PhysicsSystem.hpp"
 #include "./GameObjects/Player.hpp"
 #include "MainMenu.hpp"
+#include "PerformanceLogger.hpp"
 
 class InGameState: public GameState {
 private:
@@ -23,6 +24,8 @@ private:
     PlayerMovementSystem* playerMovement;
     PhysicsSystem *physics_system;
     AnimationSystem * animation_system;
+
+    PerformanceLogger performance_logger;
 
     // Initialize the state
     void init() override;

@@ -16,6 +16,7 @@ void InGameState::init() {
     scene = level_loader->getScene();
     for(int i = 0; i < level_loader->getNumAnimationStacks(); i++) {
         animation_system->addAnimationStack(level_loader->getAnimationStack(i));
+        level_loader->getAnimationStack(i)->startAllAnimations();
     }
 
     if(level_loader->getJointList() != nullptr) {
@@ -73,6 +74,9 @@ void InGameState::init() {
 
     delete level_loader;
     delete player_loader;
+
+    Skybox * skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
+    render_system.setSkybox(skybox);
 }
 
 
@@ -103,10 +107,14 @@ void InGameState::addPhysicsThings() {
 
 void InGameState::gameLoop() {
     double dt = timer->getLastTickTime();
+
+    performance_logger.startTick();
+
     if( first_tick ) {
         dt = 0;
         first_tick = false;
     }
+
 
     int xmove = int(d-a);
     int ymove = int(space-shift);
@@ -114,7 +122,11 @@ void InGameState::gameLoop() {
     //sends movement info to PlayerMovementSystem.
     playerMovement->movePlayer( w, s, d, a, space, shift, dt );
 
+    performance_logger.addOperation("Player Movement",timer->timePerformance());
+
     animation_system->evaluateAnimations(dt);
+
+    performance_logger.addOperation("Animation",timer->timePerformance());
 
     // Perform necessary updates just before the physics step
     prePhysics();
@@ -125,6 +137,8 @@ void InGameState::gameLoop() {
     // Perform post physics scenegraph updates
     postPhysics();
 
+    performance_logger.addOperation("Physics",timer->timePerformance());
+
     // Update the state's scene graph to reflect all changes from the other systems
     // updateScene();
 
@@ -132,6 +146,9 @@ void InGameState::gameLoop() {
 
     // Render all
     render_system.render( dt, scene );
+
+    performance_logger.addOperation("Render",timer->timePerformance());
+    performance_logger.stopTick();
 }
 
 void InGameState::prePhysics() {

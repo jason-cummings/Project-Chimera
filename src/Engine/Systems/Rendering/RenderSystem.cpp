@@ -4,6 +4,7 @@
 
 RenderSystem::RenderSystem() {
 	camera = nullptr;
+	skybox = nullptr;
 
 	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
@@ -211,15 +212,7 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 **/
 
 void RenderSystem::render( double dt, GameObject * sceneGraph ) {
-
-	int vw = 1920, vh = 1080;
-	try {
-		vw = camera->getViewWidth();
-		vh = camera->getViewHeight();
-	} catch( std::exception &e ) {
-		std::cerr << "Error retrieving view width and height from camera" << std::endl;
-	}
-
+	
 	//clear rendering lists
 	populateRenderLists( sceneGraph );
 	
@@ -249,12 +242,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 	// drawDepthTexture( depth_shadow_buffer.getDepthTexture()->getID() );
 
-	glViewport( vw/2, vh/2, vw/2, vh/2 );
-	drawTexture( shadow_mapping_buffer.getTexture("secondary")->getID() );
-	glViewport( 0, 0, vw/2, vh/2 );
-	drawTexture( shadow_mapping_buffer.getTexture("three")->getID() );
-	glViewport( vw/2, 0, vw/2, vh/2 );
-	drawTexture( shadow_mapping_buffer.getTexture("four")->getID() );
+	glFinish();
+
 	
 	mesh_list.clear(); // this probably should be moved
 	skinned_mesh_list.clear();
@@ -286,11 +275,29 @@ void RenderSystem::createOrthoMatrices() {
 
 
 void RenderSystem::deferredRenderStep() {
+	// bind framebuffer
+	deferred_buffer.bind();
+
+	// Clear the framebuffer
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_CULL_FACE );
+	glViewport( 0, 0, texture_width, texture_height );
+
+	if(skybox) {
+		Shader *skybox_shader = sm->getShader("skybox");
+		skybox_shader->bind();
+		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+		skybox_shader->setUniformMat4( "View", view_rot_and_scale );
+		skybox_shader->setUniformMat4( "Projection", proj_mat );
+
+		skybox->draw(skybox_shader);
+	}
 	
-	// Bind the shader and framebuffer for deferred rendering
+	// Bind the shader for deferred rendering
 	Shader *deferred_shader = sm->getShader("basic-deferred");
 	deferred_shader->bind();
-	deferred_buffer.bind();
+	
 
 	// Load the matrices to the shader
 	deferred_shader->setUniformMat4( "View", view_mat );
@@ -299,11 +306,6 @@ void RenderSystem::deferredRenderStep() {
 	// Set additional uniforms for the shader
 	deferred_shader->setUniformFloat( "materialShininess", 32.f );
 
-	// Clear the framebuffer
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	glEnable( GL_DEPTH_TEST );
-	glEnable( GL_CULL_FACE );
-	glViewport( 0, 0, texture_width, texture_height );
 
 	// Perform rendering
 	drawMeshList(true,deferred_shader);
@@ -418,8 +420,7 @@ void RenderSystem::shadingStep() {
 		std::cerr << "Error retrieving view width and height from camera" << std::endl;
 	}
 
-	glViewport( 0, vh/2, vw/2, vh/2 );
-	// glViewport( 0, 0, vw, vh );
+	glViewport( 0, 0, vw, vh );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
