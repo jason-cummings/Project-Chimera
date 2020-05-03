@@ -1,6 +1,6 @@
 #include "RenderSystem.hpp"
 
-#define SHADOW_MAP_DIMENSION 4096
+#define SHADOW_MAP_DIMENSION 2048
 
 RenderSystem::RenderSystem() {
 	camera = nullptr;
@@ -42,6 +42,7 @@ RenderSystem::RenderSystem() {
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
 	sun.directional = 1.0f;
+	sun_proj_mat = glm::ortho( -5.f, 5.f, -5.f, 5.f, -20.f, 20.f );
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -317,7 +318,6 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	// Create the view and projection matrices for the light's view
 	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
 	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
-	glm::mat4 light_proj_mat = glm::ortho( -50.f, 50.f, -50.f, 50.f, -100.f, 100.f );
 
 	// Bind and clear the depth only framebuffer
 	depth_shadow_buffer.bind();
@@ -329,13 +329,13 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	// Bind the shader and render everything for normal meshes
 	depth_shader->bind();
 	depth_shader->setUniformMat4( "View", light_view_mat );
-	depth_shader->setUniformMat4( "Projection", light_proj_mat );
+	depth_shader->setUniformMat4( "Projection", sun_proj_mat );
 	drawMeshListVerticesOnly( depth_shader );
 	
 	// Bind the shader and render everything for skinned meshes
 	skinned_depth_shader->bind();
 	skinned_depth_shader->setUniformMat4( "View", light_view_mat );
-	skinned_depth_shader->setUniformMat4( "Projection", light_proj_mat );
+	skinned_depth_shader->setUniformMat4( "Projection", sun_proj_mat );
 	drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
 	
 	// End Render
@@ -354,7 +354,6 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// Create the view and projection matrices for the light's view
 	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
 	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
-	glm::mat4 light_proj_mat = glm::ortho( -50.f, 50.f, -50.f, 50.f, -100.f, 100.f );
 
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
@@ -378,7 +377,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 
 	// Load the lightspace transform matrices
 	mapping_shader->setUniformMat4( "lightView", light_view_mat );
-	mapping_shader->setUniformMat4( "lightProjection", light_proj_mat );
+	mapping_shader->setUniformMat4( "lightProjection", sun_proj_mat );
 	mapping_shader->setUniformVec3( "lightLocation", light->location );
 
 	drawQuad();
