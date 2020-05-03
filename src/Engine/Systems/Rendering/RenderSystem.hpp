@@ -24,9 +24,22 @@
 #include "../../GameObjects/Camera.hpp"
 #include "Skybox.hpp"
 
+struct Light {
+    glm::vec3 location;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+    float linear_attenuation;
+    float quadratic_attenuation;
+    float directional;
+};
+
 class RenderSystem {
 private:
     Camera *camera;
+
+    // A hard coded light to act as the sun
+    Light sun;
+    glm::mat4 sun_proj_mat;
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -39,6 +52,11 @@ private:
 
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
+
+    // The depth-only framebuffer for shadows and buffer for shadow mapping
+    ShadowFramebuffer depth_shadow_buffer;
+    Framebuffer shadow_mapping_buffer;
+
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;
@@ -87,6 +105,8 @@ private:
     void drawSkinnedMeshList(bool useMaterials, Shader * shader);
     void drawOverlayMeshList(bool useMaterials, Shader * shader);
 
+    void drawMeshListVerticesOnly(Shader * shader);
+    void drawSkinnedMeshListVerticesOnly(Shader * shader);
 
 
     /**
@@ -103,6 +123,9 @@ private:
     void deferredRenderStep();
 
     // shadows
+    void renderDirectionalDepthTexture( Light *light );
+    void createDirectionalShadowMap( Light *light );
+    void drawDepthTexture( GLuint tex );
 
     // shading step
     void shadingStep();
@@ -112,7 +135,7 @@ private:
     // volumetric light scattering
 
     // 2D overlay elements
-    void renderOverlay();    
+    void renderOverlay();
 
 
     RenderSystem();
@@ -129,6 +152,7 @@ public:
 
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 };
 
