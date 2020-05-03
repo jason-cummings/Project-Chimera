@@ -41,6 +41,11 @@ RenderSystem & RenderSystem::getRenderSystem() {
 	return rs;
 }
 
+void RenderSystem::reshape( int x_size, int y_size ) {
+	view_width = x_size;
+	view_height = y_size;
+}
+
 /**
 	Rendering Pipeline Setup
 **/
@@ -128,6 +133,19 @@ void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
 	}
 }
 
+void RenderSystem::drawOverlayMeshList( bool useMaterials, Shader * shader ) {
+	for( int i=0; i<overlay_mesh_list.size(); i++ ) {
+		glm::mat4 transform = overlay_mesh_list[i]->getWorldTransform();
+		shader->setUniformMat4( "Model", transform );
+
+		OverlayMesh *to_draw = overlay_mesh_list[i]->getOverlayMesh();
+		Material *mat_to_use = to_draw->getMaterial();
+		
+		mat_to_use->bind( shader, false );
+		to_draw->draw();
+	}
+}
+
 
 /**
 	Rendering Pipeline
@@ -144,7 +162,7 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	} catch ( std::exception &e ) {
 		// If failed, use some default matrices
 		std::cerr << "Exception retrieving camera - using default matrices" << std::endl;
-		createDefaultMatrices();
+		createOrthoMatrices();
 	}
 
 	// Do the deferred rendering
@@ -153,6 +171,8 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Perform shading
 	shadingStep();
 
+	// Render overlays
+	renderOverlay();
 	glFinish();
 
 	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
@@ -165,17 +185,20 @@ void RenderSystem::populateRenderLists( GameObject * game_object ) {
 	if(game_object->hasSkinnedMesh()) {
 		skinned_mesh_list.push_back(game_object);
 	}
+	if(game_object->hasOverlayMesh()) {
+		overlay_mesh_list.push_back(game_object);
+	}
 	for(int i = 0; i < game_object->getNumChildren(); i++) {
 		populateRenderLists(game_object->getChild(i));
 	}
 }
 
 // Function to create default view and projection matrices only if the camera seg faults
-void RenderSystem::createDefaultMatrices() {
-	float fov = 55.f;
-	float aspect_ratio = 640.f/480.f;
-	proj_mat = glm::perspective( glm::radians(fov), aspect_ratio , 1.f, 10000.f );
-	view_mat = glm::inverse(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 350.0f))); // 350.f
+void RenderSystem::createOrthoMatrices() {
+	float aspect_ratio = view_width / (float)view_height;
+	float left_edge = (aspect_ratio - 1.f) / -2.f;
+	proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
+	view_mat = glm::mat4(1.f);
 }
 
 
@@ -279,7 +302,35 @@ void RenderSystem::shadingStep() {
 	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
 	//cartoon_shading->setUniformFloat("light.directional",0.0f);
 
-	testGLError("shading");
-
 	drawQuad();
+
+	testGLError("Shading");
+	
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+}
+
+void RenderSystem::renderOverlay() {
+	glViewport( 0, 0, view_width, view_height );
+	Shader * overlay_shader = sm->getShader("overlay");
+	overlay_shader->bind();
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+	// Create the orthographic matrices to render the overlay
+	createOrthoMatrices();
+
+	overlay_shader->setUniformMat4( "Projection", proj_mat );
+
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+	drawOverlayMeshList( true, overlay_shader );
+	
+	glDisable( GL_BLEND );
+
+	testGLError("Overlay");
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	overlay_mesh_list.clear();
 }

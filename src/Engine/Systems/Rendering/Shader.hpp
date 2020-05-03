@@ -41,6 +41,11 @@ enum ShaderAttrib2D {
     Texture2D = 1
 };
 
+enum ShaderAttribOverlay {
+    VertexOverlay = 0,
+    TextureOverlay = 1
+};
+
 class Shader {
 private:
     GLuint program;

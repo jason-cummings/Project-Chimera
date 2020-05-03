@@ -28,9 +28,9 @@ bool Engine::init( std::string level_to_load ) {
 
     // Load the default material now that all GL stuff is initialized
     Material::loadDefaultMaterial();
-    
+
     // Create a new state
-    state = new InGameState( level_to_load );
+    state = new MainMenu();
 
     // Reshape the state with the window size
     glm::vec2 window_size = window.getDrawableSize();
@@ -55,10 +55,6 @@ void Engine::handleSDLEvents() {
             // Temporary quit button
             quitEngine();
         }
-        else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_ESCAPE ) {
-            // Temporary mouse lock toggle button
-            window.toggleMouseLock();
-        }
         else if( e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED ) {
             // Resize everything
             glm::vec2 draw_size = window.getDrawableSize();
@@ -78,8 +74,20 @@ void Engine::quitEngine() {
 // Tick the engine
 // Update all systems and states, then render
 void Engine::tick() {
+
+    GameState *next;
+    if( (next = state->getNextState()) != nullptr ) {
+        state = next;
+        glm::vec2 draw_size = window.getDrawableSize();
+        state->reshape( (int)draw_size.x, (int)draw_size.y );
+        window.setMouseLock( state->shouldLockMouse() );
+    }
     // Test for input events
     handleSDLEvents();
+
+    if(state->getQuitGame()){
+        quitEngine();
+    }
     
     if( !quit ) {
         // Update the game state

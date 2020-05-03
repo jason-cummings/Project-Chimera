@@ -17,6 +17,7 @@
 #include "../../GameObject.hpp"
 #include "Mesh.hpp"
 #include "SkinnedMesh.hpp"
+#include "OverlayMesh.hpp"
 #include "Material.hpp"
 #include "TextureLoader.hpp"
 #include "../../Asset.hpp"
@@ -41,6 +42,7 @@ private:
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height;
+    int view_width, view_height;
 
     // The shader manager for the render system
     ShaderManager *sm;
@@ -55,6 +57,7 @@ private:
     // how often the shader is switched during rendering
     std::vector<GameObject*> mesh_list;
     std::vector<GameObject*> skinned_mesh_list;
+    std::vector<GameObject*> overlay_mesh_list;
 
 
     /**
@@ -66,7 +69,6 @@ private:
 
     // Set up the framebuffers necessary for the rendering process
     void createFramebuffers();
-
 
 
     /**
@@ -83,6 +85,7 @@ private:
     // draws the meshList
     void drawMeshList(bool useMaterials, Shader * shader);
     void drawSkinnedMeshList(bool useMaterials, Shader * shader);
+    void drawOverlayMeshList(bool useMaterials, Shader * shader);
 
 
 
@@ -94,7 +97,7 @@ private:
     void populateRenderLists(GameObject * gameObject);
 
     // Create the necessary matrices for rendering
-    void createDefaultMatrices();
+    void createOrthoMatrices();
 
     // Do the deferred rendering step
     void deferredRenderStep();
@@ -108,8 +111,8 @@ private:
 
     // volumetric light scattering
 
-    
-
+    // 2D overlay elements
+    void renderOverlay();    
 
 
     RenderSystem();
@@ -121,6 +124,8 @@ public:
 
     // RENDER
     void render( double dt, GameObject * sceneGraph );
+
+    void reshape( int x_size, int y_size );
 
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }

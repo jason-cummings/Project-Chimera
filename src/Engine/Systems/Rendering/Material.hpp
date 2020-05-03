@@ -6,7 +6,7 @@
 #include "TextureLoader.hpp"
 
 // Path to default material from Asset
-#define DEFAULT_MATERIAl_PATH "Default_material"
+#define DEFAULT_MATERIAl_PATH "Materials/Missing"
 #define DEFAULT_TEXTURES_PATH "Textures"
 
 class Material
@@ -20,7 +20,7 @@ private:
 
 public:
     Material(GLuint texture_, GLuint emissive_, float shininess_);
-    void bind(Shader *shader);
+    void bind(Shader *shader, bool use_shininess = true);
     inline GLuint getTexture() { return texture; }
     inline GLuint getEmissive() { return emissive; }
     inline float getShininess() { return shininess; }
@@ -31,6 +31,7 @@ public:
 
 class MaterialFactory {
 public:
+    static Material* createMaterial(fs::path input_directory);
     static Material* createMaterial(fs::path input_directory, fs::path textures_path);
 };
 

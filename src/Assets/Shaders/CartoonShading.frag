@@ -11,7 +11,7 @@ uniform sampler2D emissiveTexture;
 in vec2 texCoords;
 
 layout (location = 0) out vec4 FragColor;
-layout (location = 1) out vec4 brightColor;
+layout (location = 1) out vec4 BrightColor;
 
 struct Light {
 	vec3 location;
@@ -48,7 +48,7 @@ void main()
 
 	vec3 viewDirection = normalize(cameraLoc - fragPos);
 
-	brightColor = vec4(0.0);
+	BrightColor = vec4(0.0);
 
 	// lighting
 
@@ -92,7 +92,7 @@ void main()
 
 	luminosity += (diffuseAmount + specularAmount) * attenuation * shadowVal;
 
-	brightColor += vec4(shadowVal * (specular * attenuation),0.0);
+	BrightColor += vec4(shadowVal * (specular * attenuation),0.0);
 
 
 	//end lighting
@@ -105,6 +105,6 @@ void main()
 
 	finalColor += emission.xyz;
 	FragColor = vec4(finalColor, luminosity + (emission.x + emission.y + emission.z));
-	brightColor += emission * emission.a;
+	BrightColor += emission * emission.a;
 	
 }

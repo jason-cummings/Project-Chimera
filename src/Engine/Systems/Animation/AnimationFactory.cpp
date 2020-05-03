@@ -21,7 +21,7 @@ AnimationCurve * AnimationFactory::getTranslationAnimationCurve(fs::path dir, Ga
 
 	curve->setTarget(scenegraph->getGameObject(dir.filename().string()));
 
-	std::cout << "Creating Translation Curve targetting " << curve->getTarget()->getID() << std::endl;
+	// std::cout << "Creating Translation Curve targetting " << curve->getTarget()->getID() << std::endl;
 
 	return (AnimationCurve *)curve;
 }
@@ -50,7 +50,7 @@ AnimationCurve * AnimationFactory::getRotationAnimationCurve(fs::path dir, GameO
 
 	curve->setTarget(scenegraph->getGameObject(dir.filename().string()));
 
-	std::cout << "Creating Rotation Curve targetting " << curve->getTarget()->getID() << std::endl;
+	// std::cout << "Creating Rotation Curve targetting " << curve->getTarget()->getID() << std::endl;
 
 	return (AnimationCurve *)curve;
 }

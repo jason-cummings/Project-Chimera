@@ -4,6 +4,7 @@
 #include "Systems/Rendering/RenderSystem.hpp"
 #include "Window.hpp"
 #include "InGameState.hpp"
+#include "MainMenu.hpp"
 
 #define DEFAULT_WINDOW_WIDTH 640
 #define DEFAULT_WINDOW_HEIGHT 480

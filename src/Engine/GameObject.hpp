@@ -3,6 +3,7 @@
 
 class GameObject;
 
+#include <iostream>
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,12 +12,12 @@ class GameObject;
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/string_cast.hpp>
 
-#include <iostream>
-#include <glm/gtx/string_cast.hpp>
 // #include "Systems/Rendering/Mesh.hpp"
 class Mesh;
 // #include "Systems/Rendering/SkinnedMesh.hpp"
 class SkinnedMesh;
+// #include "Systems/Rendering/OverlayMesh.hpp"
+class OverlayMesh;
 #include "Systems/Physics/RigidBodyPhysicsComponent.hpp"
 
 
@@ -51,6 +52,8 @@ public:
 	virtual Mesh * getMesh() const { return (Mesh *) nullptr; }
 	virtual bool hasSkinnedMesh() const { return false; }
 	virtual SkinnedMesh * getSkinnedMesh() const { return (SkinnedMesh *) nullptr; }
+	virtual bool hasOverlayMesh() const { return false; }
+	virtual OverlayMesh * getOverlayMesh() const { return (OverlayMesh *) nullptr; }
 	virtual bool hasPhysicsComponent() const { return false; }
 	virtual RigidBodyPhysicsComponent * getPhysicsComponent() const { return nullptr; }
 
