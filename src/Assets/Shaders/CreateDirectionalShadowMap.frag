@@ -1,6 +1,9 @@
 #version 330 core
 
 layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 Secondary;
+layout (location = 2) out vec4 Three;
+layout (location = 3) out vec4 Four;
 
 in vec2 texCoords;
 
@@ -33,7 +36,9 @@ void main() {
             // Get the depth of the fragment in consideration
             float fragDepth = projLoc.z;
 
-            // FragColor = vec4(closestDepth, closestDepth, closestDepth, 1.0);
+            float temp = closestDepth * 10.0 - 5.0;
+            Secondary = vec4(temp, temp, temp, 1.0);
+            Three = vec4(projLoc.xy, 0.0, 1.0);
         
             // Test if the fragment minus a bias is closer than the current depth
             float bias = 0.001;
@@ -45,4 +50,5 @@ void main() {
     }
 
     FragColor = vec4(outCol, 1.0);
+    Four = vec4(vec3(texture(depthTexture, texCoords).r * 10.0 - 5.0), 1.0);
 }

@@ -131,7 +131,7 @@ private:
     // volumetric light scattering
 
     // 2D overlay elements
-    void renderOverlay();    
+    void renderOverlay();
 
 
     RenderSystem();

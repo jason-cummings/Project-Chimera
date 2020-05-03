@@ -83,6 +83,9 @@ void RenderSystem::createFramebuffers() {
 
 	// Add an output shadow texture for the shadow mapping buffer
 	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
+	shadow_mapping_buffer.addColorTexture( "secondary", texture_width, texture_height );
+	shadow_mapping_buffer.addColorTexture( "three", texture_width, texture_height );
+	shadow_mapping_buffer.addColorTexture( "four", texture_width, texture_height );
 
 	testGLError( "Framebuffer Setup" );
 }
@@ -208,6 +211,15 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 **/
 
 void RenderSystem::render( double dt, GameObject * sceneGraph ) {
+
+	int vw = 1920, vh = 1080;
+	try {
+		vw = camera->getViewWidth();
+		vh = camera->getViewHeight();
+	} catch( std::exception &e ) {
+		std::cerr << "Error retrieving view width and height from camera" << std::endl;
+	}
+
 	//clear rendering lists
 	populateRenderLists( sceneGraph );
 	
@@ -234,9 +246,15 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Render overlays
 	renderOverlay();
 
-	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
+	// drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 	// drawDepthTexture( depth_shadow_buffer.getDepthTexture()->getID() );
-	// drawTexture( shadow_mapping_buffer.getTexture("shadow_map")->getID() );
+
+	glViewport( vw/2, vh/2, vw/2, vh/2 );
+	drawTexture( shadow_mapping_buffer.getTexture("secondary")->getID() );
+	glViewport( 0, 0, vw/2, vh/2 );
+	drawTexture( shadow_mapping_buffer.getTexture("three")->getID() );
+	glViewport( vw/2, 0, vw/2, vh/2 );
+	drawTexture( shadow_mapping_buffer.getTexture("four")->getID() );
 	
 	mesh_list.clear(); // this probably should be moved
 	skinned_mesh_list.clear();
@@ -317,6 +335,7 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 
 	// Create the view and projection matrices for the light's view
 	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
+	// glm::vec3 light_look_at = glm::vec3(0.f);
 	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the depth only framebuffer
@@ -353,6 +372,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 
 	// Create the view and projection matrices for the light's view
 	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
+	// glm::vec3 light_look_at = glm::vec3(0.f);
 	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the mapping buffer
@@ -398,7 +418,8 @@ void RenderSystem::shadingStep() {
 		std::cerr << "Error retrieving view width and height from camera" << std::endl;
 	}
 
-	glViewport( 0, 0, vw, vh );
+	glViewport( 0, vh/2, vw/2, vh/2 );
+	// glViewport( 0, 0, vw, vh );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
