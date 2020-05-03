@@ -24,6 +24,9 @@ private:
     std::string current_level;
     glm::vec3 end_coords;
 
+    //Stops movement for pause menu
+    void movementFalse();
+
     // Subsystems for this state
     PlayerMovementSystem* player_movement;
     PhysicsSystem *physics_system;

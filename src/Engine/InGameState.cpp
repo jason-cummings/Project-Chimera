@@ -176,6 +176,7 @@ void InGameState::handleKeyDown( SDL_Event e ) {
         shift = true;
     }
     else if( key == SDLK_ESCAPE ) {
+        movementFalse();
         setNextState( new PauseMenu(this));
     }
     else if( key == SDLK_F3 ){
@@ -239,4 +240,13 @@ bool InGameState::endGame() {
     y = coords[1];
     z = coords[2];
     return (isNear( x, end_coords[0], 2.f ) && isNear(y , end_coords[1], 2.f) && isNear( z, end_coords[2], 2.f ));
+}
+
+void InGameState::movementFalse(){
+    w = false;
+    a = false;
+    s = false;
+    d = false;
+    shift = false;
+    space = false;
 }
