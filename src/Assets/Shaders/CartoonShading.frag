@@ -88,7 +88,7 @@ void main()
 
 	diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
 
-	finalColor += (diffuseAmount * light.diffuse + specular) * attenuation;// * diffuseColor;
+	finalColor += (diffuseAmount * light.diffuse + specular) * attenuation * diffuseColor;
 
 	luminosity += (diffuseAmount + specularAmount) * attenuation * shadowVal;
 

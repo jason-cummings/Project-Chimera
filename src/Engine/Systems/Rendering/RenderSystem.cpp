@@ -2,6 +2,7 @@
 
 RenderSystem::RenderSystem() {
 	camera = nullptr;
+	skybox = nullptr;
 
 	// Create the basic VAO
 	glGenVertexArrays( 1, &BASE_VAO );
@@ -172,6 +173,7 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 
 	// Render overlays
 	renderOverlay();
+	glFinish();
 
 	//drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 }
@@ -201,11 +203,29 @@ void RenderSystem::createOrthoMatrices() {
 
 
 void RenderSystem::deferredRenderStep() {
+	// bind framebuffer
+	deferred_buffer.bind();
+
+	// Clear the framebuffer
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glEnable( GL_DEPTH_TEST );
+	glEnable(GL_CULL_FACE);
+	glViewport( 0, 0, texture_width, texture_height );
+
+	if(skybox) {
+		Shader *skybox_shader = sm->getShader("skybox");
+		skybox_shader->bind();
+		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+		skybox_shader->setUniformMat4( "View", view_rot_and_scale );
+		skybox_shader->setUniformMat4( "Projection", proj_mat );
+
+		skybox->draw(skybox_shader);
+	}
 	
-	// Bind the shader and framebuffer for deferred rendering
+	// Bind the shader for deferred rendering
 	Shader *deferred_shader = sm->getShader("basic-deferred");
 	deferred_shader->bind();
-	deferred_buffer.bind();
+	
 
 	// Load the matrices to the shader
 	deferred_shader->setUniformMat4( "View", view_mat );
@@ -214,11 +234,7 @@ void RenderSystem::deferredRenderStep() {
 	// Set additional uniforms for the shader
 	deferred_shader->setUniformFloat( "materialShininess", 32.f );
 
-	// Clear the framebuffer
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	glEnable( GL_DEPTH_TEST );
-	glEnable(GL_CULL_FACE);
-	glViewport( 0, 0, texture_width, texture_height );
+	
 
 	// Perform rendering
 	drawMeshList(true,deferred_shader);
@@ -277,12 +293,12 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformVec3("cameraLoc",glm::vec3(0.0f,0.0f,10.0f));
 
-	cartoon_shading->setUniformFloat("ambientAmount", .2);
+	cartoon_shading->setUniformFloat("ambientAmount", .3);
 
 	cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
 	cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
 	cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
-	cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
+	cartoon_shading->setUniformFloat("light.linearAttenuation",0.01f);
 	cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
 	//cartoon_shading->setUniformFloat("light.directional",0.0f);
 

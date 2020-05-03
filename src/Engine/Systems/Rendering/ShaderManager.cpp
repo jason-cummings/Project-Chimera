@@ -72,6 +72,11 @@ void ShaderManager::loadShaders() {
     overlay_shader->addUniform( "colorTexture" );
     overlay_shader->addUniform( "emissiveTexture" );
     shaders["overlay"] = overlay_shader;
+    Shader *skybox_shader = new Shader("skybox", "SkyboxDeferred.vert", "SkyboxDeferred.frag");
+    skybox_shader->addUniform( "View" );
+    skybox_shader->addUniform( "Projection" );
+    skybox_shader->addUniform( "skybox" );
+    shaders["skybox"] = skybox_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

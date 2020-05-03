@@ -84,7 +84,9 @@ void Menu::handleButtonEvent( MenuButton *clicked ) {
 }
 
 void Menu::gameLoop() {
-    render_system.render( 0.f, scene );
+    if( next_state == nullptr ) {
+        render_system.render( 0.f, scene );
+    }
 }
 
 

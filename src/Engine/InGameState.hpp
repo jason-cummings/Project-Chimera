@@ -10,6 +10,7 @@
 #include "./Systems/Animation/AnimationSystem.hpp"
 #include "Systems/Physics/PhysicsSystem.hpp"
 #include "./GameObjects/Player.hpp"
+#include "PerformanceLogger.hpp"
 
 class InGameState;
 #include "MainMenu.hpp"
@@ -26,11 +27,14 @@ private:
 
     //Stops movement for pause menu
     void movementFalse();
+    bool first_tick;
 
     // Subsystems for this state
     PlayerMovementSystem* player_movement;
     PhysicsSystem *physics_system;
     AnimationSystem * animation_system;
+
+    PerformanceLogger performance_logger;
 
     // Initialize the state
     void init() override;

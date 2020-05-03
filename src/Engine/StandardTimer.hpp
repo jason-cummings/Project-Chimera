@@ -10,9 +10,13 @@
 class StandardTimer: public Timer {
 private:
     Uint64 last_time, current_time, frequency;
+
+    // variables for timing performance
+    Uint64 last_perf;
 public:
     StandardTimer();
     double getLastTickTime();
+    double timePerformance();
 };
 
 #endif
