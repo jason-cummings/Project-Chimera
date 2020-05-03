@@ -107,6 +107,11 @@ void ShaderManager::loadShaders() {
     skybox_shader->addUniform( "Projection" );
     skybox_shader->addUniform( "skybox" );
     shaders["skybox"] = skybox_shader;
+    
+    Shader *blur_shader = new Shader("blur", "DrawQuad.vert", "GaussianBlur.frag");
+    blur_shader->addUniform( "horizontal" );
+    blur_shader->addUniform( "colorTexture" );
+    shaders["blur"] = blur_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

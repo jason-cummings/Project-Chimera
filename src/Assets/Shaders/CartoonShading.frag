@@ -104,5 +104,5 @@ void main()
 	finalColor += emission.xyz;
 	FragColor = vec4(finalColor, luminosity + (emission.x + emission.y + emission.z));
 	BrightColor += emission * emission.a;
-	
+
 }

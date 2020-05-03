@@ -30,8 +30,10 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
 
-	texture_width = 2880;//3840;
-	texture_height = 1800;//2160;
+	// texture_width = 2880;//3840;
+	// texture_height = 1800;//2160;
+	texture_width = 3840;
+	texture_height = 1800;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
@@ -87,6 +89,14 @@ void RenderSystem::createFramebuffers() {
 	shadow_mapping_buffer.addColorTexture( "secondary", texture_width, texture_height );
 	shadow_mapping_buffer.addColorTexture( "three", texture_width, texture_height );
 	shadow_mapping_buffer.addColorTexture( "four", texture_width, texture_height );
+
+	// Set up the shading framebuffer
+	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
+	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
+
+	// Set up the pingpong buffers for blurring
+	blur_buffer[0].addColorTexture( "FragColor", texture_width, texture_height );
+	blur_buffer[1].addColorTexture( "FragColor", texture_width, texture_height );
 
 	testGLError( "Framebuffer Setup" );
 }
@@ -217,9 +227,12 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	populateRenderLists( sceneGraph );
 	
 	// Attempt to get the camera's matrices
+	// int vw = 1920, vh = 1080;
 	try {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
+		// vw = camera->getViewWidth();
+		// vh = camera->getViewHeight();
 	} catch ( std::exception &e ) {
 		// If failed, use some default matrices
 		std::cerr << "Exception retrieving camera - using default matrices" << std::endl;
@@ -239,11 +252,20 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Render overlays
 	renderOverlay();
 
+	// Draw the resulting texture from the shading step
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glViewport( 0, 0, view_width, view_height );
+	glClear( GL_COLOR_BUFFER_BIT );
+	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	applyBloom();
+
+
 	// drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 	// drawDepthTexture( depth_shadow_buffer.getDepthTexture()->getID() );
 
-	glFinish();
 
+	glFinish();
 	
 	mesh_list.clear(); // this probably should be moved
 	skinned_mesh_list.clear();
@@ -411,19 +433,12 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 }
 
 void RenderSystem::shadingStep() {
+	// Bind the shading framebuffer
+	shading_buffer.bind();
 
-	int vw = 1920, vh = 1080;
-	try {
-		vw = camera->getViewWidth();
-		vh = camera->getViewHeight();
-	} catch( std::exception &e ) {
-		std::cerr << "Error retrieving view width and height from camera" << std::endl;
-	}
-
-	glViewport( 0, 0, vw, vh );
+	glViewport( 0, 0, texture_width, texture_height );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	cartoon_shading->setUniformInt("positionTexture",0);
 	glActiveTexture( GL_TEXTURE0 );
@@ -472,11 +487,47 @@ void RenderSystem::shadingStep() {
 	glUseProgram(0);
 }
 
-void RenderSystem::renderOverlay() {
+
+void RenderSystem::applyBloom() {
+	Shader *blur_shader = sm->getShader("blur");
+	blur_shader->bind();
+	blur_shader->setUniformInt( "colorTexture", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+
+	current_blur_buffer = 0;
+
+	for( int i=0; i<BLOOM_PASSES; i++ ) { // BLOOM_PASSES
+		blur_shader->bind();
+		blur_buffer[current_blur_buffer].bind();
+		glViewport( 0, 0, texture_width, texture_height );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
+		GLuint tex_to_use = i == 0 ? shading_buffer.getTexture( "BrightColor" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
+		glBindTexture( GL_TEXTURE_2D, tex_to_use );
+
+		drawQuad();
+
+		current_blur_buffer = !current_blur_buffer;
+	}
+
+	testGLError("Blur");
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glViewport( 0, 0, view_width, view_height );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_ONE, GL_ONE );
+	drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
+	glDisable( GL_BLEND );
+
+	glUseProgram(0);
+}
+
+void RenderSystem::renderOverlay() {
+	shading_buffer.bind();
+	glViewport( 0, 0, texture_width, texture_height );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	// Create the orthographic matrices to render the overlay
 	createOrthoMatrices();

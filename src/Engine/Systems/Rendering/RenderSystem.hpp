@@ -24,6 +24,8 @@
 #include "../../GameObjects/Camera.hpp"
 #include "Skybox.hpp"
 
+#define BLOOM_PASSES 16
+
 struct Light {
     glm::vec3 location;
     glm::vec3 diffuse;
@@ -52,6 +54,11 @@ private:
 
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
+    Framebuffer shading_buffer;
+    
+    bool current_blur_buffer;
+    Framebuffer blur_buffer[2];
+
 
     // The depth-only framebuffer for shadows and buffer for shadow mapping
     ShadowFramebuffer depth_shadow_buffer;
@@ -131,6 +138,7 @@ private:
     void shadingStep();
 
     // bloom
+    void applyBloom();
 
     // volumetric light scattering
 
