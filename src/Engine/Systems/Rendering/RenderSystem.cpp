@@ -30,8 +30,10 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
 
-	texture_width = 2880;//3840;
-	texture_height = 1800;//2160;
+	// texture_width = 2880;//3840;
+	// texture_height = 1800;//2160;
+	texture_width = 3840;
+	texture_height = 1800;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
@@ -39,7 +41,7 @@ RenderSystem::RenderSystem() {
 	// And in the last step, Jason said "Let there be light"
 	sun.location = glm::vec3(1.f,3.f,1.f);
 	sun.diffuse = glm::vec3(0.5f,0.5f,0.4f);
-	sun.specular = glm::vec3(1.0f,1.0f,1.0f);
+	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
 	sun.directional = 1.0f;
@@ -225,12 +227,12 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	populateRenderLists( sceneGraph );
 	
 	// Attempt to get the camera's matrices
-	int vw = 1920, vh = 1080;
+	// int vw = 1920, vh = 1080;
 	try {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
-		vw = camera->getViewWidth();
-		vh = camera->getViewHeight();
+		// vw = camera->getViewWidth();
+		// vh = camera->getViewHeight();
 	} catch ( std::exception &e ) {
 		// If failed, use some default matrices
 		std::cerr << "Exception retrieving camera - using default matrices" << std::endl;
@@ -247,16 +249,17 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Perform shading
 	shadingStep();
 
+	// Render overlays
+	renderOverlay();
+
 	// Draw the resulting texture from the shading step
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, vw, vh );
+	glViewport( 0, 0, view_width, view_height );
 	glClear( GL_COLOR_BUFFER_BIT );
 	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
-	applyBloom( vw, vh );
+	applyBloom();
 
-	// Render overlays
-	renderOverlay();
 
 	// drawTexture(deferred_buffer.getTexture( "normal" )->getID());
 	// drawDepthTexture( depth_shadow_buffer.getDepthTexture()->getID() );
@@ -485,7 +488,7 @@ void RenderSystem::shadingStep() {
 }
 
 
-void RenderSystem::applyBloom( int vw, int vh ) {
+void RenderSystem::applyBloom() {
 	Shader *blur_shader = sm->getShader("blur");
 	blur_shader->bind();
 	blur_shader->setUniformInt( "colorTexture", 0 );
@@ -497,7 +500,7 @@ void RenderSystem::applyBloom( int vw, int vh ) {
 		blur_shader->bind();
 		blur_buffer[current_blur_buffer].bind();
 		glViewport( 0, 0, texture_width, texture_height );
-		// glClear( GL_COLOR_BUFFER_BIT );
+		glClear( GL_COLOR_BUFFER_BIT );
 		
 		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
 		GLuint tex_to_use = i == 0 ? shading_buffer.getTexture( "BrightColor" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
@@ -511,9 +514,9 @@ void RenderSystem::applyBloom( int vw, int vh ) {
 	testGLError("Blur");
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, vw, vh );
+	glViewport( 0, 0, view_width, view_height );
 	glEnable( GL_BLEND );
-	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+	glBlendFunc( GL_ONE, GL_ONE );
 	drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
 	glDisable( GL_BLEND );
 
@@ -521,10 +524,10 @@ void RenderSystem::applyBloom( int vw, int vh ) {
 }
 
 void RenderSystem::renderOverlay() {
-	glViewport( 0, 0, view_width, view_height );
+	shading_buffer.bind();
+	glViewport( 0, 0, texture_width, texture_height );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
 	// Create the orthographic matrices to render the overlay
 	createOrthoMatrices();

@@ -24,7 +24,7 @@
 #include "../../GameObjects/Camera.hpp"
 #include "Skybox.hpp"
 
-#define BLOOM_PASSES 8
+#define BLOOM_PASSES 16
 
 struct Light {
     glm::vec3 location;
@@ -138,7 +138,7 @@ private:
     void shadingStep();
 
     // bloom
-    void applyBloom( int vw, int vh );
+    void applyBloom();
 
     // volumetric light scattering
 
