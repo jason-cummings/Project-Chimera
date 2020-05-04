@@ -247,7 +247,8 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
         // std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
 }
 
-bool InGameState::isNear(float input, float goal, float threshold){
+bool InGameState::isNear(float input, float goal){
+    float threshold = 3.f;
     return abs(goal - input) < threshold;
 }
 
@@ -263,7 +264,7 @@ bool InGameState::endGame() {
     x = coords[0];
     y = coords[1];
     z = coords[2];
-    return (isNear( x, end_coords[0], 2.f ) && isNear(y , end_coords[1], 2.f) && isNear( z, end_coords[2], 2.f ));
+    return (isNear( x, end_coords[0]) && isNear(y , end_coords[1]) && isNear( z, end_coords[2]));
 }
 
 void InGameState::movementFalse(){
