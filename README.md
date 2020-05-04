@@ -17,10 +17,8 @@ Ensure that you have CMake version 3.6+ installed on the command line, then buil
 
 Then run the game executable with:
 ```
-./bin/bin/projectchimera [level name]
+./bin/bin/projectchimera
 ```
-If level name is left out, the program will load a default level. To see examples of our current animations, use level name AnimatedRaptor.
-
 
 To rebuild without rerunning cmake, cd to the ./bin/ directory and run:
 ```
@@ -40,7 +38,7 @@ scripts\cmake-nmake.bat
 
 Then run the game executable with:
 ```
-bin\bin\projectchimera.exe [level name]
+bin\bin\projectchimera.exe
 ```
 
 To rebuild without rerunning cmake, cd to the .\bin\ directory and run:
