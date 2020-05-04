@@ -5,7 +5,7 @@
 #include <iostream>
 #include <btBulletDynamicsCommon.h>
 #include "RigidBodyPhysicsComponent.hpp"
-#include "../../Asset.hpp"
+#include "../../Utilities/Asset.hpp"
 
 class RigidBodyFactory {
 private:

@@ -2,10 +2,11 @@
 Menu::Menu(){
 	scene = new GameObject("root");
 
+    mouse_lock = false;
 	lastpressed = nullptr;
 
-	//Insert buttons here like such:
-	//buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
+	// Insert buttons here like such:
+	// buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
 	//
 
 	for( MenuButton* b : buttons ){

@@ -20,7 +20,7 @@
 #include "OverlayMesh.hpp"
 #include "Material.hpp"
 #include "TextureLoader.hpp"
-#include "../../Asset.hpp"
+#include "../../Utilities/Asset.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "Skybox.hpp"
 

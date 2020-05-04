@@ -12,6 +12,8 @@ void InGameState::init() {
     camera = new Camera();
     render_system.registerCamera( camera );
 
+    mouse_lock = true;
+
     LevelLoader * level_loader = LevelLoader::loadLevelFile(current_level);
     scene = level_loader->getScene();
     for(int i = 0; i < level_loader->getNumAnimationStacks(); i++) {
@@ -108,64 +110,62 @@ void InGameState::addPhysicsThings() {
 
 
 void InGameState::gameLoop() {
-    if( next_state == nullptr ) {
-        double dt = timer->getLastTickTime();
+    double dt = timer->getLastTickTime();
 
-        performance_logger.startTick();
+    performance_logger.startTick();
 
-        if( first_tick ) {
-            dt = 0;
-            first_tick = false;
-        }
-
-
-        int xmove = int(d-a);
-        int ymove = int(space-shift);
-        int zmove = int(s-w);
-        //sends movement info to Player_movementSystem.
-        player_movement->movePlayer( w, s, d, a, space, shift, dt );
-
-        performance_logger.addOperation("Player Movement",timer->timePerformance());
-
-        animation_system->evaluateAnimations(dt);
-
-        performance_logger.addOperation("Animation",timer->timePerformance());
-
-        // Perform necessary updates just before the physics step
-        prePhysics();
-
-        // Step physics
-        physics_system->stepPhysics(dt);
-
-        // Perform post physics scenegraph updates
-        postPhysics();
-
-        performance_logger.addOperation("Physics",timer->timePerformance());
-
-        // Update the state's scene graph to reflect all changes from the other systems
-        // updateScene();
-
-        camera->createMatrices();
-
-        // Render all
-        render_system.render( dt, scene );
-
-        if(fell()){
-            std::cout << "Respawning" <<std::endl;
-            glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
-            player->setTranslation(spawnPoint);
-
-        }
-
-
-        //If player reaches end goal
-        if(endGame()){
-            setNextState( new WinMenu(this) );
-            
-        }
-        performance_logger.addOperation("Render",timer->timePerformance());
-        performance_logger.stopTick();
+    if( first_tick ) {
+        dt = 0;
+        first_tick = false;
     }
+
+
+    int xmove = int(d-a);
+    int ymove = int(space-shift);
+    int zmove = int(s-w);
+    //sends movement info to Player_movementSystem.
+    player_movement->movePlayer( w, s, d, a, space, shift, dt );
+
+    performance_logger.addOperation("Player Movement",timer->timePerformance());
+
+    animation_system->evaluateAnimations(dt);
+
+    performance_logger.addOperation("Animation",timer->timePerformance());
+
+    // Perform necessary updates just before the physics step
+    prePhysics();
+
+    // Step physics
+    physics_system->stepPhysics(dt);
+
+    // Perform post physics scenegraph updates
+    postPhysics();
+
+    performance_logger.addOperation("Physics",timer->timePerformance());
+
+    // Update the state's scene graph to reflect all changes from the other systems
+    // updateScene();
+
+    camera->createMatrices();
+
+    // Render all
+    render_system.render( dt, scene );
+
+    if(fell()){
+        std::cout << "Respawning" <<std::endl;
+        glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
+        player->setTranslation(spawnPoint);
+
+    }
+
+
+    //If player reaches end goal
+    if(endGame()){
+        setNextState( new WinMenu(this), false );
+        
+    }
+    performance_logger.addOperation("Render",timer->timePerformance());
+    performance_logger.stopTick();
 }
 
 void InGameState::prePhysics() {
@@ -200,7 +200,7 @@ void InGameState::handleKeyDown( SDL_Event e ) {
     }
     else if( key == SDLK_ESCAPE ) {
         movementFalse();
-        setNextState( new PauseMenu(this) );
+        setNextState( new PauseMenu(this), false );
         first_tick = true;
     }
     else if( key == SDLK_F1 ) {
@@ -247,7 +247,7 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
     // For captured mode, get relative mouse motion, not absolute position
     //Scale necessary to scale down movement speed, otherwise blisteringly fast.
     //dx needs to be inverted for proper mouse directional navigation.
-    float scale = 0.003;
+    float scale = 0.003f;
     float dx = -e.motion.xrel * scale;
     float dy = e.motion.yrel * scale;
 

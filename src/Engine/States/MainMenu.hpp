@@ -1,11 +1,11 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
+
 #include <vector>
-#include "GameState.hpp"
-#include "InGameState.hpp"
-#include "./GameObjects/MenuButton.hpp"
+
 #include "Menu.hpp"
 #include "LoadMenu.hpp"
+#include "../GameObjects/MenuButton.hpp"
 
 #define PLAY_GAME_BUTTON_ID "Play Game"
 #define EXIT_GAME_BUTTON_ID "Exit"
@@ -16,7 +16,9 @@ private:
     MenuButton * lastpressed;
     std::vector<MenuButton*> buttons;
 
+    // Systems for main menu
     AnimationSystem * animation_system;
+    Timer *timer;
 
     void handleButtonEvent( MenuButton *clicked );
 
@@ -30,8 +32,6 @@ public:
     void handleMouseButtonUp( SDL_Event e ) override;
 
     void gameLoop() override;
-    
-    bool shouldLockMouse() override { return false; }
 };
 
 #endif

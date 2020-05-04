@@ -6,8 +6,9 @@
 #include <vector>
 #include "Shader.hpp"
 #include "TextureLoader.hpp"
-#include "../../FilesystemWrapper.hpp"
-#include "../../WAIWrapper.hpp"
+
+#include "../../Utilities/FilesystemWrapper.hpp"
+#include "../../Utilities/WAIWrapper.hpp"
 
 const std::string skybox_texture_names[] = {
 	"positiveX.png","negativeX.png",

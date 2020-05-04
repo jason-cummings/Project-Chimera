@@ -3,8 +3,7 @@
 
 #include "Systems/Rendering/RenderSystem.hpp"
 #include "Window.hpp"
-#include "InGameState.hpp"
-#include "MainMenu.hpp"
+#include "States/MainMenu.hpp"
 
 #define DEFAULT_WINDOW_WIDTH 640
 #define DEFAULT_WINDOW_HEIGHT 480
@@ -23,6 +22,9 @@ private:
     // Quit the program
     void quitEngine();
 
+    // Swap the state if necessary
+    void testAndHandleStateChange();
+
     // Handles inputs given by user.
     void handleSDLEvents();
 
@@ -34,7 +36,7 @@ public:
     static Engine & getEngine();
 
     // Initialize the engine and return success
-    bool init( std::string level_to_load );
+    bool init();
 
     // Step the Engine based on time
     void tick();

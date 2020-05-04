@@ -16,7 +16,7 @@ AnimationLayer::~AnimationLayer() {
 // updates the cur_time variable and evaluates the animation curves
 void AnimationLayer::evaluate(double dt) {
 	if(max_time > 0) {
-		cur_time += dt;
+		cur_time += (float)dt;
 		if(cur_time > max_time) {
 			complete = true;
 			while(cur_time > max_time) {
@@ -32,7 +32,7 @@ void AnimationLayer::evaluate(double dt) {
 
 void AnimationLayer::evaluateWithBlend(double dt, float blend_amount){
 	if(max_time > 0) {
-		cur_time += dt;
+		cur_time += (float)dt;
 		if(cur_time > max_time) {
 			complete = true;
 			while(cur_time > max_time) {

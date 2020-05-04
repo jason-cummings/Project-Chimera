@@ -6,8 +6,8 @@
 #include "AnimationLayer.hpp"
 #include "AnimationStack.hpp"
 
-#include "../../Asset.hpp"
-#include "../../FilesystemWrapper.hpp"
+#include "../../Utilities/Asset.hpp"
+#include "../../Utilities/FilesystemWrapper.hpp"
 
 class AnimationFactory {
 	static AnimationCurve * getTranslationAnimationCurve(fs::path dir, GameObject * scenegraph);

@@ -1,16 +1,19 @@
 #ifndef INGAMESTATE_H
 #define INGAMESTATE_H
 
-#include "GameState.hpp"
-#include "GameObject.hpp"
-#include "GameObjects/Obstacle.hpp"
-#include "GameObjects/DynamicCube.hpp"
-#include "GameObjects/StaticCubeObstacle.hpp"
-#include "./Systems/PlayerMovement/PlayerMovementSystem.hpp"
-#include "./Systems/Animation/AnimationSystem.hpp"
-#include "Systems/Physics/PhysicsSystem.hpp"
-#include "./GameObjects/Player.hpp"
-#include "PerformanceLogger.hpp"
+#include "../GameState.hpp"
+
+#include "../Systems/PlayerMovement/PlayerMovementSystem.hpp"
+#include "../Systems/Animation/AnimationSystem.hpp"
+#include "../Systems/Physics/PhysicsSystem.hpp"
+
+#include "../GameObject.hpp"
+#include "../GameObjects/Obstacle.hpp"
+#include "../GameObjects/DynamicCube.hpp"
+#include "../GameObjects/StaticCubeObstacle.hpp"
+#include "../GameObjects/Player.hpp"
+
+#include "../Utilities/PerformanceLogger.hpp"
 
 class InGameState;
 #include "MainMenu.hpp"
@@ -33,6 +36,7 @@ private:
     PlayerMovementSystem* player_movement;
     PhysicsSystem *physics_system;
     AnimationSystem * animation_system;
+    Timer *timer;
 
     PerformanceLogger performance_logger;
 

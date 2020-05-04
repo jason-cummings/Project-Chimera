@@ -6,7 +6,7 @@ void TranslationAnimationCurve::evaluate( float time ) {
 	int t_key2 = -1;
 
 	if(time > max_time) {
-		int index = keyframes.size() - 1;
+		int index = (int)keyframes.size() - 1;
 
 		// set values
 		t_key1 = index;
@@ -32,8 +32,8 @@ void TranslationAnimationCurve::evaluate( float time ) {
 			t_key1 = index1;
 			t_key2 = i;
 
-			float time_diff = key_2->time - key_1->time;
-			float ratio = (time - key_1->time) / time_diff;
+			float time_diff = (float)(key_2->time - key_1->time);
+			float ratio = (float)((time - key_1->time) / time_diff);
 
 			glm::vec3 current_value = (1.0f - ratio) * key_1->value + ratio * key_2->value;
 			target->setTranslation(current_value);
@@ -48,7 +48,7 @@ void TranslationAnimationCurve::evaluateWithBlend(float time, float blend_amount
 	glm::vec3 current_value;
 
 	if(time > max_time) {
-		int index = keyframes.size() - 1;
+		int index = (int)keyframes.size() - 1;
 
 		// set values
 		t_key1 = index;
@@ -74,8 +74,8 @@ void TranslationAnimationCurve::evaluateWithBlend(float time, float blend_amount
 			t_key1 = index1;
 			t_key2 = i;
 
-			float time_diff = key_2->time - key_1->time;
-			float ratio = (time - key_1->time) / time_diff;
+			float time_diff = (float)(key_2->time - key_1->time);
+			float ratio = (float)((time - key_1->time) / time_diff);
 
 			current_value = (1.0f - ratio) * key_1->value + ratio * key_2->value;
 		}
@@ -86,7 +86,7 @@ void TranslationAnimationCurve::evaluateWithBlend(float time, float blend_amount
 }
 
 void TranslationAnimationCurve::addKeyframe(VecKeyframe keyframe) {
-	max_time = keyframe.time;
+	max_time = (float)keyframe.time;
 	keyframes.push_back(keyframe);
 }
 
@@ -94,7 +94,7 @@ void TranslationAnimationCurve::addKeyframe(VecKeyframe keyframe) {
 
 void RotationAnimationCurve::evaluate( float time ) {
 	if(time > max_time) {
-		int index = keyframes.size() - 1;
+		int index = (int)keyframes.size() - 1;
 
 		// set values
 
@@ -115,8 +115,8 @@ void RotationAnimationCurve::evaluate( float time ) {
 			QuatKeyframe * key_1 = &(keyframes[index1]);
 			QuatKeyframe * key_2 = &(keyframes[i]);
 
-			float time_diff = key_2->time - key_1->time;
-			float ratio = (time - key_1->time) / time_diff;
+			float time_diff = (float)(key_2->time - key_1->time);
+			float ratio = (float)((time - key_1->time) / time_diff);
 
 			glm::quat current_value = (1.0f - ratio) * key_1->value + ratio * key_2->value;
 			target->setRotation(current_value);
@@ -131,7 +131,7 @@ void RotationAnimationCurve::evaluateWithBlend(float time, float blend_amount) {
 	glm::quat current_value;
 
 	if(time > max_time) {
-		int index = keyframes.size() - 1;
+		int index = (int)keyframes.size() - 1;
 
 		// set values
 		t_key1 = index;
@@ -157,8 +157,8 @@ void RotationAnimationCurve::evaluateWithBlend(float time, float blend_amount) {
 			t_key1 = index1;
 			t_key2 = i;
 
-			float time_diff = key_2->time - key_1->time;
-			float ratio = (time - key_1->time) / time_diff;
+			float time_diff = (float)(key_2->time - key_1->time);
+			float ratio = (float)((time - key_1->time) / time_diff);
 
 			current_value = (1.0f - ratio) * key_1->value + ratio * key_2->value;
 		}
@@ -169,6 +169,6 @@ void RotationAnimationCurve::evaluateWithBlend(float time, float blend_amount) {
 }
 
 void RotationAnimationCurve::addKeyframe(QuatKeyframe keyframe) {
-	max_time = keyframe.time;
+	max_time = (float)keyframe.time;
 	keyframes.push_back(keyframe);
 }

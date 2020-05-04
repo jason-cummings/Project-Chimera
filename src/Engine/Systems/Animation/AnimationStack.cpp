@@ -11,7 +11,7 @@ AnimationStack::~AnimationStack() {
 }
 
 void AnimationStack::addAnimationLayer(AnimationLayer * layer) {
-	int index = animations.size();
+	int index = (int)animations.size();
 	animations.push_back(layer);
 	animation_indexes.insert ( std::pair<std::string,int>(layer->getName(),index) );
 	active_animations.push_back(false);
@@ -38,7 +38,7 @@ void AnimationStack::evaluateAnimations(double dt) {
 		}
 		else {
 			if(sequence.blend_mode) {
-				sequence.blend_cur_time += dt;
+				sequence.blend_cur_time += (float)dt;
 				if(sequence.blend_cur_time > sequence.blend_duration) {
 					sequence.anim1_complete = true;
 				}
