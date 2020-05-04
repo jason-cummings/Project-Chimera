@@ -49,10 +49,8 @@ void main() {
 
         // Test if the fragment is on the depth texture
         if( projLoc.x >= 0.0 && projLoc.x <= 1.0 && projLoc.y >= 0.0 && projLoc.y <= 1.0 ) {
-            if( iterate ) {
-                // Adjust the x texture coord to account for 4 stage texture
-                projLoc.x = (projLoc.x + mapIndex)/4.0;
-            }
+            // Adjust the x texture coord to account for 4 stage texture
+            projLoc.x = (projLoc.x + mapIndex)/4.0;
 
             // Get depth of the fragment from the light
             float closestDepth = texture(depthTexture, projLoc.xy).r;

@@ -65,6 +65,7 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("light.quadraticAttenuation");
     cartoon_shading->addUniform("light.directional");
     cartoon_shading->addUniform("ambientAmount");
+    cartoon_shading->addUniform("applyShadows");
     shaders["cartoon"] = cartoon_shading;
 
     Shader *overlay_shader = new Shader( "overlay", "OverlayShading.vert", "OverlayShading.frag" );

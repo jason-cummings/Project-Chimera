@@ -3,8 +3,6 @@
 #define SHADOW_MAP_DIMENSION 2048
 #define BLOOM_PASSES 4
 
-// #define ITERATE_SHADOWS
-
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 
 RenderSystem::RenderSystem() {
@@ -55,6 +53,8 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
+
+	shadow_mode = ShadowMode::SINGLE_PASS;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -90,13 +90,8 @@ void RenderSystem::createFramebuffers() {
 	deferred_buffer.addDepthBuffer( texture_width, texture_height );
 
 	// Add the depth texture for the shadow buffer
-#ifdef ITERATE_SHADOWS
 	depth_shadow_buffer.addDepthBuffer( 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 	depth_shadow_buffer.addDepthTexture( "shadow_depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-#else
-	depth_shadow_buffer.addDepthBuffer( SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-	depth_shadow_buffer.addDepthTexture( "shadow_depth", SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-#endif
 
 	// Add an output shadow texture for the shadow mapping buffer
 	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
@@ -253,9 +248,11 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Do the deferred rendering
 	deferredRenderStep();
 
-	// Render shadow maps
-	renderDirectionalDepthTexture( &sun );
-	createDirectionalShadowMap( &sun );
+	if( shadow_mode != ShadowMode::NONE ) {
+		// Render shadow maps
+		renderDirectionalDepthTexture( &sun );
+		createDirectionalShadowMap( &sun );
+	}
 
 	// Perform shading
 	shadingStep();
@@ -374,29 +371,37 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
 
-#ifdef ITERATE_SHADOWS
-	for( int i=0; i<4; i++ ) {
-		glViewport( SHADOW_MAP_DIMENSION*i, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-#else
-		int i = 2;
-		glViewport( 0, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-#endif
+	if( shadow_mode == ShadowMode::ITERATE ) {
+		for( int i=0; i<4; i++ ) {
+			glViewport( SHADOW_MAP_DIMENSION*i, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 
+			// Bind the shader and render everything for normal meshes
+			depth_shader->bind();
+			depth_shader->setUniformMat4( "View", light_view_mat );
+			depth_shader->setUniformMat4( "Projection", sun_proj_mats[i] );
+			drawMeshListVerticesOnly( depth_shader );
+			
+			// Bind the shader and render everything for skinned meshes
+			skinned_depth_shader->bind();
+			skinned_depth_shader->setUniformMat4( "View", light_view_mat );
+			skinned_depth_shader->setUniformMat4( "Projection", sun_proj_mats[i] );
+			drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
+		}
+	}
+	else {
+		glViewport( SHADOW_MAP_DIMENSION*2, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 		// Bind the shader and render everything for normal meshes
 		depth_shader->bind();
 		depth_shader->setUniformMat4( "View", light_view_mat );
-		depth_shader->setUniformMat4( "Projection", sun_proj_mats[i] );
+		depth_shader->setUniformMat4( "Projection", sun_proj_mats[2] );
 		drawMeshListVerticesOnly( depth_shader );
 		
 		// Bind the shader and render everything for skinned meshes
 		skinned_depth_shader->bind();
 		skinned_depth_shader->setUniformMat4( "View", light_view_mat );
-		skinned_depth_shader->setUniformMat4( "Projection", sun_proj_mats[i] );
+		skinned_depth_shader->setUniformMat4( "Projection", sun_proj_mats[2] );
 		drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
-
-#ifdef ITERATE_SHADOWS
 	}
-#endif
 
 	// End Render
 	glDisable( GL_DEPTH_TEST );
@@ -445,11 +450,8 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	mapping_shader->setUniformVec3( "lightLocation", light->location );
 
 	mapping_shader->setUniformVec3( "cameraLocation", light_look_at );
-#ifdef ITERATE_SHADOWS
-	mapping_shader->setUniformFloat( "iterate", 1.0 );
-#else
-	mapping_shader->setUniformFloat( "iterate", 0.0 );
-#endif
+
+	mapping_shader->setUniformFloat( "iterate", shadow_mode == ShadowMode::ITERATE ? 1.0 : 0.0 );
 
 	// Render the shadow map
 	drawQuad();
@@ -518,6 +520,8 @@ void RenderSystem::shadingStep() {
 	cartoon_shading->setUniformVec3("cameraLoc",glm::vec3(0.0f,0.0f,10.0f));
 
 	cartoon_shading->setUniformFloat("ambientAmount", 0.3);
+
+	cartoon_shading->setUniformFloat( "applyShadows", shadow_mode == ShadowMode::NONE ? 0.0 : 1.0 );
 
 	// OLD LIGHT
 	// cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));

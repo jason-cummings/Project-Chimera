@@ -203,7 +203,11 @@ void InGameState::handleKeyDown( SDL_Event e ) {
         setNextState( new PauseMenu(this) );
         first_tick = true;
     }
-    else if( key == SDLK_F3 ){
+    else if( key == SDLK_F1 ) {
+        // Cycle shadow modes
+        render_system.cycleShadows();
+    }
+    else if( key == SDLK_F3 ) {
         //Prints out coordinates in terminal
         glm::vec4 tempo = player->getWorldTransform()[3];
         std::cout << "COORDS -> " << std::endl;
