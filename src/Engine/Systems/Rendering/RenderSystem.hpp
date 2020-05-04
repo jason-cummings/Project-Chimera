@@ -61,6 +61,7 @@ private:
     Framebuffer deferred_buffer;
     Framebuffer shading_buffer;
     
+    bool use_bloom;
     bool current_blur_buffer;
     Framebuffer blur_buffer[2];
 
@@ -169,6 +170,7 @@ public:
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 
     inline void cycleShadows() { shadow_mode = (ShadowMode)((shadow_mode + 1) % 3); }
+    inline void toggleBloom() { use_bloom = !use_bloom; }
 };
 
 // The VBO for rendering a quad over the whole viewport
