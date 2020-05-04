@@ -16,6 +16,7 @@ void PerformanceLogger::stopTick() {
 	time_since_FPS += total_tick_time;
 	frames++;
 
+	#ifdef DEBUG
 	if(total_tick_time > TICK_TIME_WARNING_THRESHOLD) {
 		std::cout << "WARNING: Long Tick: " << total_tick_time << " seconds" << std::endl;
 		std::cout << "Current FPS: " << frames / time_since_FPS << std::endl;
@@ -33,4 +34,5 @@ void PerformanceLogger::stopTick() {
 		time_since_FPS = 0.0;
 		frames = 0;
 	}
+	#endif
 }

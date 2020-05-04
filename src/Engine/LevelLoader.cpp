@@ -92,8 +92,9 @@ void LevelLoader::createLevel( std::string level_name ) {
 
     // Create the scene with the properties read in
     createScene( scene_properties );
-
+    #ifdef DEBUG
     scene->print();
+    #endif
 
     // load animations
     fs::path animation_path = level_path;
@@ -223,7 +224,9 @@ void LevelLoader::loadSkinnedMeshes( fs::path dir ) {
             //     // Use the default material
             //     created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
             // }
+            #ifdef DEBUG
             std::cout << "Created skinned mesh: " << skinned_mesh_path.filename().string() << " pointer: " << created_mesh << std::endl;
+            #endif
             loaded_skinned_meshes[skinned_mesh_path.filename().string()] = created_mesh;
         }
     }
@@ -283,9 +286,9 @@ void LevelLoader::loadJointList(fs::path dir) {
 
         Asset size(joints_size_dir);
         int num_joints = *((int *)size.getBuffer());
-
+        #ifdef DEBUG
         std::cout << "Loading joints: " << num_joints << std::endl;
-        
+        #endif
         if(num_joints > 0) {
 
             joint_list = new JointList();
@@ -353,16 +356,22 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
         obj = new SceneRenderable( obj_props->identifier, use_mesh );
     }
     else if(has_skinned_mesh) {
+        #ifdef DEBUG
         std::cout << "Creating a Player: " << obj_props->identifier << std::endl;
+        #endif
         SkinnedMesh* use_skinned_mesh = loaded_skinned_meshes[obj_props->skinned_mesh_id];
         obj = new Player(obj_props->identifier, use_skinned_mesh);
     }
     else if(is_bone) {
+        #ifdef DEBUG
         std::cout << "Creating a bone: " << obj_props->identifier << std::endl;
+        #endif
         obj = new Bone(obj_props->identifier);
     }
     else {
+        #ifdef DEBUG
         std::cout << "Creating Generic GameObject Node: " << obj_props->identifier << std::endl;
+        #endif
         obj = new GameObject(obj_props->identifier);
         // std::cerr << "Unknown object config: mesh - " << has_mesh << " | col - " << has_collision_shape << " | material - " << has_material << std::endl;
         // return nullptr;      std::cout << "Creating Generic GameObject"
