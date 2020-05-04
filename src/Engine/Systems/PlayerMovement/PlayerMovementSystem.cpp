@@ -161,6 +161,22 @@ PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* p
 
     player_current_state = PlayerState::Idle;
     player_previous_state = PlayerState::Idle;
+
+    AnimationSequenceInfo new_sequence = AnimationSequenceInfo();
+
+    // default animation sequence settings, not used by all blends
+    new_sequence.blend_mode = false;
+
+    new_sequence.animation1 = animation_names[player_previous_state];
+    new_sequence.anim1_start_from_beginning = false;
+    new_sequence.anim1_loop = true;
+
+
+    new_sequence.animation2 = animation_names[player_current_state];
+    new_sequence.anim2_start_from_beginning = false;
+    new_sequence.anim2_loop = true;
+
+    animation_stack->setAnimationSequence(new_sequence);
 }
 
 PlayerMovementSystem::~PlayerMovementSystem() {}
