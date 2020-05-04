@@ -2,6 +2,9 @@
 ### Jason Cummings, Alex Burnley, Riley Kirkham
 A basic 3D platformer game with a toon shading style.
 
+### NOTE:
+The game is very unoptimitized and doesn't run that well on lower end machines. The default shadow mode is single pass (low quality). Pressing F1 will cycle shadow modes between single pass, none, and iterated (high quality). Turning off shadows may help performance somewhat. In addition, pressing F2 in game will toggle bloom on and off. Turning bloom off significantly helps performance.
+
 ## Requirements
 Your computer must have support for OpenGL 3.3. Most dependencies are included and built with the project with the exception of the following:
 
