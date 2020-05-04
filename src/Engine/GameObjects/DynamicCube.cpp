@@ -3,7 +3,11 @@
 int DynamicCube::num_cubes = 0;
 
 DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube" + std::to_string(++num_cubes)) {
-    mesh = MeshFactory::createBasicMesh(std::string("Level"));
+    mesh = MeshFactory::createBasicMesh(std::string("DynamicCube"));
+    fs::path mat_path = Asset::assetPath();
+    mat_path.append("Materials/LoadingScreen");
+    Material *use_mat = MaterialFactory::createMaterial(mat_path);
+    mesh->setMaterial(use_mat);
     physics = RigidBodyFactory::createCubeComponent( identifier, scale, pow( scale, 3 )*100.f );
 }
 
