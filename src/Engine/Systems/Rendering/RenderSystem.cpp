@@ -35,8 +35,8 @@ RenderSystem::RenderSystem() {
 
 	// texture_width = 2880;//3840;
 	// texture_height = 1800;//2160;
-	texture_width = 3840;
-	texture_height = 2160;
+	texture_width = 2880;
+	texture_height = 1800;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
