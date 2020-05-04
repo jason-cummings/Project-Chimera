@@ -10,5 +10,5 @@ uniform sampler2D emissiveTexture;
 
 void main() {
     FragColor = texture(colorTexture, texCoords);
-	BrightColor = texture(emissiveTexture, texCoords);
+	BrightColor = vec4(texture(emissiveTexture, texCoords).rgb, FragColor.a);
 }

@@ -44,7 +44,7 @@ RenderSystem::RenderSystem() {
 	// And in the last step, Jason said "Let there be light"
 	// sun.location = glm::vec3(1.f,3.f,1.f);
 	sun.location = glm::vec3(.707f,.3f,-.707f);
-	sun.diffuse = glm::vec3(0.7f,0.5f,0.4f);
+	sun.diffuse = glm::vec3(0.5f,0.3f,0.2f);
 	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
