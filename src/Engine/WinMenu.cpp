@@ -7,10 +7,8 @@ WinMenu::WinMenu(InGameState* input){
     scene->addChild( input->getScene() );
 
 	//Insert buttons here like such:
-	//buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
-	//
 
-    buttons.push_back( new MenuButton( CONGRATS_BUTTON_ID, .5f, .65f, 1.f, .5f, "CongratsScreen"));
+    buttons.push_back( new MenuButton( CONGRATS_BUTTON_ID, .5f, .6f, 1.f, .25f, "CongratsScreen"));
     buttons.push_back( new MenuButton(MAIN_MENU_BUTTON_ID, .5f, .4f, .6f, .15f, "PauseMenuMainMenu"));
 
 	for( MenuButton* b : buttons ){
@@ -36,6 +34,4 @@ void WinMenu::handleButtonEvent( MenuButton *clicked ) {
         scene->removeChild(last_state->getScene());
         setNextState( new MainMenu() );
     }
-
-
 }

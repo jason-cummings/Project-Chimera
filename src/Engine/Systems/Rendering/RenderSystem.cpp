@@ -36,7 +36,7 @@ RenderSystem::RenderSystem() {
 	// texture_width = 2880;//3840;
 	// texture_height = 1800;//2160;
 	texture_width = 2880;
-	texture_height = 1880;
+	texture_height = 1800;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
@@ -55,6 +55,7 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
 
 	shadow_mode = ShadowMode::SINGLE_PASS;
+	use_bloom = true;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -266,7 +267,10 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	glClear( GL_COLOR_BUFFER_BIT );
 	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
-	applyBloom();
+	if( use_bloom ) {
+		applyBloom();
+	}
+
 
 	glFinish();
 	
