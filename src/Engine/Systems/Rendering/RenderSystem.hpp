@@ -33,6 +33,12 @@ struct Light {
     float directional;
 };
 
+enum ShadowMode {
+    ITERATE = 0,
+    SINGLE_PASS = 1,
+    NONE = 2
+};
+
 class RenderSystem {
 private:
     Camera *camera;
@@ -40,6 +46,7 @@ private:
     // A hard coded light to act as the sun
     Light sun;
     glm::mat4 sun_proj_mats[4];
+    ShadowMode shadow_mode;
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -160,6 +167,8 @@ public:
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
+
+    inline void cycleShadows() { shadow_mode = (ShadowMode)((shadow_mode + 1) % 3); }
 };
 
 // The VBO for rendering a quad over the whole viewport
