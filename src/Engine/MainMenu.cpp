@@ -7,9 +7,9 @@ MainMenu::MainMenu() {
     animation_system = new AnimationSystem();
 
     lastpressed = nullptr;
-    buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
-    buttons.push_back( new MenuButton( EXIT_GAME_BUTTON_ID, .5f, .2f, .6f, .3f, "MainMenuExit" ) );
-    buttons.push_back( new MenuButton( "logo", .5f, .85f, 1.4f, .35f, "MainMenuChimeraLogo" ) );
+    buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .42f, .6f, .15f, "MainMenuPlay" ) );
+    buttons.push_back( new MenuButton( EXIT_GAME_BUTTON_ID, .5f, .25f, .6f, .15f, "MainMenuExit" ) );
+    buttons.push_back( new MenuButton( "logo", .5f, .75f, 1.4f, .35f, "MainMenuChimeraLogo" ) );
 
     // Add to scene graph for rendering
     for( MenuButton *b : buttons ) {
