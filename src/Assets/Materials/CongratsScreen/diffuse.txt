@@ -1,1 +1,1 @@
-CongratsScreen.png
+Congrats_Texture.png

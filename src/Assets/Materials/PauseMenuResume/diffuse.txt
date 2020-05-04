@@ -1,1 +1,1 @@
-PauseMenu_Resume.png
+PauseMenu_Resume_Texture.png

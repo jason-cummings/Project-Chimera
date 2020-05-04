@@ -16,6 +16,8 @@ private:
     MenuButton * lastpressed;
     std::vector<MenuButton*> buttons;
 
+    AnimationSystem * animation_system;
+
     void handleButtonEvent( MenuButton *clicked );
 
     void init() override {}

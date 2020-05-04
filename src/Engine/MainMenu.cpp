@@ -1,21 +1,43 @@
 #include "MainMenu.hpp"
 
-MainMenu::MainMenu(){
+MainMenu::MainMenu() {
     scene = new GameObject("root");
 
+    timer = new StandardTimer();
+    animation_system = new AnimationSystem();
+
     lastpressed = nullptr;
-    buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
-    buttons.push_back( new MenuButton( EXIT_GAME_BUTTON_ID, .5f, .2f, .6f, .3f, "MainMenuExit" ) );
-    buttons.push_back( new MenuButton( "logo", .5f, .85f, 1.4f, .35f, "MainMenuChimeraLogo" ) );
+    buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .42f, .6f, .15f, "MainMenuPlay" ) );
+    buttons.push_back( new MenuButton( EXIT_GAME_BUTTON_ID, .5f, .25f, .6f, .15f, "MainMenuExit" ) );
+    buttons.push_back( new MenuButton( "logo", .5f, .75f, 1.4f, .35f, "MainMenuChimeraLogo" ) );
 
     // Add to scene graph for rendering
     for( MenuButton *b : buttons ) {
         scene->addChild(b);
     }
 
+    LevelLoader * level_loader = LevelLoader::loadLevelFile( "Towers" );
+    scene->addChild( level_loader->getScene() );
+    for(int i = 0; i < level_loader->getNumAnimationStacks(); i++) {
+        animation_system->addAnimationStack(level_loader->getAnimationStack(i));
+        level_loader->getAnimationStack(i)->startAllAnimations();
+    }
+
+    if(level_loader->getJointList() != nullptr) {
+        animation_system->addJointList(level_loader->getJointList());
+    }
+
     // Create a camera to avoid segfaulting
     camera = new Camera();
+    scene->addChild( camera );
+    camera->setOffset( 0.f );
     render_system.registerCamera( camera );
+
+    Skybox * skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
+    render_system.setSkybox(skybox);
+
+    camera->updateCamera( 0.f, -30.f * 3.1415f / 180.f );
+    camera->setTransform( glm::vec3(1.f), glm::quat(), glm::vec3(0.f,1.f,0.f) );
 }
 
 MainMenu::~MainMenu(){
@@ -23,6 +45,7 @@ MainMenu::~MainMenu(){
         delete buttons[i];
     }
     delete camera;
+    delete animation_system;
 }
 
 void MainMenu::handleMouseButtonDown( SDL_Event e ) {
@@ -85,5 +108,14 @@ void MainMenu::handleButtonEvent( MenuButton *clicked ) {
 }
 
 void MainMenu::gameLoop() {
-    render_system.render( 0.f, scene );
+    if( next_state == nullptr ) {
+        double dt = timer->getLastTickTime();
+
+        camera->updateCamera( dt/4.f, 0.f );
+        camera->createMatrices();
+
+        animation_system->evaluateAnimations(dt);
+
+        render_system.render( 0.f, scene );
+    }
 }
