@@ -3,11 +3,11 @@
 
 #include <SDL.h>
 
-#include "../GameObject.hpp"
-#include "../GameObjects/Camera.hpp"
-#include "../LevelLoader.hpp"
-#include "../StandardTimer.hpp"
-#include "../Systems/Rendering/RenderSystem.hpp"
+#include "GameObject.hpp"
+#include "GameObjects/Camera.hpp"
+#include "LevelLoader.hpp"
+#include "StandardTimer.hpp"
+#include "Systems/Rendering/RenderSystem.hpp"
 
 class GameState {
 protected:
