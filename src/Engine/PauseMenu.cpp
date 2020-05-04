@@ -11,8 +11,8 @@ PauseMenu::PauseMenu( GameState* input ){
 	//buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .55f, .6f, .3f, "MainMenuPlay" ) );
 
 	//One button to resume game, one to return to main menu.
-    buttons.push_back( new MenuButton(RESUME_GAME_BUTTON_ID, .5f, .65f, .6f, .3f, "PauseMenuResume"));
-    buttons.push_back( new MenuButton(MAIN_MENU_BUTTON_ID, .5f, .25f, .6f, .3f, "PauseMenuMainMenu"));
+    buttons.push_back( new MenuButton(RESUME_GAME_BUTTON_ID, .5f, .58f, .6f, .15f, "PauseMenuResume"));
+    buttons.push_back( new MenuButton(MAIN_MENU_BUTTON_ID, .5f, .42f, .6f, .15f, "PauseMenuMainMenu"));
 
 
 	for( MenuButton* b : buttons ){
