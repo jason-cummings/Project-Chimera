@@ -185,7 +185,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
     // Ensure player_body has an up to date collision object
     player_body = player->getPhysicsComponent()->getCollisionObject();
     last_tick_position = player_body->getWorldTransform().getOrigin();
-    last_tick_time = dt;
+    last_tick_time = (float)dt;
 
     // Calculate control variables for this timestep
     if( !on_ground && in_air_time > 0 ) in_air_time -= (float)dt;

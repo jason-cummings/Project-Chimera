@@ -15,7 +15,7 @@ AnimationStack * AnimationSystem::getAnimationStack(std::string stack_name) {
 }
 
 void AnimationSystem::addAnimationStack(AnimationStack* stack) {
-	int index = stacks.size();
+	int index = (int)stacks.size();
 	stacks.push_back(stack);
 	stack_indexes.insert ( std::pair<std::string,int>(stack->getName(),index) );
 }

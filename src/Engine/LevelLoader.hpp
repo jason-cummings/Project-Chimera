@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-#include "Asset.hpp"
 #include "GameObject.hpp"
 #include "GameObjects/Obstacle.hpp"
 #include "GameObjects/SceneRenderable.hpp"
@@ -16,8 +15,9 @@
 #include "Systems/Animation/AnimationFactory.hpp"
 #include "Systems/Animation/Joint.hpp"
 
-#include "WAIWrapper.hpp"
-#include "FilesystemWrapper.hpp"
+#include "Utilities/Asset.hpp"
+#include "Utilities/WAIWrapper.hpp"
+#include "Utilities/FilesystemWrapper.hpp"
 
 // Root directory for any levels
 #define LEVELS_DIRECTORY "Assets/Levels/"
@@ -105,10 +105,10 @@ private:
     void loadCollisionShapes( fs::path dir );
 
     void loadMaterials( fs::path dir, fs::path textures_dir );
-    void loadAnimations(fs::path dir);
-    void loadEndGame(fs::path dir);
-    void loadJointList(fs::path dir);
-    Joint loadJoint(fs::path dir);
+    void loadAnimations( fs::path dir );
+    void loadEndGame( fs::path dir );
+    void loadJointList( fs::path dir );
+    Joint loadJoint( fs::path dir );
 
     // Create the scene GameObject and all of its children
     void createScene( LoadedObjectProperties * scene_root_props );
@@ -128,8 +128,8 @@ public:
     GameObject * getScene() { return scene; }
 
     // inline getters for animations
-    int getNumAnimationStacks() {return animation_stacks.size();};
-    AnimationStack* getAnimationStack(int i) {return animation_stacks[i];};
+    int getNumAnimationStacks() { return (int)animation_stacks.size(); };
+    AnimationStack* getAnimationStack(int i) { return animation_stacks[i]; };
 
     // return the joint list, null if no joints in this file
     JointList * getJointList() {return joint_list;}

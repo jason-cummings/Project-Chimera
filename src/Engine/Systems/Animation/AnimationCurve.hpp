@@ -1,12 +1,13 @@
 #ifndef ANIMATIONCURVE_HPP
 #define ANIMATIONCURVE_HPP
 
-#include "Keyframe.hpp"
-#include "../../GameObject.hpp"
 #include <vector>
 #include <glm/vec3.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+
+#include "Keyframe.hpp"
+#include "../../GameObject.hpp"
 
 class AnimationCurve {
 protected:

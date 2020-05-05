@@ -11,7 +11,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../../Asset.hpp"
+#include "../../Utilities/Asset.hpp"
 
 enum ShaderAttrib {
     Vertex = 0,

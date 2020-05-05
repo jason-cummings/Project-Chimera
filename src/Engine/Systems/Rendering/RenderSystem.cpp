@@ -232,17 +232,16 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 **/
 
 void RenderSystem::render( double dt, GameObject * sceneGraph ) {
-	
 	//clear rendering lists
 	populateRenderLists( sceneGraph );
 	
 	// Attempt to get the camera's matrices
-	try {
+	if( camera != nullptr ) {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
-	} catch ( std::exception &e ) {
-		// If failed, use some default matrices
-		std::cerr << "Exception retrieving camera - using default matrices" << std::endl;
+	}
+	else {
+		std::cerr << "Camera is null - using default matrices" << std::endl;
 		createOrthoMatrices();
 	}
 
@@ -455,7 +454,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 
 	mapping_shader->setUniformVec3( "cameraLocation", light_look_at );
 
-	mapping_shader->setUniformFloat( "iterate", shadow_mode == ShadowMode::ITERATE ? 1.0 : 0.0 );
+	mapping_shader->setUniformFloat( "iterate", shadow_mode == ShadowMode::ITERATE ? 1.f : 0.f );
 
 	// Render the shadow map
 	drawQuad();
@@ -521,11 +520,11 @@ void RenderSystem::shadingStep() {
 	glActiveTexture( GL_TEXTURE4 );
 	glBindTexture( GL_TEXTURE_2D, shadow_mapping_buffer.getTexture( "shadow_map" )->getID());
 
-	cartoon_shading->setUniformVec3("cameraLoc",glm::vec3(0.0f,0.0f,10.0f));
+	cartoon_shading->setUniformVec3( "cameraLoc",glm::vec3(0.0f,0.0f,10.0f) );
 
-	cartoon_shading->setUniformFloat("ambientAmount", 0.3);
+	cartoon_shading->setUniformFloat("ambientAmount", 0.3f );
 
-	cartoon_shading->setUniformFloat( "applyShadows", shadow_mode == ShadowMode::NONE ? 0.0 : 1.0 );
+	cartoon_shading->setUniformFloat( "applyShadows", shadow_mode == ShadowMode::NONE ? 0.f : 1.f );
 
 	// OLD LIGHT
 	// cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));

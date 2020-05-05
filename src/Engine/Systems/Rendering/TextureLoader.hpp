@@ -3,6 +3,7 @@
 
 #define GL_GLEXT_PROTOTYPES 1
 #define STB_IMAGE_IMPLEMENTATION
+
 #include <glm/glm.hpp>
 #include <map>
 #include <GL/glew.h>
