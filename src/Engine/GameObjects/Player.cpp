@@ -6,7 +6,7 @@ Player::Player(std::string identifier, SkinnedMesh * skinned_mesh_in): GameObjec
 }
 
 Player::~Player(){
-    delete skinned_mesh;
+    // delete skinned_mesh;
 }
 
 // Get the transform from the physics component 

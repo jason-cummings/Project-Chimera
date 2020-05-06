@@ -1,8 +1,6 @@
 #include "MainMenu.hpp"
 
 MainMenu::MainMenu() {
-    scene = new GameObject("root");
-    timer = new StandardTimer();
     animation_system = new AnimationSystem();
 
     buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .42f, .6f, .15f, "MainMenuPlay" ) );
@@ -40,7 +38,8 @@ MainMenu::MainMenu() {
 
 MainMenu::~MainMenu() {
     render_system.registerCamera( nullptr );
-    delete camera;
+    scene->setDestroyAll( true );
+    delete scene;
     delete animation_system;
 }
 
@@ -96,7 +95,7 @@ void MainMenu::handleMouseButtonUp( SDL_Event e ){
 
 void MainMenu::handleButtonEvent( MenuButton *clicked ) {
     if( clicked->getID() == PLAY_GAME_BUTTON_ID ) {
-        setNextState( new LoadMenu(), false );
+        setNextState( new LoadMenu(), true );
     }
     else if( clicked->getID() == EXIT_GAME_BUTTON_ID ) {
         quit_game = true;
@@ -104,14 +103,12 @@ void MainMenu::handleButtonEvent( MenuButton *clicked ) {
 }
 
 void MainMenu::gameLoop() {
-    if( next_state == nullptr ) {
-        float dt = (float)timer->getLastTickTime();
+    float dt = (float)timer.getLastTickTime();
 
-        camera->updateCamera( dt/4.f, 0.f );
-        camera->createMatrices();
+    camera->updateCamera( dt/4.f, 0.f );
+    camera->createMatrices();
 
-        animation_system->evaluateAnimations(dt);
+    animation_system->evaluateAnimations(dt);
 
-        render_system.render( 0.f, scene );
-    }
+    render_system.render( 0.f, scene );
 }

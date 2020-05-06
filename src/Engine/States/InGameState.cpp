@@ -5,10 +5,16 @@ InGameState::InGameState( std::string level_to_load ) {
     init();
 }
 
+InGameState::~InGameState() {
+    delete physics_system;
+    delete animation_system;
+    delete camera;
+    render_system.registerCamera( nullptr );
+}
+
 void InGameState::init() {
     physics_system = new PhysicsSystem();
     animation_system = new AnimationSystem();
-    timer = new StandardTimer();
     camera = new Camera();
     render_system.registerCamera( camera );
 
@@ -27,14 +33,6 @@ void InGameState::init() {
 
     end_coords = level_loader->getEndGameCoords();
     addPhysicsThings();
-
-
-    // Create a player and add it to the scene
-    // Player* player = new Player();
-    // glm::vec3 pscale(1.f);
-    // player->setTransform( pscale, glm::quat(glm::vec3(0.f, 0.f, 0.f)), glm::vec3(0.f, 10.f, 0.f) );
-    // scene->addChild( player );
-    // player->addChild( camera );
 
     // load the player file and put it into the scene
     LevelLoader * player_loader = LevelLoader::loadCharacterModel();
@@ -56,9 +54,6 @@ void InGameState::init() {
         scene->addChild(character_scene->getChild(i));
     }
 
-
-
-    
     player_movement = new PlayerMovementSystem( physics_system, player, player_loader->getAnimationStack(0) );
     player_movement->registerCamera( camera );
 
@@ -110,7 +105,7 @@ void InGameState::addPhysicsThings() {
 
 
 void InGameState::gameLoop() {
-    double dt = timer->getLastTickTime();
+    double dt = timer.getLastTickTime();
 
     performance_logger.startTick();
 
@@ -126,11 +121,11 @@ void InGameState::gameLoop() {
     //sends movement info to Player_movementSystem.
     player_movement->movePlayer( w, s, d, a, space, shift, dt );
 
-    performance_logger.addOperation("Player Movement",timer->timePerformance());
+    performance_logger.addOperation("Player Movement",timer.timePerformance());
 
     animation_system->evaluateAnimations(dt);
 
-    performance_logger.addOperation("Animation",timer->timePerformance());
+    performance_logger.addOperation("Animation",timer.timePerformance());
 
     // Perform necessary updates just before the physics step
     prePhysics();
@@ -141,7 +136,7 @@ void InGameState::gameLoop() {
     // Perform post physics scenegraph updates
     postPhysics();
 
-    performance_logger.addOperation("Physics",timer->timePerformance());
+    performance_logger.addOperation("Physics",timer.timePerformance());
 
     // Update the state's scene graph to reflect all changes from the other systems
     // updateScene();
@@ -151,30 +146,32 @@ void InGameState::gameLoop() {
     // Render all
     render_system.render( dt, scene );
 
-    if(fell()){
-        std::cout << "Respawning" <<std::endl;
+    if( fell() ){
         glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
         player->setTranslation(spawnPoint);
-
     }
-
 
     //If player reaches end goal
-    if(endGame()){
+    if( endGame() ){
         setNextState( new WinMenu(this), false );
-        
     }
-    performance_logger.addOperation("Render",timer->timePerformance());
+
+    performance_logger.addOperation("Render",timer.timePerformance());
     performance_logger.stopTick();
 }
 
+/**
+ * Copies scenegraph world transforms to Bullet
+ */
 void InGameState::prePhysics() {
     scene->setBulletTransforms();
 }
 
+/**
+ * Copies transforms back from Bullet after the physics step
+ */
 void InGameState::postPhysics() {
     player_movement->makePostPhysicsAdjustments();
-
     scene->updateTransformFromPhysics( glm::vec3(1.f), glm::mat4(1.f) );
 }
 
@@ -208,7 +205,7 @@ void InGameState::handleKeyDown( SDL_Event e ) {
         render_system.cycleShadows();
     }
     else if( key == SDLK_F2 ) {
-        // Cycle shadow modes
+        // Cycle bloom modes
         render_system.toggleBloom();
     }
     else if( key == SDLK_F3 ) {

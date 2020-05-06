@@ -12,6 +12,7 @@
 #include <glm/mat3x3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../../SettingsManager.hpp"
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
 #include "../../GameObject.hpp"
@@ -33,12 +34,6 @@ struct Light {
     float directional;
 };
 
-enum ShadowMode {
-    ITERATE = 0,
-    SINGLE_PASS = 1,
-    NONE = 2
-};
-
 class RenderSystem {
 private:
     Camera *camera;
@@ -46,7 +41,6 @@ private:
     // A hard coded light to act as the sun
     Light sun;
     glm::mat4 sun_proj_mats[4];
-    ShadowMode shadow_mode;
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -61,6 +55,7 @@ private:
     Framebuffer deferred_buffer;
     Framebuffer shading_buffer;
     
+    // Blur buffers and settings
     bool use_bloom;
     bool current_blur_buffer;
     Framebuffer blur_buffer[2];
@@ -80,6 +75,7 @@ private:
 
     // Model, View, and Projection matrices for the program
     glm::mat4 view_mat, proj_mat;
+    glm::vec3 camera_loc;
 
     // skybox data
     Skybox * skybox;
@@ -169,7 +165,7 @@ public:
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 
-    inline void cycleShadows() { shadow_mode = (ShadowMode)((shadow_mode + 1) % 3); }
+    inline void cycleShadows() { UserSettings::shadow_mode = (ShadowMode)((UserSettings::shadow_mode + 1) % 3); }
     inline void toggleBloom() { use_bloom = !use_bloom; }
 };
 

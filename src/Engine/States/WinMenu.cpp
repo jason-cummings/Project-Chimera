@@ -2,7 +2,6 @@
 
 WinMenu::WinMenu(InGameState* input){
     last_state = input;
-    scene = new GameObject("root");
 
     scene->addChild( input->getScene() );
 
@@ -17,7 +16,11 @@ WinMenu::WinMenu(InGameState* input){
     camera = new Camera();
 }
 
-WinMenu::~WinMenu(){}
+WinMenu::~WinMenu() {
+    delete last_state;
+    scene->setDestroyAll( true );
+    delete scene;
+}
 
 void WinMenu::handleButtonEvent( MenuButton *clicked ) {
     if(clicked->getID() == MAIN_MENU_BUTTON_ID){

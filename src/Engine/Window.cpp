@@ -41,9 +41,6 @@ bool Window::init( int w_width, int w_height ) {
 				
 				// Start receiving keyboard input
 				SDL_StartTextInput();
-
-				// Turn on mouse lock by default
-				// toggleMouseLock();
 			}
 		}
 	}

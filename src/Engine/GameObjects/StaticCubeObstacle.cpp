@@ -9,7 +9,7 @@ StaticCubeObstacle::StaticCubeObstacle( float scale ): GameObject("StaticCube") 
 }
 
 StaticCubeObstacle::~StaticCubeObstacle() {
-    if( mesh ) delete mesh;
+    // if( mesh ) delete mesh;
     if( physics ) delete physics;
 }
 

@@ -14,7 +14,7 @@ protected:
 	std::vector<MenuButton*> buttons;
 	
 	// Performs actions of clicked buttons
-	virtual void handleButtonEvent( MenuButton* clicked );
+	virtual void handleButtonEvent( MenuButton* clicked ) {};
 
 public:
 	Menu();

@@ -12,7 +12,7 @@ DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube" + std::to_stri
 }
 
 DynamicCube::~DynamicCube() {
-    if( mesh ) delete mesh;
+    // if( mesh ) delete mesh;
     if( physics ) delete physics;
 }
 

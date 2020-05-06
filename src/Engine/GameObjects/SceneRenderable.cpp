@@ -5,5 +5,5 @@ SceneRenderable::SceneRenderable( std::string id, Mesh *mesh_in ): GameObject(id
 }
 
 SceneRenderable::~SceneRenderable() {
-    if( mesh ) delete mesh;
+    // if( mesh ) delete mesh;
 }

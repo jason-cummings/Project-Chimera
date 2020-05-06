@@ -15,6 +15,8 @@ class Asset {
 private:
     char *buffer;
     int n_bytes;
+    bool read_success;
+    
     bool readInAsset( std::string fpath );
 
 public:
@@ -25,11 +27,13 @@ public:
     Asset( fs::path fpath );
     
     ~Asset();
-    char * getBuffer() { return buffer; }
-    int getBytes() { return n_bytes; }
+    inline char * getBuffer() const { return buffer; }
+    inline int getBytes() const { return n_bytes; }
 
     // Use if you need to maintain the buffer data after the Asset instance has been destroyed
     char * copyBuffer();
+
+    inline bool success() const { return read_success; }
 
     static fs::path assetPath() { return fs::path(WAIWrapper::getExecutablePath() + "/Assets/"); };
 };

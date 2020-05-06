@@ -7,6 +7,7 @@ Camera::Camera() : GameObject("Camera"){
 }
 
 Camera::~Camera(){
+
 }
 
 //Updates camera's th and ph when mouse is moved

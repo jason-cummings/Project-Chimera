@@ -18,7 +18,7 @@ private:
 
     // Systems for main menu
     AnimationSystem * animation_system;
-    Timer *timer;
+    StandardTimer timer;
 
     void handleButtonEvent( MenuButton *clicked );
 

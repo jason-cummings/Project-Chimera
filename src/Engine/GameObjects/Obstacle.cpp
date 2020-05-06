@@ -6,7 +6,7 @@ Obstacle::Obstacle( std::string id, Mesh *mesh_in, RigidBodyPhysicsComponent *ph
 }
 
 Obstacle::~Obstacle() {
-    if( mesh ) delete mesh;
+    // if( mesh ) delete mesh;
     if( physics ) delete physics;
 }
 

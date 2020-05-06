@@ -36,8 +36,8 @@ private:
     PlayerMovementSystem* player_movement;
     PhysicsSystem *physics_system;
     AnimationSystem * animation_system;
-    Timer *timer;
-
+    
+    StandardTimer timer;
     PerformanceLogger performance_logger;
 
     // Initialize the state
@@ -62,13 +62,13 @@ private:
     bool isNear(float input, float goal);
     bool fell();
 
-
     // TEMP
-    void createTestPhysicsLevel();
     void addPhysicsThings();
 
 public:
     InGameState( std::string level_to_load );
+    ~InGameState();
+
     void gameLoop() override;
 };
 
