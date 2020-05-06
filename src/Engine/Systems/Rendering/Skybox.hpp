@@ -4,11 +4,9 @@
 #include <GL/glew.h>
 #include <string>
 #include <vector>
-#include "Shader.hpp"
-#include "TextureLoader.hpp"
 
+#include "Shader.hpp"
 #include "../../Utilities/FilesystemWrapper.hpp"
-#include "../../Utilities/WAIWrapper.hpp"
 
 const std::string skybox_texture_names[] = {
 	"positiveX.png","negativeX.png",

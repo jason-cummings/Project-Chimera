@@ -3,9 +3,7 @@
 
 #include "../GameObject.hpp"
 #include "../Systems/Rendering/Mesh.hpp"
-#include "../Systems/Rendering/MeshFactory.hpp"
 #include "../Systems/Physics/RigidBodyPhysicsComponent.hpp"
-#include "../Systems/Physics/RigidBodyFactory.hpp"
 
 class StaticCubeObstacle: public GameObject {
 private:

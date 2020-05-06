@@ -2,7 +2,6 @@
 #define PHYSICSSYSTEM_H
 
 #include <map>
-#include <iostream>
 #include <btBulletDynamicsCommon.h>
 
 #include "../../GameObject.hpp"

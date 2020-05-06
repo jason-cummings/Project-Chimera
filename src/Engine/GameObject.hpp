@@ -3,23 +3,19 @@
 
 class GameObject;
 
-#include <iostream>
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
 
-// #include "Systems/Rendering/Mesh.hpp"
-class Mesh;
 // #include "Systems/Rendering/SkinnedMesh.hpp"
-class SkinnedMesh;
 // #include "Systems/Rendering/OverlayMesh.hpp"
-class OverlayMesh;
+// #include "Systems/Rendering/Mesh.hpp"
 #include "Systems/Physics/RigidBodyPhysicsComponent.hpp"
 
+class Mesh;
+class SkinnedMesh;
+class OverlayMesh;
 
 class GameObject {
 protected:

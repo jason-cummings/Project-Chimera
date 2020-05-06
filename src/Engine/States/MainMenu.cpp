@@ -1,5 +1,11 @@
 #include "MainMenu.hpp"
 
+#include "LoadMenu.hpp"
+#include "../LevelLoader.hpp"
+
+#define PLAY_GAME_BUTTON_ID "Play Game"
+#define EXIT_GAME_BUTTON_ID "Exit"
+
 MainMenu::MainMenu() {
     animation_system = new AnimationSystem();
 

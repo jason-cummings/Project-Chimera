@@ -1,5 +1,12 @@
 #include "Material.hpp"
 
+#include "TextureLoader.hpp"
+#include "../../Utilities/Asset.hpp"
+
+// Path to default material from Asset
+#define DEFAULT_MATERIAl_PATH "Materials/Missing"
+#define DEFAULT_TEXTURES_PATH "Textures"
+
 // Material Implementation
 
 Material *Material::default_material = nullptr;

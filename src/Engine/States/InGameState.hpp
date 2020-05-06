@@ -8,18 +8,9 @@
 #include "../Systems/Physics/PhysicsSystem.hpp"
 
 #include "../GameObject.hpp"
-#include "../GameObjects/Obstacle.hpp"
-#include "../GameObjects/DynamicCube.hpp"
-#include "../GameObjects/StaticCubeObstacle.hpp"
-#include "../GameObjects/Player.hpp"
 
 #include "../Utilities/PerformanceLogger.hpp"
-
-class InGameState;
-#include "MainMenu.hpp"
-#include "PauseMenu.hpp"
-#include "WinMenu.hpp"
-
+#include "../StandardTimer.hpp"
 
 class InGameState: public GameState {
 private:

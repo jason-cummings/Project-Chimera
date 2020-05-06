@@ -1,5 +1,7 @@
 #include "Framebuffer.hpp"
 
+#include <iostream>
+
 Framebuffer::Framebuffer() {
     glGenFramebuffers( 1, &framebuffer_id );
     depth_buffer = 0;
@@ -13,7 +15,7 @@ void Framebuffer::bind() {
     glBindFramebuffer( GL_FRAMEBUFFER, framebuffer_id );
     GLuint err;
     if( (err = glGetError()) != GL_NO_ERROR ) {
-        std::cout << "GL error " << err << " binding " << std::endl;
+        std::cerr << "GL error " << err << " binding " << std::endl;
     }
 }
 
@@ -92,7 +94,7 @@ void ShadowFramebuffer::bind() {
     glBindFramebuffer( GL_FRAMEBUFFER, framebuffer_id );
     GLuint err;
     if( (err = glGetError()) != GL_NO_ERROR ) {
-        std::cout << "GL error " << err << " binding " << std::endl;
+        std::cerr << "GL error " << err << " binding " << std::endl;
     }
 }
 

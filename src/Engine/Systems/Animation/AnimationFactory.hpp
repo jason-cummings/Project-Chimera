@@ -5,8 +5,6 @@
 #include "AnimationCurve.hpp"
 #include "AnimationLayer.hpp"
 #include "AnimationStack.hpp"
-
-#include "../../Utilities/Asset.hpp"
 #include "../../Utilities/FilesystemWrapper.hpp"
 
 class AnimationFactory {

@@ -1,5 +1,8 @@
 #include "Asset.hpp"
 
+#include <iostream>
+#include <fstream>
+
 Asset::Asset( std::string fname ) {
     // Get the path to the executable, then add the file name
     std::string fpath = assetPath().string() + std::string(fname);

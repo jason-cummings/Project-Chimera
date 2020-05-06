@@ -1,5 +1,8 @@
 #include "RigidBodyFactory.hpp"
 
+#include <iostream>
+#include "../../Utilities/Asset.hpp"
+
 std::map<std::string, btCollisionShape*> RigidBodyFactory::created_collision_shapes;
 
 btRigidBody * RigidBodyFactory::createRigidBody( btCollisionShape *collision_shape, float mass ) {

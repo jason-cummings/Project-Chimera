@@ -1,13 +1,9 @@
 #ifndef OBSTACLE_HPP
 #define OBSTACLE_HPP
 
-// #include <glm/gtx/string_cast.hpp>
-
 #include "../GameObject.hpp"
 #include "../Systems/Rendering/Mesh.hpp"
-#include "../Systems/Rendering/MeshFactory.hpp"
 #include "../Systems/Physics/RigidBodyPhysicsComponent.hpp"
-#include "../Systems/Physics/RigidBodyFactory.hpp"
 
 class Obstacle: public GameObject {
 private:

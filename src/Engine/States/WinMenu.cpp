@@ -1,5 +1,11 @@
 #include "WinMenu.hpp"
 
+#include "InGameState.hpp"
+#include "MainMenu.hpp"
+
+#define CONGRATS_BUTTON_ID "Congrats"
+#define MAIN_MENU_BUTTON_ID "Main Menu"
+
 WinMenu::WinMenu(InGameState* input){
     last_state = input;
 

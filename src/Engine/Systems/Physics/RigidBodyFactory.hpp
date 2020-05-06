@@ -2,10 +2,10 @@
 #define RIGIDBODYFACTORY_H
 
 #include <map>
-#include <iostream>
 #include <btBulletDynamicsCommon.h>
+
 #include "RigidBodyPhysicsComponent.hpp"
-#include "../../Utilities/Asset.hpp"
+#include "../../Utilities/FilesystemWrapper.hpp"
 
 class RigidBodyFactory {
 private:

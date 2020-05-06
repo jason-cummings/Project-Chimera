@@ -3,9 +3,7 @@
 
 #include "./../GameObject.hpp"
 #include "./../Systems/Rendering/Mesh.hpp"
-#include "./../Systems/Rendering/MeshFactory.hpp"
 #include "./../Systems/Physics/RigidBodyPhysicsComponent.hpp"
-#include "./../Systems/Physics/RigidBodyFactory.hpp"
 
 #define PLAYER_HEIGHT 1.5f
 #define PLAYER_DIAMETER .5f

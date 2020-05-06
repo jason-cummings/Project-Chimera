@@ -1,5 +1,7 @@
 #include "AnimationFactory.hpp"
 
+#include "../../Utilities/Asset.hpp"
+
 AnimationCurve * AnimationFactory::getTranslationAnimationCurve(fs::path dir, GameObject * scenegraph) {
 	TranslationAnimationCurve * curve = new TranslationAnimationCurve();
 

@@ -1,5 +1,16 @@
 #include "InGameState.hpp"
 
+#include "MainMenu.hpp"
+#include "PauseMenu.hpp"
+#include "WinMenu.hpp"
+
+// #include "../GameObjects/Obstacle.hpp"
+#include "../GameObjects/DynamicCube.hpp"
+// #include "../GameObjects/StaticCubeObstacle.hpp"
+#include "../GameObjects/Player.hpp"
+
+#include "../LevelLoader.hpp"
+
 InGameState::InGameState( std::string level_to_load ) {
     current_level = level_to_load;
     init();

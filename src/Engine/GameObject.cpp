@@ -1,5 +1,10 @@
 #include "GameObject.hpp"
 
+#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 GameObject::GameObject(std::string id) {
 	identifier = id;

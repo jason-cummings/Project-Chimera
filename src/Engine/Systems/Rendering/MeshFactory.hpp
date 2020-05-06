@@ -1,15 +1,13 @@
 #ifndef MESH_FACTORY_H
 #define MESH_FACTORY_H
 
-#include <iostream>
-#include <fstream>
 #include <string>
 #include <GL/glew.h>
 
 #include "Mesh.hpp"
 #include "SkinnedMesh.hpp"
-#include "../../Utilities/Asset.hpp"
 #include "../../Utilities/FilesystemWrapper.hpp"
+#include "../../Utilities/Asset.hpp"
 
 //Search Directory for vbo or ibo files and if there, read them in. If files not found, STD_Runtime_Error("String with error")
 
@@ -24,9 +22,5 @@ private:
 	static GLuint createVBO(Asset& asset);
 	static GLuint createIBO(Asset& asset);
 };
-
-
-
-
 
 #endif

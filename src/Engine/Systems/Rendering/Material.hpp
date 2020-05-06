@@ -2,12 +2,9 @@
 #define MATERIALS_H
 
 #include <GL/glew.h>
-#include "Shader.hpp"
-#include "TextureLoader.hpp"
 
-// Path to default material from Asset
-#define DEFAULT_MATERIAl_PATH "Materials/Missing"
-#define DEFAULT_TEXTURES_PATH "Textures"
+#include "Shader.hpp"
+#include "../../Utilities/FilesystemWrapper.hpp"
 
 class Material
 {

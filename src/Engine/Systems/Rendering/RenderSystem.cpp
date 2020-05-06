@@ -1,5 +1,10 @@
 #include "RenderSystem.hpp"
 
+#include <glm/mat3x3.hpp>
+
+#include "../../Utilities/Asset.hpp"
+#include "TextureLoader.hpp"
+
 #define SHADOW_MAP_DIMENSION 2048
 #define BLOOM_PASSES 4
 

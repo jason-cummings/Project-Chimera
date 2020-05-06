@@ -2,6 +2,51 @@
 
 #define DEBUG_LOADER
 
+#include <iostream>
+
+#include "GameObject.hpp"
+#include "GameObjects/Obstacle.hpp"
+#include "GameObjects/SceneRenderable.hpp"
+#include "GameObjects/Player.hpp"
+
+#include "Systems/Rendering/MeshFactory.hpp"
+#include "Systems/Rendering/Material.hpp"
+#include "Systems/Physics/RigidBodyFactory.hpp"
+#include "Systems/Animation/AnimationFactory.hpp"
+
+#include "Utilities/Asset.hpp"
+#include "Utilities/WAIWrapper.hpp"
+#include "Utilities/FilesystemWrapper.hpp"
+
+// Root directory for any levels
+#define LEVELS_DIRECTORY "Assets/Levels/"
+#define PLAYER_MODEL_DIRECTORY "Assets/Player_Model"
+
+// Directories of stored properties under the level root directory 
+#define LEVEL_MESH_DNAME                "Meshes"
+#define LEVEL_SKINNED_MESH_DNAME        "SkinnedMeshes"
+#define LEVEL_MATERIALS_DNAME           "Materials"
+#define LEVEL_COLLISION_SHAPES_DNAME    "Hitboxes"
+#define LEVEL_TEXTURES_DNAME            "Textures"
+#define LEVEL_ROOTNODE_DNAME            "RootNode"
+#define LEVEL_ANIMATION_DNAME           "AnimationStacks"
+#define LEVEL_ENDGAME_DNAME             "Endgame"
+
+// Object subdirectory names for children or properties
+#define OBJECT_CHILDREN_DNAME           "children"
+
+// Filenames of property files in object hierarchy
+#define OBJECT_MESH_FNAME               "Mesh.txt"
+#define OBJECT_SKINNED_MESH_FNAME       "SkinnedMesh.txt"
+#define OBJECT_MATERIAL_FNAME           "Material.txt"
+#define OBJECT_COLLISION_SHAPE_FNAME    "Hitbox.txt"
+#define OBJECT_ROTATION_FNAME           "rotation"
+#define OBJECT_SCALING_FNAME            "scaling"
+#define OBJECT_TRANSLATION_FNAME        "translation"
+#define OBJECT_BONE_FNAME               "bone"
+#define LEVEL_ENDGAME_FNAME             "endgame"
+
+
 // get a level loader for getting the character model
 LevelLoader * LevelLoader::loadCharacterModel() {
     LevelLoader * level_loader = new LevelLoader(PLAYER_MODEL_DIRECTORY);

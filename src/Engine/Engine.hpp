@@ -2,9 +2,8 @@
 #define ENGINE_HPP
 
 #include "Window.hpp"
-#include "SettingsManager.hpp"
 #include "Systems/Rendering/RenderSystem.hpp"
-#include "States/MainMenu.hpp"
+#include "GameState.hpp"
 
 class Engine {
 private:

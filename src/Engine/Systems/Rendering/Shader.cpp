@@ -1,5 +1,8 @@
 #include "Shader.hpp"
 
+#include <iostream>
+#include "../../Utilities/Asset.hpp"
+
 Shader::Shader() {
     program = glCreateProgram();
 }

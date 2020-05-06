@@ -6,7 +6,6 @@
 
 #include "./../GameObject.hpp"
 #include "./../Systems/Rendering/OverlayMesh.hpp"
-#include "./../Systems/Rendering/Material.hpp"
 
 class MenuButton : public GameObject
 {

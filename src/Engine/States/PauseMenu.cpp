@@ -1,5 +1,11 @@
 #include "PauseMenu.hpp"
 
+#include "InGameState.hpp"
+#include "MainMenu.hpp"
+
+#define RESUME_GAME_BUTTON_ID "Resume Game"
+#define MAIN_MENU_BUTTON_ID "Main Menu"
+
 PauseMenu::PauseMenu( GameState* input ){
     last_state = input;
     scene->addChild( input->getScene() );

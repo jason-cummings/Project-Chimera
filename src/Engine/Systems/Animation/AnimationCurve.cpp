@@ -1,5 +1,8 @@
 #include "AnimationCurve.hpp"
 
+#include <glm/vec3.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 void TranslationAnimationCurve::evaluate( float time ) {
 	int t_key1 = -1;

@@ -1,5 +1,10 @@
 #include "Obstacle.hpp"
 
+// #include <glm/gtx/string_cast.hpp>
+
+#include "../Systems/Rendering/MeshFactory.hpp"
+#include "../Systems/Physics/RigidBodyFactory.hpp"
+
 Obstacle::Obstacle( std::string id, Mesh *mesh_in, RigidBodyPhysicsComponent *physics_in ): GameObject(id) {
     mesh = mesh_in;
     physics = physics_in;

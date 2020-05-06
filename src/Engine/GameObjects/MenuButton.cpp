@@ -1,5 +1,8 @@
 #include "MenuButton.hpp"
 
+#include "../Systems/Rendering/Material.hpp"
+#include "../Utilities/Asset.hpp"
+
 // The VBO for a rectangular button
 const GLfloat button_vbo_data[] = {
 //   x   y    u   v

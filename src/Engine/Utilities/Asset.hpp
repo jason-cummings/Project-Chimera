@@ -4,9 +4,7 @@
 #ifndef ASSET_H
 #define ASSET_H
 
-#include <iostream>
 #include <string>
-#include <fstream>
 
 #include "WAIWrapper.hpp"
 #include "FilesystemWrapper.hpp"

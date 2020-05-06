@@ -1,5 +1,8 @@
 #include "StaticCubeObstacle.hpp"
 
+#include "../Systems/Rendering/MeshFactory.hpp"
+#include "../Systems/Physics/RigidBodyFactory.hpp"
+
 StaticCubeObstacle::StaticCubeObstacle( float scale ): GameObject("StaticCube") {
     mesh = MeshFactory::createBasicMesh(std::string("StaticCube"));
     fs::path cube_path = Asset::assetPath().append("StaticCube");

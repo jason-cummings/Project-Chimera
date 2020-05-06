@@ -1,5 +1,9 @@
 #include "LoadMenu.hpp"
 
+#include "InGameState.hpp"
+
+#define LOAD_BUTTON_ID "Loading"
+
 LoadMenu::LoadMenu() {
 	// Insert buttons here like such:
     buttons.push_back( new MenuButton(LOAD_BUTTON_ID, .5f, .5f, 1.778f, 1.f, "LoadingScreen"));

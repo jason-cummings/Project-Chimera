@@ -1,5 +1,8 @@
 #include "Engine.hpp"
 
+#include "SettingsManager.hpp"
+#include "States/MainMenu.hpp"
+
 Engine::Engine() {
     quit = false;
 }

@@ -1,43 +1,46 @@
 #include "Camera.hpp"
 
-Camera::Camera() : GameObject("Camera"){
+#include <glm/vec4.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
+Camera::Camera(): GameObject("Camera") {
     th = 0;
     ph = 0;
     //createMatrices();
 }
 
-Camera::~Camera(){
+Camera::~Camera() {
 
 }
 
 //Updates camera's th and ph when mouse is moved
-void Camera::updateCamera(float xchange, float ychange){
+void Camera::updateCamera(float xchange, float ychange) {
     th += xchange;
     ph += ychange;
 
     //Stops camera from inverting when going above or below player model
     if( ph > 1.57 ) {
-        ph = 1.57;
+        ph = 1.57f;
     }
     else if( ph < -1.57 ) {
-        ph = -1.57;
+        ph = -1.57f;
     }
     // Bound th as well just for overflow prevention
     if( th < -3.141592 ) {
-        th += 6.283184;
+        th += 6.283184f;
     }
     else if( th > 3.141592 ) {
-        th -= 6.283184;
+        th -= 6.283184f;
     }
 }
 
-void Camera::reshape(int new_width, int new_height){
+void Camera::reshape(int new_width, int new_height) {
     view_width = new_width;
 	view_height = new_height;
 	aspect_ratio = view_width / (float)view_height;
 }
 
-void Camera::createMatrices(){
+void Camera::createMatrices() {
     float offset = 3;
     glm::vec3 viewpos = glm::vec3( parent->getWorldTransform() * glm::vec4(0.f,1.f,0.f,1.f) );
     glm::vec3 eyepos = viewpos + offset * glm::vec3(sin(th) * cos(ph), sin(ph), cos(th) * cos(ph));

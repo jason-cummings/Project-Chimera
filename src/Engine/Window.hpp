@@ -2,13 +2,12 @@
 #define WINDOW_H
 
 #include <iostream>
+#include <vector>
 
 #define SDL_MAIN_HANDLED
 #include <SDL.h>
 #include <GL/glew.h>
 #include <glm/vec2.hpp>
-
-#include "Systems/Rendering/RenderSystem.hpp"
 
 class Window {
 private:
