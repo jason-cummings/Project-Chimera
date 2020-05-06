@@ -1,5 +1,8 @@
 #include "PlayerMovementSystem.hpp"
 
+#include <glm/vec3.hpp>
+// #include <glm/gtx/string_cast.hpp>
+#include <math.h>
 
 void PlayerMovementSystem::setPlayerAnimations() {
     if(player_current_state != player_previous_state) {

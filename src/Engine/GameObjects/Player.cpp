@@ -1,12 +1,15 @@
 #include "Player.hpp"
 
+#include "./../Systems/Rendering/MeshFactory.hpp"
+#include "./../Systems/Physics/RigidBodyFactory.hpp"
+
 Player::Player(std::string identifier, SkinnedMesh * skinned_mesh_in): GameObject(identifier){
     skinned_mesh = skinned_mesh_in;
     physics = RigidBodyFactory::createCapsuleComponent( std::string("Player"), PLAYER_HEIGHT, PLAYER_DIAMETER, PLAYER_MASS );
 }
 
 Player::~Player(){
-    delete skinned_mesh;
+    // delete skinned_mesh;
 }
 
 // Get the transform from the physics component 

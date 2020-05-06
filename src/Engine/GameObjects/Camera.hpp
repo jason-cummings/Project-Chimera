@@ -1,8 +1,7 @@
 #ifndef CAMERA_HPP
 #define CAMERA_HPP
-#include <glm/vec4.hpp>
+
 #include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 #include "./../GameObject.hpp"
 
@@ -33,12 +32,7 @@ private:
     float th, ph ;
     int view_width, view_height;
     float aspect_ratio, fov = 55.f;
-    float offset; //Nothing done with offset as of yet
+    float offset;
 };
-
-
-
-
-
 
 #endif

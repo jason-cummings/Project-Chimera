@@ -1,8 +1,14 @@
 #include "GameObject.hpp"
 
+#include <iostream>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 GameObject::GameObject(std::string id) {
 	identifier = id;
+	destroy_all_on_delete = false;
 	scale = glm::vec3(1.f);
 	rotation = glm::quat( glm::vec3(0.f) );
 	translation = glm::vec3(0.f);
@@ -13,9 +19,10 @@ GameObject::GameObject(std::string id) {
 }
 
 GameObject::~GameObject() {
-	// for(int i = 0; i < children.size(); i++) {
-	// 	delete children[i];
-	// }
+	// std::cout << "Deleting " << identifier << std::endl;
+	if( destroy_all_on_delete ) {
+		deleteAllChildren();
+	}
 }
 
 
@@ -160,6 +167,13 @@ bool GameObject::deleteChild(int child_index){
 	return false;
 }
 
+void GameObject::deleteAllChildren() {
+	for( int i=0; i<children.size(); i++ ) {
+		children[i]->deleteAllChildren();
+		delete children[i];
+	}
+	children.clear();
+}
 
 
 // Scene graph searching

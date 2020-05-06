@@ -1,8 +1,13 @@
 #include "PauseMenu.hpp"
 
+#include "InGameState.hpp"
+#include "MainMenu.hpp"
+
+#define RESUME_GAME_BUTTON_ID "Resume Game"
+#define MAIN_MENU_BUTTON_ID "Main Menu"
+
 PauseMenu::PauseMenu( GameState* input ){
     last_state = input;
-    scene = new GameObject("root");
     scene->addChild( input->getScene() );
 
 	//One button to resume game, one to return to main menu.
@@ -19,7 +24,9 @@ PauseMenu::PauseMenu( GameState* input ){
 }
 
 PauseMenu::~PauseMenu() {
-    delete camera;
+    // delete camera;
+    scene->setDestroyAll( true );
+    delete scene;
 }
 
 void PauseMenu::handleButtonEvent( MenuButton *clicked ) {
@@ -30,7 +37,9 @@ void PauseMenu::handleButtonEvent( MenuButton *clicked ) {
     }
     else if( clicked->getID() == MAIN_MENU_BUTTON_ID ) {
         // Change state to Main Menu 
+        scene->removeChild( last_state->getScene() );
+        delete last_state;
         MainMenu* to_set = new MainMenu();
-        setNextState( to_set, false );
+        setNextState( to_set, true );
     }
 }

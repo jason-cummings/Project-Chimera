@@ -1,5 +1,10 @@
 #include "PerformanceLogger.hpp"
 
+#include <iostream>
+
+#define TICK_TIME_WARNING_THRESHOLD .033
+#define PRINT_FPS true
+
 void PerformanceLogger::startTick() {
 	operations.clear();
 	measurements.clear();

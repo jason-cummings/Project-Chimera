@@ -1,14 +1,9 @@
 #ifndef TEXTURE_LOADER_H
 #define TEXTURE_LOADER_H
 
-#define GL_GLEXT_PROTOTYPES 1
-#define STB_IMAGE_IMPLEMENTATION
-
-#include <glm/glm.hpp>
+#include <string>
 #include <map>
 #include <GL/glew.h>
-#include <iostream>
-
 
 class TextureLoader{
 private:

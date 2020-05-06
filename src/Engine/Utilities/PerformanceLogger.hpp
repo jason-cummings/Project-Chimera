@@ -2,12 +2,7 @@
 #define PERFORMANCE_LOGGER_H
 
 #include <string>
-#include <iostream>
 #include <vector>
-
-#define TICK_TIME_WARNING_THRESHOLD .033
-
-#define PRINT_FPS true
 
 class PerformanceLogger {
 	int frames;

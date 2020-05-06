@@ -1,12 +1,9 @@
 #ifndef ENGINE_HPP
 #define ENGINE_HPP
 
-#include "Systems/Rendering/RenderSystem.hpp"
 #include "Window.hpp"
-#include "States/MainMenu.hpp"
-
-#define DEFAULT_WINDOW_WIDTH 640
-#define DEFAULT_WINDOW_HEIGHT 480
+#include "Systems/Rendering/RenderSystem.hpp"
+#include "GameState.hpp"
 
 class Engine {
 private:

@@ -8,18 +8,9 @@
 #include "../Systems/Physics/PhysicsSystem.hpp"
 
 #include "../GameObject.hpp"
-#include "../GameObjects/Obstacle.hpp"
-#include "../GameObjects/DynamicCube.hpp"
-#include "../GameObjects/StaticCubeObstacle.hpp"
-#include "../GameObjects/Player.hpp"
 
 #include "../Utilities/PerformanceLogger.hpp"
-
-class InGameState;
-#include "MainMenu.hpp"
-#include "PauseMenu.hpp"
-#include "WinMenu.hpp"
-
+#include "../StandardTimer.hpp"
 
 class InGameState: public GameState {
 private:
@@ -36,8 +27,8 @@ private:
     PlayerMovementSystem* player_movement;
     PhysicsSystem *physics_system;
     AnimationSystem * animation_system;
-    Timer *timer;
-
+    
+    StandardTimer timer;
     PerformanceLogger performance_logger;
 
     // Initialize the state
@@ -62,13 +53,13 @@ private:
     bool isNear(float input, float goal);
     bool fell();
 
-
     // TEMP
-    void createTestPhysicsLevel();
     void addPhysicsThings();
 
 public:
     InGameState( std::string level_to_load );
+    ~InGameState();
+
     void gameLoop() override;
 };
 

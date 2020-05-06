@@ -1,7 +1,6 @@
 #ifndef SHADERMANAGER_H
 #define SHADERMANAGER_H
 
-#include <iostream>
 #include <map>
 #include <string>
 

@@ -1,5 +1,7 @@
 #include "ShaderManager.hpp"
 
+#include <iostream>
+
 ShaderManager * ShaderManager::sm = nullptr;
 
 ShaderManager::ShaderManager() {

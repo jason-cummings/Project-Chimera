@@ -2,7 +2,7 @@
 #define JOINT_H
 #include <string>
 #include <vector>
-#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
 #include "./../../GameObjects/Bone.hpp"
 
 struct Joint {

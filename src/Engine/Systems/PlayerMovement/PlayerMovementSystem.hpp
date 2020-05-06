@@ -1,10 +1,6 @@
 #ifndef PLAYERMOVEMENTSYSTEM_H
 #define PLAYERMOVEMENTSYSTEM_H
 
-#include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
-#include <math.h>
-
 #include "./../../GameObjects/Player.hpp"
 #include "./../../GameObjects/Obstacle.hpp"
 #include "./../../GameObjects/Camera.hpp"

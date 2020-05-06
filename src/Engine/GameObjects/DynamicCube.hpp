@@ -1,14 +1,9 @@
 #ifndef DYNAMICCUBE_HPP
 #define DYNAMICCUBE_HPP
 
-// #include <glm/gtx/string_cast.hpp>
-#include <math.h>
-
 #include "../GameObject.hpp"
 #include "../Systems/Rendering/Mesh.hpp"
-#include "../Systems/Rendering/MeshFactory.hpp"
 #include "../Systems/Physics/RigidBodyPhysicsComponent.hpp"
-#include "../Systems/Physics/RigidBodyFactory.hpp"
 
 class DynamicCube: public GameObject {
 private:

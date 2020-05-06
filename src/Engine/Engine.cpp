@@ -1,5 +1,8 @@
 #include "Engine.hpp"
 
+#include "SettingsManager.hpp"
+#include "States/MainMenu.hpp"
+
 Engine::Engine() {
     quit = false;
 }
@@ -20,8 +23,11 @@ Engine & Engine::getEngine() {
 // Perform any initialization necessary for the engine
 // Returns true if all initialization was successful, else false
 bool Engine::init() {
+    // Get user settings for initialization
+    UserSettings::loadFromFile();
+
     // Attempt to initialize the window
-    if( !window.init( DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT ) ) {
+    if( !window.init( UserSettings::resolution_width, UserSettings::resolution_height ) ) {
         std::cout << "Error in window initialization" << std::endl;
         return false;
     }

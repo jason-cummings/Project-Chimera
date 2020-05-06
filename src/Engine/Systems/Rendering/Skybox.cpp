@@ -1,5 +1,10 @@
 #include "Skybox.hpp"
 
+#include "TextureLoader.hpp"
+
+#include "../../Utilities/FilesystemWrapper.hpp"
+#include "../../Utilities/WAIWrapper.hpp"
+
 bool SkyboxFactory::initialized = false;
 GLuint SkyboxFactory::vao = 0;
 GLuint SkyboxFactory::vbo = 0;

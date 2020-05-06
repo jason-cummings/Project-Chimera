@@ -1,5 +1,12 @@
 #include "DynamicCube.hpp"
 
+// #include <glm/gtx/string_cast.hpp>
+#include <math.h>
+
+#include "../Systems/Rendering/MeshFactory.hpp"
+#include "../Systems/Rendering/Material.hpp"
+#include "../Systems/Physics/RigidBodyFactory.hpp"
+
 int DynamicCube::num_cubes = 0;
 
 DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube" + std::to_string(++num_cubes)) {
@@ -12,7 +19,7 @@ DynamicCube::DynamicCube( float scale ): GameObject("DynamicCube" + std::to_stri
 }
 
 DynamicCube::~DynamicCube() {
-    if( mesh ) delete mesh;
+    // if( mesh ) delete mesh;
     if( physics ) delete physics;
 }
 

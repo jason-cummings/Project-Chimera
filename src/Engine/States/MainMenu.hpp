@@ -1,24 +1,16 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
-#include <vector>
-
 #include "Menu.hpp"
-#include "LoadMenu.hpp"
 #include "../GameObjects/MenuButton.hpp"
+#include "../Systems/Animation/AnimationSystem.hpp"
+#include "../StandardTimer.hpp"
 
-#define PLAY_GAME_BUTTON_ID "Play Game"
-#define EXIT_GAME_BUTTON_ID "Exit"
-
-class MainMenu : public Menu
-{
+class MainMenu : public Menu {
 private:
-    MenuButton * lastpressed;
-    std::vector<MenuButton*> buttons;
-
     // Systems for main menu
     AnimationSystem * animation_system;
-    Timer *timer;
+    StandardTimer timer;
 
     void handleButtonEvent( MenuButton *clicked );
 

@@ -8,11 +8,8 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <glm/mat4x4.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
 
-#include <iostream>
 
 class RigidBodyPhysicsComponent {
 private:

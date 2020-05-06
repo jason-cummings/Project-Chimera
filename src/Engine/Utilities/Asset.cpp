@@ -1,19 +1,23 @@
 #include "Asset.hpp"
 
+#include <iostream>
+#include <fstream>
+
 Asset::Asset( std::string fname ) {
     // Get the path to the executable, then add the file name
     std::string fpath = assetPath().string() + std::string(fname);
 
     // Read in the asset with the full file path
-    if( !readInAsset( fpath ) ) {
+    if( !(read_success = readInAsset( fpath )) ) {
         std::cerr << "Could not read asset " << fname << std::endl;
         buffer = nullptr;
+        read_success = false;
     }
 }
 
 Asset::Asset( fs::path fpath ) {
     // Read in the asset with the full file path
-    if( !readInAsset( fpath.string() ) ) {
+    if( !(read_success = readInAsset( fpath.string() )) ) {
         std::cerr << "Could not read asset " << fpath.string() << std::endl;
         buffer = nullptr;
     }

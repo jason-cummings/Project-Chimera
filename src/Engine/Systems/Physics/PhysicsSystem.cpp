@@ -1,5 +1,7 @@
 #include "PhysicsSystem.hpp"
 
+#include <iostream>
+
 PhysicsSystem::PhysicsSystem() {
 	// Collision configuration contains default setup for memory, collision setup
 	collision_configuration = new btDefaultCollisionConfiguration();

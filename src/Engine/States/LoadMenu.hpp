@@ -2,13 +2,9 @@
 #define LOADMENU_HPP
 
 #include "Menu.hpp"
-#include "InGameState.hpp"
 
-#define LOAD_BUTTON_ID "Loading"
-
-class LoadMenu : public Menu {
+class LoadMenu: public Menu {
 private:
-    GameState* last_state;
     bool will_load = false;
 
 	virtual void init() override {}

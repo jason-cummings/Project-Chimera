@@ -3,27 +3,24 @@
 
 class GameObject;
 
-#include <iostream>
 #include <vector>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtx/transform.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/string_cast.hpp>
 
-// #include "Systems/Rendering/Mesh.hpp"
-class Mesh;
 // #include "Systems/Rendering/SkinnedMesh.hpp"
-class SkinnedMesh;
 // #include "Systems/Rendering/OverlayMesh.hpp"
-class OverlayMesh;
+// #include "Systems/Rendering/Mesh.hpp"
 #include "Systems/Physics/RigidBodyPhysicsComponent.hpp"
 
+class Mesh;
+class SkinnedMesh;
+class OverlayMesh;
 
 class GameObject {
 protected:
 	std::string identifier; // use to reconstruct scenegraph from file
+	bool destroy_all_on_delete; // Control whether or not to destroy all children when deleted
 	std::vector<GameObject *> children;
 	GameObject * parent; // this can be null
 
@@ -79,6 +76,7 @@ public:
 	// scenegraph / child object management
 	GameObject * getParent();
 	void setParent(GameObject * p);
+	inline void setDestroyAll( bool new_val ) { destroy_all_on_delete = new_val; }
 
 	int getNumChildren();
 
@@ -92,6 +90,8 @@ public:
 	
 	bool deleteChild(GameObject * child); // removes the child from the list of children and deletes it
 	bool deleteChild(int child_index);
+
+	void deleteAllChildren(); // Recursively call
 
 	// searching the scenegraph
 

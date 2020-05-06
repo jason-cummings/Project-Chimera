@@ -1,5 +1,10 @@
 #include "RenderSystem.hpp"
 
+#include <glm/mat3x3.hpp>
+
+#include "../../Utilities/Asset.hpp"
+#include "TextureLoader.hpp"
+
 #define SHADOW_MAP_DIMENSION 2048
 #define BLOOM_PASSES 4
 
@@ -8,10 +13,6 @@ const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 RenderSystem::RenderSystem() {
 	camera = nullptr;
 	skybox = nullptr;
-
-	// Create the basic VAO
-	glGenVertexArrays( 1, &BASE_VAO );
-	glBindVertexArray( BASE_VAO );
 
 	//set up quad vao
 	glGenVertexArrays( 1, &quad_vao );
@@ -27,22 +28,21 @@ RenderSystem::RenderSystem() {
 	glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
 	glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
 
-	glBindVertexArray(0);
-
 	// Get the shader manager
+	// Create the basic VAO
+	glGenVertexArrays( 1, &BASE_VAO );
 	glBindVertexArray( BASE_VAO );
 	sm = ShaderManager::getShaderManager();
+	glBindVertexArray( 0 );
 
-	// texture_width = 2880;//3840;
-	// texture_height = 1800;//2160;
-	texture_width = 2880;
-	texture_height = 1800;
+	// Assign values based on user settings
+	texture_width = UserSettings::resolution_width;
+	texture_height = UserSettings::resolution_height;
 
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
 
 	// And in the last step, Jason said "Let there be light"
-	// sun.location = glm::vec3(1.f,3.f,1.f);
 	sun.location = glm::vec3(.707f,.3f,-.707f);
 	sun.diffuse = glm::vec3(0.5f,0.3f,0.2f);
 	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
@@ -53,9 +53,6 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
-
-	shadow_mode = ShadowMode::SINGLE_PASS;
-	use_bloom = true;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -239,6 +236,7 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	if( camera != nullptr ) {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
+		camera_loc = glm::vec3(camera->getWorldTransform()[3]);
 	}
 	else {
 		std::cerr << "Camera is null - using default matrices" << std::endl;
@@ -248,7 +246,7 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	// Do the deferred rendering
 	deferredRenderStep();
 
-	if( shadow_mode != ShadowMode::NONE ) {
+	if( UserSettings::shadow_mode != ShadowMode::NONE ) {
 		// Render shadow maps
 		renderDirectionalDepthTexture( &sun );
 		createDirectionalShadowMap( &sun );
@@ -266,7 +264,7 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 	glClear( GL_COLOR_BUFFER_BIT );
 	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
-	if( use_bloom ) {
+	if( UserSettings::use_bloom ) {
 		applyBloom();
 	}
 
@@ -299,6 +297,7 @@ void RenderSystem::createOrthoMatrices() {
 	float left_edge = (aspect_ratio - 1.f) / -2.f;
 	proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 	view_mat = glm::mat4(1.f);
+	camera_loc = glm::vec3(0.f);
 }
 
 
@@ -332,7 +331,7 @@ void RenderSystem::deferredRenderStep() {
 	deferred_shader->setUniformMat4( "Projection", proj_mat );
 
 	// Set additional uniforms for the shader
-	deferred_shader->setUniformFloat( "materialShininess", 32.f );
+	deferred_shader->setUniformFloat( "materialShininess", 2.f );
 
 
 	// Perform rendering
@@ -363,10 +362,8 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	Shader *depth_shader = sm->getShader("depth");
 	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
 
-	// Create the view and projection matrices for the light's view
-	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
-	// glm::vec3 light_look_at = glm::vec3(0.f);
-	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
+	// Create the view matricx for the light's view
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the depth only framebuffer
 	depth_shadow_buffer.bind();
@@ -374,7 +371,7 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
 
-	if( shadow_mode == ShadowMode::ITERATE ) {
+	if( UserSettings::shadow_mode == ShadowMode::ITERATE ) {
 		for( int i=0; i<4; i++ ) {
 			glViewport( SHADOW_MAP_DIMENSION*i, 0, SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 
@@ -420,9 +417,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	Shader *mapping_shader = sm->getShader("directional-shadows");
 
 	// Create the view and projection matrices for the light's view
-	glm::vec3 light_look_at = glm::vec3( camera->getWorldTransform()[3] );
-	// glm::vec3 light_look_at = glm::vec3(0.f);
-	glm::mat4 light_view_mat = glm::lookAt( light_look_at + light->location, light_look_at, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
@@ -452,9 +447,9 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	}
 	mapping_shader->setUniformVec3( "lightLocation", light->location );
 
-	mapping_shader->setUniformVec3( "cameraLocation", light_look_at );
+	mapping_shader->setUniformVec3( "cameraLocation", camera_loc );
 
-	mapping_shader->setUniformFloat( "iterate", shadow_mode == ShadowMode::ITERATE ? 1.f : 0.f );
+	mapping_shader->setUniformFloat( "iterate", UserSettings::shadow_mode == ShadowMode::ITERATE ? 1.f : 0.f );
 
 	// Render the shadow map
 	drawQuad();
@@ -524,7 +519,7 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformFloat("ambientAmount", 0.3f );
 
-	cartoon_shading->setUniformFloat( "applyShadows", shadow_mode == ShadowMode::NONE ? 0.f : 1.f );
+	cartoon_shading->setUniformFloat( "applyShadows", UserSettings::shadow_mode == ShadowMode::NONE ? 0.f : 1.f );
 
 	// OLD LIGHT
 	// cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
