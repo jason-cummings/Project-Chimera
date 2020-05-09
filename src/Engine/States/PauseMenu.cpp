@@ -18,9 +18,6 @@ PauseMenu::PauseMenu( GameState* input ){
 	for( MenuButton* b : buttons ) {
 		scene->addChild(b);
 	}
-
-	// Create a camera to avoid segfaulting
-    camera = new Camera();
 }
 
 PauseMenu::~PauseMenu() {

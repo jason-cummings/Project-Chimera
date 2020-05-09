@@ -11,7 +11,6 @@ LoadMenu::LoadMenu() {
 	for( MenuButton* b : buttons ) {
 		scene->addChild(b);
 	}
-    camera = new Camera();
 }
 
 LoadMenu::~LoadMenu() {

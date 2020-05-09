@@ -2,10 +2,14 @@
 
 #include <glm/vec4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+
+#include "../SettingsManager.hpp"
 
 Camera::Camera(): GameObject("Camera") {
     th = 0;
     ph = 0;
+    setResolution( UserSettings::resolution_width, UserSettings::resolution_height );
     //createMatrices();
 }
 
@@ -14,7 +18,7 @@ Camera::~Camera() {
 }
 
 //Updates camera's th and ph when mouse is moved
-void Camera::updateCamera(float xchange, float ychange) {
+void Camera::modifyAngles( float xchange, float ychange ) {
     th += xchange;
     ph += ychange;
 
@@ -34,14 +38,16 @@ void Camera::updateCamera(float xchange, float ychange) {
     }
 }
 
-void Camera::reshape(int new_width, int new_height) {
-    view_width = new_width;
-	view_height = new_height;
-	aspect_ratio = view_width / (float)view_height;
+void Camera::setAngles( float new_th, float new_ph ) {
+    th = new_th;
+    ph = new_ph;
+}
+
+void Camera::setResolution( int new_width, int new_height ) {
+	aspect_ratio = new_width / (float)new_height;
 }
 
 void Camera::createMatrices() {
-    float offset = 3;
     glm::vec3 viewpos = glm::vec3( parent->getWorldTransform() * glm::vec4(0.f,1.f,0.f,1.f) );
     glm::vec3 eyepos = viewpos + offset * glm::vec3(sin(th) * cos(ph), sin(ph), cos(th) * cos(ph));
     glm::vec3 updir = glm::vec3( 0.f, 1.f, 0.f );

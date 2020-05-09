@@ -39,9 +39,6 @@ public:
 	// Return the drawable size of the window
 	glm::vec2 getDrawableSize();
 
-	// Toggle whether or not the mouse is locked in the window
-	void toggleMouseLock();
-
 	// Explicitly set mouse locking
 	void setMouseLock( bool new_val );
 };

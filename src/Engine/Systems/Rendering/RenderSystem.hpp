@@ -63,8 +63,8 @@ private:
 
 
     // Variables for the output sizes of the textures
-    int texture_width, texture_height;
-    int view_width, view_height;
+    int texture_width, texture_height; // Render resolution
+    int view_width, view_height; // Actual display
 
     // The shader manager for the render system
     ShaderManager *sm;
@@ -91,7 +91,7 @@ private:
 	void testGLError( const char *loc = "default" );
 
     // Set up the framebuffers necessary for the rendering process
-    void createFramebuffers();
+    void addFramebufferTextures();
 
 
     /**
@@ -156,6 +156,8 @@ public:
 
     void reshape( int x_size, int y_size );
 
+    void recreateFramebuffers();
+
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
     
@@ -163,6 +165,9 @@ public:
 
     inline void cycleShadows() { UserSettings::shadow_mode = (ShadowMode)((UserSettings::shadow_mode + 1) % 3); }
     inline void toggleBloom() { use_bloom = !use_bloom; }
+
+    inline int getViewWidth() { return view_width; }
+    inline int getViewHeight() { return view_height; }
 };
 
 // The VBO for rendering a quad over the whole viewport

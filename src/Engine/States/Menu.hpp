@@ -5,7 +5,6 @@
 
 #include "../GameState.hpp"
 #include "../GameObjects/MenuButton.hpp"
-#include "../GameObjects/Camera.hpp"
 
 class Menu: public GameState{
 protected:
@@ -21,8 +20,8 @@ public:
 	virtual ~Menu();
 
 	// Checks if any button is clicked
-	virtual void handleMouseButtonDown( SDL_Event e ) override;
-	virtual void handleMouseButtonUp( SDL_Event e ) override;
+    void handleMouseButtonDownStateSpecific( SDL_Event e ) override;
+    void handleMouseButtonUpStateSpecific( SDL_Event e ) override;
 
 	virtual void gameLoop() override;
 };
