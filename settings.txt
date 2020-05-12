@@ -1,4 +1,0 @@
-resolution_width=2880
-resolution_height=1800
-shadow_mode=2
-use_bloom=1

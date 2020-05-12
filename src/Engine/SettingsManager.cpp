@@ -2,7 +2,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <map>
 
 #include "Utilities/WAIWrapper.hpp"
 #include "Utilities/Asset.hpp"
@@ -16,12 +15,18 @@ int UserSettings::resolution_height = 1800;
 ShadowMode UserSettings::shadow_mode = ITERATE;
 bool UserSettings::use_bloom = true;
 
+// Return the path to the settings file
+std::string UserSettings::settingsPath() {
+    return WAIWrapper::getExecutablePath() + "/../../" + SETTINGS_FILENAME;
+}
+
 // Opens file at [exe path]/../../settings.txt and assigns all relevant settings
 void UserSettings::loadFromFile() {
-    std::string settings_path = WAIWrapper::getExecutablePath() + "/../../" + SETTINGS_FILENAME;
+    std::string settings_path = settingsPath();
     std::ifstream settings_file( settings_path );
     if( !settings_file.is_open() ) {
         std::cerr << "Could not open settings file at " << settings_path << std::endl;
+        writeToFile();
         return;
     }
 
@@ -33,6 +38,20 @@ void UserSettings::loadFromFile() {
         std::string value = line.substr( delim_index+1 );
         assignSetting( setting, value );
     }
+
+    settings_file.close();
+
+    writeToFile();
+}
+
+void UserSettings::writeToFile() {
+    std::string settings_path = settingsPath();
+    std::ofstream settings_file( settings_path );
+
+    settings_file << "resolution_width=" << resolution_width << std::endl;
+    settings_file << "resolution_height=" << resolution_height << std::endl;
+    settings_file << "shadow_mode=" << (int)shadow_mode << std::endl;
+    settings_file << "use_bloom=" << use_bloom << std::endl;
 
     settings_file.close();
 }
