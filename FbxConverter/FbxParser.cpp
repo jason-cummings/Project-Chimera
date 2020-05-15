@@ -7,6 +7,7 @@ FbxParser::FbxParser(std::string filename) {
 	fbx_filename = filename;
 }
 
+// initializes FbxManager and starts the data retrievel and export process
 void FbxParser::init(bool for_hitbox) {
 	manager = FbxManager::Create();
 	if(!manager) {
@@ -30,7 +31,7 @@ void FbxParser::init(bool for_hitbox) {
 
 		if(import_status) {
 
-			// might need to convert axis system here - skipping for now during initial setup
+			// as we are using Maya, converting the axis system is not needed, but if needed in the future it should be done here
 
 			//convert all geometry to triangles - OpenGL 3.3 doesn't allow quads
 			FbxGeometryConverter geometry_converter(manager);
@@ -44,6 +45,7 @@ void FbxParser::init(bool for_hitbox) {
 	hitbox_optimizer = DataOptimizer("output/Hitboxes");
 
 	if(for_hitbox) {
+		// create a folder for hitboxes then process all nodes for hitboxes
 		createFolder("./output/Hitboxes");
 		processNodesForHitbox(scene->GetRootNode(), "", "./output");
 	}
@@ -55,25 +57,31 @@ void FbxParser::init(bool for_hitbox) {
 		createFolder("./output/Meshes");
 		createFolder("./output/SkinnedMeshes");
 
+		//create Animation stacks folder within output folder
 		createFolder("./output/AnimationStacks");
 
 		// create Materials folder within output folder
+		createFolder("./output/Materials");
 
 		// get all animation layers so that they can be filled in later
 		std::cout << "Animation stack info" << std::endl;
 		std::cout << "Number of animation stacks: " << importer->GetAnimStackCount();
 
+		// process animation stacks
 		for(int i = 0; i < importer->GetAnimStackCount(); i++) {
 			FbxTakeInfo *take_info = importer->GetTakeInfo(i);
 			std::cout << "Animation Stack " << i << ": " << take_info->mName.Buffer() << std::endl;
 			processAnimationStack(FbxCast<FbxAnimStack>(scene->GetSrcObject(FbxCriteria::ObjectType(FbxAnimStack::ClassId), i)));
 		}
 
+		// analyse scenegraph and creates a list of joints
 		skeleton_processor.processSkeletonHierarchy(scene->GetRootNode());
 
+		// export joints
 		createFolder("./output/JointList");
 		skeleton_processor.exportJointList("./output/JointList");
 
+		//process all nodes for export - this processes meshes
 		processNodes(scene->GetRootNode(), "", "./output");
 	}
 
@@ -88,9 +96,9 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	std::string node_directory = parent_directory + "/" + node->GetName();
 	createFolder(node_directory);
 
-
 	const int child_count = node->GetChildCount();
 
+	// get transformation data and convert to glm
 	FbxDouble3 translation = node->LclTranslation.Get();
 	FbxDouble3 rotation = node->LclRotation.Get();
 	FbxDouble3 scaling = node->LclScaling.Get();
@@ -104,21 +112,15 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	glm::vec3 scalingVector = glm::vec3(scaling[0],scaling[1],scaling[2]);
 
 
+	// prints node information, useful for debug and verifying that fbx file has expected values
 	std::cout << depth << "Node: " << node->GetName() << std::endl;
 	std::cout << depth << " - translation: " << translation[0] << ", " << translation[1] << ", " << translation[2] << std::endl;
 	std::cout << depth << " - rotation: " << rotation[0] << ", " << rotation[1] << ", " << rotation[2] << std::endl;
 	std::cout << depth << " - rotation2: " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2] << std::endl;
 	std::cout << depth << " - scaling: " << scaling[0] << ", " << scaling[1] << ", " << scaling[2] << std::endl;
 
-	const FbxVector4 lT = node->GetGeometricTranslation(FbxNode::eSourcePivot); 
-    const FbxVector4 lR = node->GetGeometricRotation(FbxNode::eSourcePivot); 
-    const FbxVector4 lS = node->GetGeometricScaling(FbxNode::eSourcePivot); 
 
-    std::cout << depth << " - lT: " << lT[0] << ", " << lT[1] << ", " << lT[2] << ", " << lT[3] << std::endl;
-    std::cout << depth << " - lR: " << lR[0] << ", " << lR[1] << ", " << lR[2] << ", " << lR[3] << std::endl;
-    std::cout << depth << " - lS: " << lS[0] << ", " << lS[1] << ", " << lS[2] << ", " << lS[3] << std::endl;
-
-	//store transform data
+	//export transform data
 
 	std::ofstream translationFile (node_directory + "/translation", std::ios::out | std::ios::binary);
 	translationFile.write((const char *)&translationVector[0],sizeof(glm::vec3));
@@ -133,9 +135,10 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 	scalingFile.close();
 
 
-
+	// check if any animations affect this node
 	processNodeForAnimation(node);
 
+	// check for a mesh and process and export it
 	FbxNodeAttribute * attribute = node->GetNodeAttribute();
 
 	if(attribute) {
@@ -153,6 +156,7 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 			else processMesh(mesh,node_directory);
 		}
 
+		// if this object is a bone, export a "bone" file. this informs projectchimera that the node is a bone
 		if(attribute->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
 			std::ofstream boneFile(node_directory + "/bone");
 			boneFile << "1";
@@ -180,7 +184,8 @@ void FbxParser::processNodes(FbxNode * node, std::string depth, std::string pare
 
 
 
-
+// process a mesh. uses the data optimizer to check if it has already been processed.
+// if not, then all control points are read and a MeshExporter is used
 void FbxParser::processMesh(FbxMesh * mesh, std::string parent_directory) {
 	int mesh_index = 0;
 	if(mesh_optimizer.checkExists(mesh)) {
@@ -199,9 +204,11 @@ void FbxParser::processMesh(FbxMesh * mesh, std::string parent_directory) {
 		for(int i = 0; i < num_polygons; i++) {
 			for(int j = 0; j < 3; j++) {
 				int vertex_index = mesh->GetPolygonVertex(i,j);
+
 				glm::vec4 position = glm::vec4(static_cast<float>(control_points[vertex_index][0]), static_cast<float>(control_points[vertex_index][1]), static_cast<float>(control_points[vertex_index][2]),1.0);
 				glm::vec3 normal = getNormal(mesh, vertex_index, i*3 + j);
 				glm::vec2 uv = getUV(mesh, vertex_index, i*3 + j);
+
 				Vertex v = Vertex();
 				v.position = position;
 				v.normal = normal;
@@ -224,7 +231,7 @@ void FbxParser::processMesh(FbxMesh * mesh, std::string parent_directory) {
 	file.close();
 }
 
-
+// same as processing a mesh, but adds data for skeletal animation
 void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,std::vector<ControlPointBoneWeights>& bone_weights) {
 	int mesh_index = 0;
 	if(skinned_mesh_optimizer.checkExists(mesh)) {
@@ -250,42 +257,14 @@ void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,
 				v.position = position;
 				v.normal = normal;
 				v.uv = uv;
-				// v.joint_index_0 = bone_weights[vertex_index].indexes[0];
-				// v.joint_weight_0 = bone_weights[vertex_index].weights[0];
-
-				// v.joint_index_1 = bone_weights[vertex_index].indexes[1];
-				// v.joint_weight_1 = bone_weights[vertex_index].weights[1];
-
-				// v.joint_index_2 = bone_weights[vertex_index].indexes[2];
-				// v.joint_weight_2 = bone_weights[vertex_index].weights[2];
-
-				// v.joint_index_3 = bone_weights[vertex_index].indexes[3];
-				// v.joint_weight_3 = bone_weights[vertex_index].weights[3];
-
+				
+				// fill weight array of vertex then populate with data
 				for(int i = 0; i < 22; i++) {
 					v.weight_array[i] = 0.0f;
 				}
 				for(int i = 0; i < 4; i++) {
 					v.weight_array[bone_weights[vertex_index].indexes[i]] = bone_weights[vertex_index].weights[i];
 				}
-				// int max = 0;
-				// float max_val = 0;
-				// for(int i = 0; i < 4; i++) {
-				// 	if(bone_weights[vertex_index].weights[i] > max_val) {
-				// 		max = i;
-				// 		max_val = bone_weights[vertex_index].weights[i];
-				// 	}
-				// }
-
-				// v.weight_array[bone_weights[vertex_index].indexes[max]] = 1.0f;
-				
-				std::cout << "Vertex: (" << position[0] << ", " << position[1] << ", " << position[2] << ")" <<std::endl;
-				std::cout << " - index: " << bone_weights[vertex_index].indexes[0] << ", " <<bone_weights[vertex_index].weights[0] <<std::endl;
-				std::cout << "   index: " << bone_weights[vertex_index].indexes[1] << ", " <<bone_weights[vertex_index].weights[1] <<std::endl;
-				std::cout << "   index: " << bone_weights[vertex_index].indexes[2] << ", " <<bone_weights[vertex_index].weights[2] <<std::endl;
-				std::cout << "   index: " << bone_weights[vertex_index].indexes[3] << ", " <<bone_weights[vertex_index].weights[3] <<std::endl;
-
-				// std::cout << " - index: " << v.joint_index_0 << ", " << v.joint_weight_0 <<std::endl;
 
 				me.addVertex(v);
 
@@ -305,7 +284,7 @@ void FbxParser::processSkinnedMesh(FbxMesh * mesh, std::string parent_directory,
 }
 
 
-
+// helper funtion to get normal of a vertex
 glm::vec3 FbxParser::getNormal(FbxMesh * mesh, int control_point_index, int vertex_index) {
 	FbxGeometryElementNormal * vertex_normal = mesh->GetElementNormal(0);
 
@@ -328,8 +307,6 @@ glm::vec3 FbxParser::getNormal(FbxMesh * mesh, int control_point_index, int vert
 					z = static_cast<float>(vertex_normal->GetDirectArray().GetAt(index).mData[2]);
 					break;
 				}
-				
-				//case FbxGeometryElement::eIndex:
 
 				default:
 					throw std::runtime_error("Error with Normal Referencing mode");
@@ -358,10 +335,10 @@ glm::vec3 FbxParser::getNormal(FbxMesh * mesh, int control_point_index, int vert
 			throw std::runtime_error("Error with Normal Mapping Mode");
 	}
 
-	//std::cout << "Normal: " << x << ", " << y << ", " << z << std::endl;
 	return glm::vec3(x,y,z);
 }
 
+// helper function to get UV data of a vertex
 glm::vec2 FbxParser::getUV(FbxMesh * mesh,  int control_point_index, int vertex_index) {
 	FbxGeometryElementUV * vertex_uv = mesh->GetElementUV(0);
 
@@ -387,8 +364,6 @@ glm::vec2 FbxParser::getUV(FbxMesh * mesh,  int control_point_index, int vertex_
 					v = static_cast<float>(vertex_uv->GetDirectArray().GetAt(index).mData[1]);
 					break;
 				}
-				
-				//case FbxGeometryElement::eIndex:
 
 				default:
 					throw std::runtime_error("Error with UV Referencing mode");
@@ -415,7 +390,6 @@ glm::vec2 FbxParser::getUV(FbxMesh * mesh,  int control_point_index, int vertex_
 			throw std::runtime_error("Error with UV Mapping Mode");
 	}
 
-	//std::cout << "UV: " << u << ", " << v << std::endl;
 	return glm::vec2(u,v);
 }
 
@@ -453,6 +427,7 @@ void FbxParser::processAnimationStack(FbxAnimStack * animation_stack) {
 	}
 }
 
+// check if a node is animated, if so, the animation curve is processed and exported
 void FbxParser::processNodeForAnimation(FbxNode * node) {
 	for(int i = 0; i < animations.size(); i++) {
 		// go through all animations, and check for animation curves that affect this node
@@ -472,11 +447,9 @@ void FbxParser::processNodeForAnimation(FbxNode * node) {
 	}
 }
 
+// exports the keyframes for a node and given animation curves
 void FbxParser::saveKeyframes(FbxNode * node, FbxAnimCurve* x_curve, FbxAnimCurve* y_curve, FbxAnimCurve* z_curve, int animation_index, std::string filename) {
 	if(x_curve && y_curve && z_curve) {
-		// std::cout << "X Keys: " << x_curve->KeyGetCount() << std::endl;
-		// std::cout << "Y Keys: " << y_curve->KeyGetCount() << std::endl;
-		// std::cout << "Z Keys: " << z_curve->KeyGetCount() << std::endl;
 	
 		std::vector<Keyframe> key_list;
 		//get values from all keys
@@ -520,7 +493,8 @@ void FbxParser::saveKeyframes(FbxNode * node, FbxAnimCurve* x_curve, FbxAnimCurv
 
 
 
-
+// processes nodes for hitboxes. this means only processing for meshes, and only adds hitboxes to existing node folders.
+// this function will not create folders for the nodes, they must already be existing.
 void FbxParser::processNodesForHitbox(FbxNode * node, std::string depth, std::string parent_directory) {
 
 	std::string node_directory = parent_directory + "/" + node->GetName();
@@ -548,7 +522,7 @@ void FbxParser::processNodesForHitbox(FbxNode * node, std::string depth, std::st
 }
 
 
-
+// processes a mesh for hitboxes, which means only exporting vertex position data, and no rendering data.
 void FbxParser::processMeshForHitbox(FbxMesh * mesh, std::string parent_directory) {
 
 	int mesh_index = 0;

@@ -1,6 +1,12 @@
 #include "MeshExporter.h"
 
 
+// tell compiler to create versions of MeshExporter for the different types of Vertex
+template class MeshExporter<Vertex>;
+template class MeshExporter<MinimalVertex>;
+template class MeshExporter<SkinnedVertex>;
+
+// operators needed for the Vertex types
 bool operator==(const Vertex& v1, const Vertex& v2) {
 	return (v1.position == v2.position) && 
 		(v1.normal == v2.normal) && 
@@ -17,9 +23,11 @@ bool operator==(const MinimalVertex& v1, const MinimalVertex& v2) {
 	return (v1.position == v2.position);
 }
 
+
 template <class T>
 MeshExporter<T>::MeshExporter(){}
 
+// add vertex for exporting
 template <class T>
 void MeshExporter<T>::addVertex(T vertex) {
 	bool found = false;
@@ -48,6 +56,7 @@ void MeshExporter<T>::addVertex(T vertex) {
 	
 }
 
+// export VBO and IBO to files
 template <class T>
 void MeshExporter<T>::exportMesh(std::string directory) {
 		std::ofstream vboFile (directory + "/VBO", std::ios::out | std::ios::binary);
@@ -60,6 +69,7 @@ void MeshExporter<T>::exportMesh(std::string directory) {
 }
 
 
+// debug operator for printing ibo and vbo
 std::ostream &operator<<( std::ostream &output, const MeshExporter<Vertex> &me ) { 
     for(int i = 0; i < me.VBO.size(); i++) {
 	output << me.VBO[i] << std::endl;
@@ -71,10 +81,6 @@ std::ostream &operator<<( std::ostream &output, const MeshExporter<Vertex> &me )
     return output;            
 }  
 
-// tell compiler to create versions of MeshExporter for the different types of Vertex
-template class MeshExporter<Vertex>;
-template class MeshExporter<MinimalVertex>;
-template class MeshExporter<SkinnedVertex>;
 
 
 
