@@ -12,8 +12,9 @@ in vec3 texCoords;
 
 uniform samplerCube skybox;
 
-vec3 toLight = normalize(vec3(1.0f,.2f,-1.0f));
-float threshold = .97f;
+uniform vec3 toLight;
+uniform float threshold;
+// float threshold = .97f;
 
 void main() {
 	vec3 normalized_texCoords = normalize(texCoords);

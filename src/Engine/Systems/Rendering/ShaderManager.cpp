@@ -114,6 +114,8 @@ void ShaderManager::loadShaders() {
     skybox_shader->addUniform( "View" );
     skybox_shader->addUniform( "Projection" );
     skybox_shader->addUniform( "skybox" );
+    skybox_shader->addUniform( "toLight" );
+    skybox_shader->addUniform( "threshold" );
     shaders["skybox"] = skybox_shader;
     
     Shader *blur_shader = new Shader("blur", "DrawQuad.vert", "GaussianBlur.frag");

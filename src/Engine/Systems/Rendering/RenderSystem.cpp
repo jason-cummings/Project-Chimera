@@ -323,6 +323,14 @@ void RenderSystem::deferredRenderStep() {
 		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
 		skybox_shader->setUniformMat4( "View", view_rot_and_scale );
 		skybox_shader->setUniformMat4( "Projection", proj_mat );
+		skybox_shader->setUniformFloat( "threshold", .93f );
+		// Proper usage of the shader:
+		// skybox_shader->setUniformVec3( "toLight", glm::normalize(sun.location) );
+
+		// currently using hardcoded value to match low angle of skybox's sun, which does not match
+		// the actual light of the scene
+		skybox_shader->setUniformVec3( "toLight", glm::normalize(glm::vec3(1.0f,.2f,-1.0f)) );
+
 
 		skybox->draw(skybox_shader);
 	}
