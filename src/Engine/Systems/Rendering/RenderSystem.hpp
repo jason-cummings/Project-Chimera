@@ -56,6 +56,9 @@ private:
     bool current_blur_buffer;
     Framebuffer blur_buffer[2];
 
+    // Volumetric light scattering settings
+    bool use_vls;
+
 
     // The depth-only framebuffer for shadows and buffer for shadow mapping
     ShadowFramebuffer depth_shadow_buffer;
@@ -139,6 +142,7 @@ private:
     void applyBloom();
 
     // volumetric light scattering
+    void applyVolumetricLightScattering();
 
     // 2D overlay elements
     void renderOverlay();

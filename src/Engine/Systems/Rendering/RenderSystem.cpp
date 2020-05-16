@@ -268,6 +268,12 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 		applyBloom();
 	}
 
+	if( UserSettings::use_volumetric_light_scattering ) {
+		applyVolumetricLightScattering();
+	}
+
+	// drawTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
+
 
 	glFinish();
 	
@@ -317,6 +323,14 @@ void RenderSystem::deferredRenderStep() {
 		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
 		skybox_shader->setUniformMat4( "View", view_rot_and_scale );
 		skybox_shader->setUniformMat4( "Projection", proj_mat );
+		skybox_shader->setUniformFloat( "threshold", .93f );
+		// Proper usage of the shader:
+		// skybox_shader->setUniformVec3( "toLight", glm::normalize(sun.location) );
+
+		// currently using hardcoded value to match low angle of skybox's sun, which does not match
+		// the actual light of the scene
+		skybox_shader->setUniformVec3( "toLight", glm::normalize(glm::vec3(1.0f,.2f,-1.0f)) );
+
 
 		skybox->draw(skybox_shader);
 	}
@@ -580,6 +594,37 @@ void RenderSystem::applyBloom() {
 	glUseProgram(0);
 }
 
+void RenderSystem::applyVolumetricLightScattering() {
+	Shader *vls_shader = sm->getShader("volumetricLightScattering");
+	vls_shader->bind();
+
+	// calculate and set sun screen space location
+	glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+	glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+	light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
+	light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
+	light_screen_space_vec4 = light_screen_space_vec4 * .5f;
+	glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
+
+	vls_shader->setUniformVec2("sunScreenCoords",sun_screen_loc);
+
+	// set occlusion texture
+	vls_shader->setUniformInt( "frame", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture("occlusion")->getID() );
+
+	testGLError("VolumetricLightScattering");
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glViewport( 0, 0, view_width, view_height );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_ONE, GL_ONE );
+	drawQuad();
+	glDisable( GL_BLEND );
+
+	glUseProgram(0);
+}
+
 void RenderSystem::renderOverlay() {
 	shading_buffer.bind();
 	glViewport( 0, 0, texture_width, texture_height );
@@ -587,9 +632,12 @@ void RenderSystem::renderOverlay() {
 	overlay_shader->bind();
 
 	// Create the orthographic matrices to render the overlay
-	createOrthoMatrices();
+	
+	float aspect_ratio = view_width / (float)view_height;
+	float left_edge = (aspect_ratio - 1.f) / -2.f;
+	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 
-	overlay_shader->setUniformMat4( "Projection", proj_mat );
+	overlay_shader->setUniformMat4( "Projection", overlay_proj_mat );
 
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

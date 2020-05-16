@@ -10,13 +10,14 @@
 #include <boost/filesystem.hpp>
 #include <exception>
 
-
+// Vertex with minimal data, used for hitboxes
 struct MinimalVertex {
 	glm::vec3 position;
 
 	friend bool operator==(const MinimalVertex& v1, const MinimalVertex& v2);
 };
 
+// Vertex with data for rendering
 struct Vertex {
 	glm::vec4 position;
 	glm::vec4 rgba = glm::vec4(0.3f,0.3f,0.3f,1.0f);
@@ -38,11 +39,7 @@ struct Vertex {
     }
 };
 
-struct NormalMappedVertex {
-
-};
-
-// stub for later use
+// Vertex for rendering and skinned animation
 struct SkinnedVertex {
 	glm::vec4 position;
 	glm::vec4 rgba = glm::vec4(0.3f,0.3f,0.3f,1.0f);
@@ -50,6 +47,9 @@ struct SkinnedVertex {
 	glm::vec3 tangent;
 	glm::vec3 bitangent;
 	glm::vec2 uv;
+
+	// No longer used, switched to the 22 size weight array for performance optimizations.
+	// old code is kept here as it may be reused in the future for non-player skinned meshes
 
 	// int joint_index_0 = 0;
 	// float joint_weight_0 = 0.0f;
@@ -60,18 +60,9 @@ struct SkinnedVertex {
 	// int joint_index_3 = 0;
 	// float joint_weight_3 = 0.0f;
 
-	float weight_array[22];/* = {0.0,0.0,0.0,0.0,
-							 0.0,0.0,0.0,0.0,
-							 0.0,0.0,0.0,0.0,
-							 0.0,0.0,0.0,0.0,
-							 0.0,0.0,0.0,0.0,
-							 0.0,0.0};*/
+	float weight_array[22];
 
 
-	// bool operator<(const Vertex& v2) const{
-	// 	//return *this == v2;
- //    	return position[0] < v2.position[0];
- //    }
 
 	friend bool operator==(const SkinnedVertex& v1, const SkinnedVertex& v2);
 	friend std::ostream &operator<<( std::ostream &output, const SkinnedVertex &v ) { 
@@ -80,10 +71,10 @@ struct SkinnedVertex {
     }
 };
 
+//this class is used to create and export VBOs and IBOs. This using templating, so the compiler must be told about each new vertex type (done in the .cpp)
 template<class T>
 class MeshExporter {
-// private:
-public:
+private:
 	std::vector<T> VBO;
 	std::vector<int> IBO;
 
