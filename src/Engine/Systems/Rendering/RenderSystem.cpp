@@ -154,7 +154,7 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		Mesh *to_draw = mesh_list[i]->getMesh();
+		Mesh *to_draw = (Mesh *) mesh_list[i]->getRenderable();
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader );
@@ -169,7 +169,7 @@ void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		SkinnedMesh *to_draw = skinned_mesh_list[i]->getSkinnedMesh();
+		SkinnedMesh *to_draw = (SkinnedMesh *) skinned_mesh_list[i]->getRenderable();
 
 		JointList * joint_list = to_draw->getJointList();
 		int num_bones = joint_list->getNumBones();
@@ -189,7 +189,7 @@ void RenderSystem::drawOverlayMeshList( bool useMaterials, Shader * shader ) {
 		glm::mat4 transform = overlay_mesh_list[i]->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
 
-		OverlayMesh *to_draw = overlay_mesh_list[i]->getOverlayMesh();
+		OverlayMesh *to_draw = (OverlayMesh *) overlay_mesh_list[i]->getRenderable();
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader, false );
@@ -201,7 +201,8 @@ void RenderSystem::drawMeshListVerticesOnly( Shader * shader ) {
 	for(int i = 0; i < mesh_list.size(); i++) {
 		glm::mat4 transform = mesh_list[i]->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
-		mesh_list[i]->getMesh()->drawVerticesOnly();
+		Mesh *to_draw = (Mesh *) mesh_list[i]->getRenderable();
+		to_draw->drawVerticesOnly();
 	}
 }
 
@@ -210,7 +211,7 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 		glm::mat4 transform = skinned_mesh_list[i]->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
 
-		SkinnedMesh *to_draw = skinned_mesh_list[i]->getSkinnedMesh();
+		SkinnedMesh *to_draw = (SkinnedMesh *) skinned_mesh_list[i]->getRenderable();
 
 		JointList *joint_list = to_draw->getJointList();
 		int num_bones = joint_list->getNumBones();
@@ -228,9 +229,7 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 	Rendering Pipeline
 **/
 
-void RenderSystem::render( double dt, GameObject * sceneGraph ) {
-	//clear rendering lists
-	populateRenderLists( sceneGraph );
+void RenderSystem::render( double dt ) {
 	
 	// Attempt to get the camera's matrices
 	if( camera != nullptr ) {
@@ -277,24 +276,35 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 
 	glFinish();
 	
-	mesh_list.clear(); // this probably should be moved
-	skinned_mesh_list.clear();
-	overlay_mesh_list.clear();
+	// mesh_list.clear(); // this probably should be moved
+	// skinned_mesh_list.clear();
+	// overlay_mesh_list.clear();
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
-	if(game_object->hasMesh()) {
-		mesh_list.push_back(game_object);
-	}
-	if(game_object->hasSkinnedMesh()) {
-		skinned_mesh_list.push_back(game_object);
-	}
-	if(game_object->hasOverlayMesh()) {
-		overlay_mesh_list.push_back(game_object);
+	if(game_object->hasRenderable()) {
+		Renderable * game_object_renderable = game_object->getRenderable();
+		RenderableType type = game_object_renderable->getType();
+
+		if(type == RenderableType::MESH) {
+			mesh_list.push_back(game_object);
+		}
+		else if(type == RenderableType::SKINNED_MESH) {
+			skinned_mesh_list.push_back(game_object);
+		}
+		else if(type == RenderableType::OVERLAY) {
+			overlay_mesh_list.push_back(game_object);
+		}
 	}
 	for(int i = 0; i < game_object->getNumChildren(); i++) {
 		populateRenderLists(game_object->getChild(i));
 	}
+}
+
+void RenderSystem::clearRenderLists() {
+	mesh_list.clear();
+	skinned_mesh_list.clear();
+	overlay_mesh_list.clear();
 }
 
 // Function to create default view and projection matrices only if the camera seg faults

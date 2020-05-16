@@ -10,6 +10,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Renderable.hpp"
+
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
 #include "Mesh.hpp"
@@ -20,6 +22,7 @@
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "../../SettingsManager.hpp"
+
 
 struct Light {
     glm::vec3 location;
@@ -121,9 +124,6 @@ private:
         Rendering pipeline
     **/
 
-    // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
-    void populateRenderLists(GameObject * gameObject);
-
     // Create the necessary matrices for rendering
     void createOrthoMatrices();
 
@@ -152,11 +152,16 @@ private:
 
 public:
 
+    // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
+    void populateRenderLists(GameObject * scenegraph);
+
+    void clearRenderLists();
+
     // Get the singleton instance
     static RenderSystem & getRenderSystem();
 
     // RENDER
-    void render( double dt, GameObject * sceneGraph );
+    void render( double dt );
 
     void reshape( int x_size, int y_size );
 

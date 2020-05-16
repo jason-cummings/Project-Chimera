@@ -22,8 +22,8 @@ public:
     MenuButton(std::string id, float xinput, float yinput, float winput, float hinput, std::string material_name);
     ~MenuButton();
 
-    bool hasOverlayMesh() const override { return true; }
-    OverlayMesh * getOverlayMesh() const override { return mesh; }
+    inline bool hasRenderable() const override { return true; }
+    inline Renderable * getRenderable() const override { return (Renderable *) mesh; }
 
     bool clickTest(float xinput, float yinput);
 };
