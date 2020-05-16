@@ -12,8 +12,12 @@ in vec3 texCoords;
 
 uniform samplerCube skybox;
 
+vec3 toLight = normalize(vec3(1.0f,.2f,-1.0f));
+float threshold = .97f;
+
 void main() {
-	vec4 color = texture(skybox, texCoords);
+	vec3 normalized_texCoords = normalize(texCoords);
+	vec4 color = texture(skybox, normalized_texCoords);
 
 	position = vec4(0.0);
 
@@ -26,5 +30,11 @@ void main() {
 	emissive = vec4(color.rgb,0.0);
 
 	//might need changes:
-	occlusion = vec4(color.rgb / color.w, color.w);
+	float light_dot_product = dot(normalized_texCoords,toLight);
+
+	// set the light dot product to zero if under threshold
+	light_dot_product = light_dot_product > threshold? (light_dot_product - threshold) / (1.0f - threshold):0.0f;
+
+	occlusion = vec4(color.rgb * light_dot_product,1.0f);
+	// occlusion = vec4(color.rgb / color.w, color.w);
 }

@@ -120,6 +120,11 @@ void ShaderManager::loadShaders() {
     blur_shader->addUniform( "horizontal" );
     blur_shader->addUniform( "colorTexture" );
     shaders["blur"] = blur_shader;
+
+    Shader * vls_shader = new Shader("volumetricLightScattering","DrawQuad.vert","VolumetricLightScattering.frag");
+    vls_shader->addUniform("sunScreenCoords");
+    vls_shader->addUniform("frame");
+    shaders["volumetricLightScattering"] = vls_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {
