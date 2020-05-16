@@ -154,8 +154,12 @@ public:
 
     // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
     void populateRenderLists(GameObject * scenegraph);
+    // non recursive - adds single node
+    void addToRenderLists( GameObject * game_object );
 
     void clearRenderLists();
+    void removeGameObjectFromRenderLists( GameObject * game_object );
+    void removeGameObjectFromRenderListsRecursive( GameObject * game_object );
 
     // Get the singleton instance
     static RenderSystem & getRenderSystem();

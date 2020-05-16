@@ -282,6 +282,14 @@ void RenderSystem::render( double dt ) {
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
+	addToRenderLists(game_object);
+
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		populateRenderLists(game_object->getChild(i));
+	}
+}
+// non recursive
+void RenderSystem::addToRenderLists( GameObject * game_object ) {
 	if(game_object->hasRenderable()) {
 		Renderable * game_object_renderable = game_object->getRenderable();
 		RenderableType type = game_object_renderable->getType();
@@ -296,15 +304,26 @@ void RenderSystem::populateRenderLists( GameObject * game_object ) {
 			overlay_mesh_list.push_back(game_object);
 		}
 	}
-	for(int i = 0; i < game_object->getNumChildren(); i++) {
-		populateRenderLists(game_object->getChild(i));
-	}
 }
 
 void RenderSystem::clearRenderLists() {
 	mesh_list.clear();
 	skinned_mesh_list.clear();
 	overlay_mesh_list.clear();
+}
+
+void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
+	std::remove(mesh_list.begin(),mesh_list.end(),game_object);
+	std::remove(skinned_mesh_list.begin(),skinned_mesh_list.end(),game_object);
+	std::remove(overlay_mesh_list.begin(),overlay_mesh_list.end(),game_object);
+}
+
+void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {
+	removeGameObjectFromRenderLists(game_object);
+
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		removeGameObjectFromRenderListsRecursive(game_object->getChild(i));
+	}
 }
 
 // Function to create default view and projection matrices only if the camera seg faults
