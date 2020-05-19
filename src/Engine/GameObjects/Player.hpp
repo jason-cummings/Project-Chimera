@@ -18,8 +18,8 @@ public:
     Player(std::string identifier, SkinnedMesh * skinned_mesh_in);
     ~Player();
 
-    inline bool hasSkinnedMesh() const override { return true; }
-	inline SkinnedMesh * getSkinnedMesh() const override { return skinned_mesh; }
+    inline bool hasRenderable() const override { return true; }
+    inline Renderable * getRenderable() const override { return (Renderable *) skinned_mesh; }
     inline bool hasPhysicsComponent() const override { return true; }
 	inline RigidBodyPhysicsComponent * getPhysicsComponent() const override { return physics; }
 

@@ -3,12 +3,13 @@
 
 #include <GL/glew.h>
 
+#include "Renderable.hpp"
 #include "Shader.hpp"
 #include "Material.hpp"
 
 #define N_VERTEX_VALUES 19
 
-class Mesh {
+class Mesh : public Renderable {
 private:
 	GLuint vao, vertex_vao;
 	GLuint vbo;
@@ -20,6 +21,8 @@ public:
 	Mesh(): vao(0), vbo(0), ibo(0), num_vertices(0), material(nullptr) {}
 	Mesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in);
 	~Mesh();
+
+	inline RenderableType getType() { return RenderableType::MESH; }
 
 	void draw();
 	void drawVerticesOnly();

@@ -58,5 +58,5 @@ void Menu::handleMouseButtonUp( SDL_Event e ) {
 }
 
 void Menu::gameLoop() {
-    render_system.render( 0.f, scene );
+    render_system.render( 0.f );
 }

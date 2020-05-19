@@ -14,8 +14,8 @@ public:
     Obstacle( std::string id, Mesh *mesh_in, RigidBodyPhysicsComponent *physics_in );
     ~Obstacle();
 
-    bool hasMesh() const override { return true; }
-    Mesh * getMesh() const override { return mesh; }
+    inline bool hasRenderable() const override { return true; }
+    inline Renderable * getRenderable() const override { return (Renderable *) mesh; }
     bool hasPhysicsComponent() const override { return physics != nullptr; }
     RigidBodyPhysicsComponent * getPhysicsComponent() const override { return physics; }
 

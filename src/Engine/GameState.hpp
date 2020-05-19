@@ -87,6 +87,8 @@ public:
         return ret;
     }
 
+    inline void transitionTo() { render_system.populateRenderLists(scene); }
+
     inline bool shouldDestroy() { return should_destroy_on_state_change; }
 
     inline bool getQuitGame() { return quit_game; }
