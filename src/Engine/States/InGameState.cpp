@@ -157,7 +157,7 @@ void InGameState::gameLoop() {
     camera->createMatrices();
 
     // Render all
-    render_system.render( dt, scene );
+    render_system.render( dt );
 
     if( fell() ){
         glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);

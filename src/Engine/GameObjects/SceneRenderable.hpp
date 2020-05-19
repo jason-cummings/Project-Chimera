@@ -12,8 +12,8 @@ public:
     SceneRenderable( std::string id, Mesh *mesh_in );
     ~SceneRenderable();
 
-    bool hasMesh() const { return true; }
-    Mesh * getMesh() const { return mesh; }
+    inline bool hasRenderable() const override { return true; }
+    inline Renderable * getRenderable() const override { return (Renderable *) mesh; }
 };
 
 #endif

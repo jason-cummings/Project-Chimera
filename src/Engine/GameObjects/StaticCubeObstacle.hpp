@@ -14,8 +14,8 @@ public:
     StaticCubeObstacle( float scale );
     ~StaticCubeObstacle();
 
-    bool hasMesh() const { return true; }
-    Mesh * getMesh() const { return mesh; }
+    inline bool hasRenderable() const override { return true; }
+    inline Renderable * getRenderable() const override { return (Renderable *) mesh; }
     bool hasPhysicsComponent() const { return physics != nullptr; }
     RigidBodyPhysicsComponent * getPhysicsComponent() const { return physics; }
 

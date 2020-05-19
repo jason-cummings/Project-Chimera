@@ -22,8 +22,8 @@ public:
     MenuElement(std::string id, float xinput, float yinput, float winput, float hinput, std::string material_name);
     ~MenuElement();
 
-    bool hasOverlayMesh() const override { return true; }
-    OverlayMesh * getOverlayMesh() const override { return mesh; }
+    bool hasRenderable() const override { return true; }
+    Renderable * getRenderable() const override { return (Renderable *)mesh; }
 };
 
 

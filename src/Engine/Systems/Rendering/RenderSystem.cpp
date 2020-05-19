@@ -174,7 +174,7 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		Mesh *to_draw = mesh_list[i]->getMesh();
+		Mesh *to_draw = (Mesh *) mesh_list[i]->getRenderable();
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader );
@@ -189,7 +189,7 @@ void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		SkinnedMesh *to_draw = skinned_mesh_list[i]->getSkinnedMesh();
+		SkinnedMesh *to_draw = (SkinnedMesh *) skinned_mesh_list[i]->getRenderable();
 
 		JointList * joint_list = to_draw->getJointList();
 		int num_bones = joint_list->getNumBones();
@@ -209,7 +209,7 @@ void RenderSystem::drawOverlayMeshList( bool useMaterials, Shader * shader ) {
 		glm::mat4 transform = overlay_mesh_list[i]->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
 
-		OverlayMesh *to_draw = overlay_mesh_list[i]->getOverlayMesh();
+		OverlayMesh *to_draw = (OverlayMesh *) overlay_mesh_list[i]->getRenderable();
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader, false );
@@ -221,7 +221,8 @@ void RenderSystem::drawMeshListVerticesOnly( Shader * shader ) {
 	for(int i = 0; i < mesh_list.size(); i++) {
 		glm::mat4 transform = mesh_list[i]->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
-		mesh_list[i]->getMesh()->drawVerticesOnly();
+		Mesh *to_draw = (Mesh *) mesh_list[i]->getRenderable();
+		to_draw->drawVerticesOnly();
 	}
 }
 
@@ -230,7 +231,7 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 		glm::mat4 transform = skinned_mesh_list[i]->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
 
-		SkinnedMesh *to_draw = skinned_mesh_list[i]->getSkinnedMesh();
+		SkinnedMesh *to_draw = (SkinnedMesh *) skinned_mesh_list[i]->getRenderable();
 
 		JointList *joint_list = to_draw->getJointList();
 		int num_bones = joint_list->getNumBones();
@@ -248,9 +249,7 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 	Rendering Pipeline
 **/
 
-void RenderSystem::render( double dt, GameObject * sceneGraph ) {
-	//clear rendering lists
-	populateRenderLists( sceneGraph );
+void RenderSystem::render( double dt ) {
 	
 	// Attempt to get the camera's matrices
 	if( camera != nullptr ) {
@@ -288,26 +287,66 @@ void RenderSystem::render( double dt, GameObject * sceneGraph ) {
 		applyBloom();
 	}
 
+	if( UserSettings::use_volumetric_light_scattering ) {
+		applyVolumetricLightScattering();
+	}
+
+	// drawTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
+
 
 	glFinish();
 	
-	mesh_list.clear(); // this probably should be moved
+	// mesh_list.clear(); // this probably should be moved
+	// skinned_mesh_list.clear();
+	// overlay_mesh_list.clear();
+}
+
+void RenderSystem::populateRenderLists( GameObject * game_object ) {
+	addToRenderLists(game_object);
+
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		populateRenderLists(game_object->getChild(i));
+	}
+}
+// non recursive
+void RenderSystem::addToRenderLists( GameObject * game_object ) {
+	if(game_object->hasRenderable()) {
+		Renderable * game_object_renderable = game_object->getRenderable();
+		RenderableType type = game_object_renderable->getType();
+
+		switch(type) {
+			case RenderableType::MESH:
+				mesh_list.push_back(game_object);
+				break;
+			case RenderableType::SKINNED_MESH:
+				skinned_mesh_list.push_back(game_object);
+				break;
+			case RenderableType::OVERLAY:
+				overlay_mesh_list.push_back(game_object);
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+void RenderSystem::clearRenderLists() {
+	mesh_list.clear();
 	skinned_mesh_list.clear();
 	overlay_mesh_list.clear();
 }
 
-void RenderSystem::populateRenderLists( GameObject * game_object ) {
-	if(game_object->hasMesh()) {
-		mesh_list.push_back(game_object);
-	}
-	if(game_object->hasSkinnedMesh()) {
-		skinned_mesh_list.push_back(game_object);
-	}
-	if(game_object->hasOverlayMesh()) {
-		overlay_mesh_list.push_back(game_object);
-	}
+void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
+	std::remove(mesh_list.begin(),mesh_list.end(),game_object);
+	std::remove(skinned_mesh_list.begin(),skinned_mesh_list.end(),game_object);
+	std::remove(overlay_mesh_list.begin(),overlay_mesh_list.end(),game_object);
+}
+
+void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {
+	removeGameObjectFromRenderLists(game_object);
+
 	for(int i = 0; i < game_object->getNumChildren(); i++) {
-		populateRenderLists(game_object->getChild(i));
+		removeGameObjectFromRenderListsRecursive(game_object->getChild(i));
 	}
 }
 
@@ -337,6 +376,14 @@ void RenderSystem::deferredRenderStep() {
 		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
 		skybox_shader->setUniformMat4( "View", view_rot_and_scale );
 		skybox_shader->setUniformMat4( "Projection", proj_mat );
+		skybox_shader->setUniformFloat( "threshold", .93f );
+		// Proper usage of the shader:
+		// skybox_shader->setUniformVec3( "toLight", glm::normalize(sun.location) );
+
+		// currently using hardcoded value to match low angle of skybox's sun, which does not match
+		// the actual light of the scene
+		skybox_shader->setUniformVec3( "toLight", glm::normalize(glm::vec3(1.0f,.2f,-1.0f)) );
+
 
 		skybox->draw(skybox_shader);
 	}
@@ -600,6 +647,37 @@ void RenderSystem::applyBloom() {
 	glUseProgram(0);
 }
 
+void RenderSystem::applyVolumetricLightScattering() {
+	Shader *vls_shader = sm->getShader("volumetricLightScattering");
+	vls_shader->bind();
+
+	// calculate and set sun screen space location
+	glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+	glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+	light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
+	light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
+	light_screen_space_vec4 = light_screen_space_vec4 * .5f;
+	glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
+
+	vls_shader->setUniformVec2("sunScreenCoords",sun_screen_loc);
+
+	// set occlusion texture
+	vls_shader->setUniformInt( "frame", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture("occlusion")->getID() );
+
+	testGLError("VolumetricLightScattering");
+
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glViewport( 0, 0, view_width, view_height );
+	glEnable( GL_BLEND );
+	glBlendFunc( GL_ONE, GL_ONE );
+	drawQuad();
+	glDisable( GL_BLEND );
+
+	glUseProgram(0);
+}
+
 void RenderSystem::renderOverlay() {
 	shading_buffer.bind();
 	glViewport( 0, 0, texture_width, texture_height );
@@ -607,9 +685,12 @@ void RenderSystem::renderOverlay() {
 	overlay_shader->bind();
 
 	// Create the orthographic matrices to render the overlay
-	createOrthoMatrices();
+	
+	float aspect_ratio = view_width / (float)view_height;
+	float left_edge = (aspect_ratio - 1.f) / -2.f;
+	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 
-	overlay_shader->setUniformMat4( "Projection", proj_mat );
+	overlay_shader->setUniformMat4( "Projection", overlay_proj_mat );
 
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

@@ -8,9 +8,10 @@ class GameObject;
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "Systems/Rendering/Renderable.hpp"
 // #include "Systems/Rendering/SkinnedMesh.hpp"
 // #include "Systems/Rendering/OverlayMesh.hpp"
-// #include "Systems/Rendering/Mesh.hpp"
+// #include "Systems/Rendering/Renderable.hpp"
 #include "Systems/Physics/RigidBodyPhysicsComponent.hpp"
 
 class Mesh;
@@ -45,12 +46,9 @@ public:
 
 	std::string getID() const { return identifier; }
 
-	virtual bool hasMesh() const { return false; }
-	virtual Mesh * getMesh() const { return (Mesh *) nullptr; }
-	virtual bool hasSkinnedMesh() const { return false; }
-	virtual SkinnedMesh * getSkinnedMesh() const { return (SkinnedMesh *) nullptr; }
-	virtual bool hasOverlayMesh() const { return false; }
-	virtual OverlayMesh * getOverlayMesh() const { return (OverlayMesh *) nullptr; }
+	virtual bool hasRenderable() const { return false; }
+	virtual Renderable * getRenderable() const { return (Renderable *) nullptr; }
+
 	virtual bool hasPhysicsComponent() const { return false; }
 	virtual RigidBodyPhysicsComponent * getPhysicsComponent() const { return nullptr; }
 

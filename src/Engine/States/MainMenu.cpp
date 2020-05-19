@@ -66,5 +66,5 @@ void MainMenu::gameLoop() {
 
     animation_system->evaluateAnimations(dt);
 
-    render_system.render( 0.f, scene );
+    render_system.render( 0.f );
 }

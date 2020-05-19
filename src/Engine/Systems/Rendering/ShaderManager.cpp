@@ -114,12 +114,19 @@ void ShaderManager::loadShaders() {
     skybox_shader->addUniform( "View" );
     skybox_shader->addUniform( "Projection" );
     skybox_shader->addUniform( "skybox" );
+    skybox_shader->addUniform( "toLight" );
+    skybox_shader->addUniform( "threshold" );
     shaders["skybox"] = skybox_shader;
     
     Shader *blur_shader = new Shader("blur", "DrawQuad.vert", "GaussianBlur.frag");
     blur_shader->addUniform( "horizontal" );
     blur_shader->addUniform( "colorTexture" );
     shaders["blur"] = blur_shader;
+
+    Shader * vls_shader = new Shader("volumetricLightScattering","DrawQuad.vert","VolumetricLightScattering.frag");
+    vls_shader->addUniform("sunScreenCoords");
+    vls_shader->addUniform("frame");
+    shaders["volumetricLightScattering"] = vls_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

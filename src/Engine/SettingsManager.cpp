@@ -14,6 +14,7 @@ int UserSettings::resolution_height = 1800;
 
 ShadowMode UserSettings::shadow_mode = ITERATE;
 bool UserSettings::use_bloom = true;
+bool UserSettings::use_volumetric_light_scattering = true;
 
 // Return the path to the settings file
 std::string UserSettings::settingsPath() {
@@ -68,6 +69,9 @@ void UserSettings::assignSetting( std::string setting, std::string value ) {
         shadow_mode = (ShadowMode)std::stoi(value);
     }
     else if( setting == "use_bloom" ) {
+        use_bloom = (bool)std::stoi(value);
+    }
+    else if( setting == "use_volumetric_light_scattering" ) {
         use_bloom = (bool)std::stoi(value);
     }
 }

@@ -16,8 +16,8 @@ public:
     DynamicCube( float scale );
     ~DynamicCube();
 
-    inline bool hasMesh() const override { return true; }
-    inline Mesh * getMesh() const override { return mesh; }
+    inline bool hasRenderable() const override { return true; }
+    inline Renderable * getRenderable() const override { return (Renderable *) mesh; }
     inline bool hasPhysicsComponent() const override { return physics != nullptr; }
     inline RigidBodyPhysicsComponent * getPhysicsComponent() const override { return physics; }
 

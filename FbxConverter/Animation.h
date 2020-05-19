@@ -15,6 +15,7 @@ struct Joint {
 	void * bone_pointer = NULL;
 };
 
+// keeps track of the bones affecting a vertex and their weights. Has functionality to limit number of joints that can affect a vertex, and only keeps the 4 highest weights
 struct ControlPointBoneWeights {
 
 	int indexes[4] = {0,0,0,0};
@@ -63,7 +64,7 @@ struct ControlPointBoneWeights {
 	}
 };
 
-//maintains a list of all joints in the scene
+//maintains a list of all joints in the scene, and is used to associate joints to vertices in meshes, and export the list of joints to files
 class SkeletonProcessor {
 
 	std::vector<Joint> joint_hierarchy;

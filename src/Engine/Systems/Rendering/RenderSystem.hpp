@@ -10,6 +10,8 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Renderable.hpp"
+
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
 #include "Mesh.hpp"
@@ -20,6 +22,7 @@
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "../../SettingsManager.hpp"
+
 
 struct Light {
     glm::vec3 location;
@@ -55,6 +58,9 @@ private:
     bool use_bloom;
     bool current_blur_buffer;
     Framebuffer blur_buffer[2];
+
+    // Volumetric light scattering settings
+    bool use_vls;
 
 
     // The depth-only framebuffer for shadows and buffer for shadow mapping
@@ -118,9 +124,6 @@ private:
         Rendering pipeline
     **/
 
-    // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
-    void populateRenderLists(GameObject * gameObject);
-
     // Create the necessary matrices for rendering
     void createOrthoMatrices();
 
@@ -139,6 +142,7 @@ private:
     void applyBloom();
 
     // volumetric light scattering
+    void applyVolumetricLightScattering();
 
     // 2D overlay elements
     void renderOverlay();
@@ -148,11 +152,20 @@ private:
 
 public:
 
+    // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
+    void populateRenderLists(GameObject * scenegraph);
+    // non recursive - adds single node
+    void addToRenderLists( GameObject * game_object );
+
+    void clearRenderLists();
+    void removeGameObjectFromRenderLists( GameObject * game_object );
+    void removeGameObjectFromRenderListsRecursive( GameObject * game_object );
+
     // Get the singleton instance
     static RenderSystem & getRenderSystem();
 
     // RENDER
-    void render( double dt, GameObject * sceneGraph );
+    void render( double dt );
 
     void reshape( int x_size, int y_size );
 

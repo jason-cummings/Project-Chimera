@@ -49,6 +49,8 @@ bool Engine::init() {
     glm::vec2 window_size = window.getDrawableSize();
     state->reshape( (int)window_size.x, (int)window_size.y );
 
+    state->transitionTo();
+
     return true;
 }
 
@@ -65,6 +67,8 @@ void Engine::quitEngine() {
 void Engine::testAndHandleStateChange() {
     GameState *next = state->getNextState();
     if( next != nullptr ) {
+        RenderSystem &rs = RenderSystem::getRenderSystem();
+        rs.clearRenderLists();
         // Test if the current state should be destroyed
         if( state->shouldDestroy() ) {
             delete state;
@@ -72,6 +76,7 @@ void Engine::testAndHandleStateChange() {
 
         // Swap in the new state and perform necessary config
         state = next;
+        state->transitionTo();
         glm::vec2 draw_size = window.getDrawableSize();
         state->reshape( (int)draw_size.x, (int)draw_size.y );
         window.setMouseLock( state->shouldLockMouse() );

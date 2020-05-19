@@ -77,6 +77,8 @@ public:
 
     // Returns the next state and clear it from as the next state
     GameState* getNextState();
+    
+    inline void transitionTo() { render_system.populateRenderLists(scene); }
 };
 
 #endif

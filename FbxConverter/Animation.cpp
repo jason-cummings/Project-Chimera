@@ -1,6 +1,6 @@
 #include "Animation.h"
 
-
+// helper function for processSkeletonHierarchy, recurses through all nodes and identifies joints
 void SkeletonProcessor::processSkeletonHierarchyRecursive(FbxNode * node, int depth, int index, int parentIndex) {
 	if(node->GetNodeAttribute() && node->GetNodeAttribute()->GetAttributeType() && node->GetNodeAttribute()->GetAttributeType() == FbxNodeAttribute::eSkeleton) {
 		Joint j;
@@ -18,7 +18,8 @@ void SkeletonProcessor::processSkeletonHierarchyRecursive(FbxNode * node, int de
 	}
 }
 
-
+// provided the root node of the scene, this uses processSkeletonHierarchyRecursive to iterate through all nodes and identifies joints.
+// a list of all joints is created, to be used for skeletal animation
 void SkeletonProcessor::processSkeletonHierarchy(FbxNode * node) {
 	for(int i = 0; i < node->GetChildCount(); i++) {
 		FbxNode* child = node->GetChild(i);
@@ -26,8 +27,9 @@ void SkeletonProcessor::processSkeletonHierarchy(FbxNode * node) {
 	}
 }
 
+// given a joint, iterates through control points that are affected by this joint and adds the weight to the bone_weights vector
 void SkeletonProcessor::associateJointsAndControlPoints(FbxCluster* cluster, int joint_index, std::vector<ControlPointBoneWeights>& bone_weights) {
-	//std::cout << "\nAssociating joint to control points" << std::endl;
+	
 	int num_indices = cluster->GetControlPointIndicesCount();
 	for(int i = 0; i < num_indices; i++) {
 		int control_point_index = (cluster->GetControlPointIndices())[i];
@@ -40,6 +42,7 @@ void SkeletonProcessor::associateJointsAndControlPoints(FbxCluster* cluster, int
 
 }
 
+// given a string, identifies the index of the joint with the specified name
 int SkeletonProcessor::associateNameToJoint(std::string name) {
 	for(int i = 0; i < joint_hierarchy.size(); i++) {
 		if(joint_hierarchy[i].name.compare(name) == 0) {
@@ -50,6 +53,7 @@ int SkeletonProcessor::associateNameToJoint(std::string name) {
 	return -1;
 }
 
+// process skin deformers for this node - used for skeletal animation
 std::vector<ControlPointBoneWeights> SkeletonProcessor::processDeformers(FbxNode* node) {
 	FbxMesh * mesh = node->GetMesh();
 	int num_deformers = mesh->GetDeformerCount(FbxDeformer::eSkin);
@@ -58,14 +62,10 @@ std::vector<ControlPointBoneWeights> SkeletonProcessor::processDeformers(FbxNode
 	bone_weights.reserve(mesh->GetControlPointsCount());
 	for(int i = 0; i < mesh->GetControlPointsCount(); i++)
 		bone_weights[i] = ControlPointBoneWeights();
-	
-
-
 
 	//geometry transform
 
-	
-
+	// go through deformers for this node, if it is a skin deformer, associate all control points of the meshes to the appropriate joints
 	for(int deformer_i = 0; deformer_i < num_deformers; deformer_i++) {
 		FbxSkin * skin = reinterpret_cast<FbxSkin*>(mesh->GetDeformer(deformer_i, FbxDeformer::eSkin));
 
@@ -88,6 +88,7 @@ std::vector<ControlPointBoneWeights> SkeletonProcessor::processDeformers(FbxNode
 	return bone_weights;
 }
 
+// export the list of joints to a directory
 void SkeletonProcessor::exportJointList(std::string directory) {
 		std::ofstream joint_list_size_file (directory + "/JointListSize", std::ios::out | std::ios::binary);
 		int size = joint_hierarchy.size();

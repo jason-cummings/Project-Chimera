@@ -24,6 +24,7 @@ public:
     
     static ShadowMode shadow_mode;
     static bool use_bloom;
+    static bool use_volumetric_light_scattering;
 };
 
 #endif
