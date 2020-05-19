@@ -294,14 +294,18 @@ void RenderSystem::addToRenderLists( GameObject * game_object ) {
 		Renderable * game_object_renderable = game_object->getRenderable();
 		RenderableType type = game_object_renderable->getType();
 
-		if(type == RenderableType::MESH) {
-			mesh_list.push_back(game_object);
-		}
-		else if(type == RenderableType::SKINNED_MESH) {
-			skinned_mesh_list.push_back(game_object);
-		}
-		else if(type == RenderableType::OVERLAY) {
-			overlay_mesh_list.push_back(game_object);
+		switch(type) {
+			case RenderableType::MESH:
+				mesh_list.push_back(game_object);
+				break;
+			case RenderableType::SKINNED_MESH:
+				skinned_mesh_list.push_back(game_object);
+				break;
+			case RenderableType::OVERLAY:
+				overlay_mesh_list.push_back(game_object);
+				break;
+			default:
+				break;
 		}
 	}
 }
