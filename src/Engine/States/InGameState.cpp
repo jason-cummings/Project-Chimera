@@ -27,6 +27,8 @@ void InGameState::init() {
     physics_system = new PhysicsSystem();
     animation_system = new AnimationSystem();
     camera = new Camera();
+    camera->setOffset( 3.f );
+    camera->setResolution( UserSettings::resolution_width, UserSettings::resolution_height );
     render_system.registerCamera( camera );
 
     mouse_lock = true;
@@ -186,7 +188,7 @@ void InGameState::postPhysics() {
     scene->updateTransformFromPhysics( glm::vec3(1.f), glm::mat4(1.f) );
 }
 
-void InGameState::handleKeyDown( SDL_Event e ) {
+void InGameState::handleKeyDownStateSpecific( SDL_Event e ) {
     SDL_Keycode key = e.key.keysym.sym;
     if( key == SDLK_w ) {
         w = true;
@@ -211,14 +213,6 @@ void InGameState::handleKeyDown( SDL_Event e ) {
         setNextState( new PauseMenu(this), false );
         first_tick = true;
     }
-    else if( key == SDLK_F1 ) {
-        // Cycle shadow modes
-        render_system.cycleShadows();
-    }
-    else if( key == SDLK_F2 ) {
-        // Cycle bloom modes
-        render_system.toggleBloom();
-    }
     else if( key == SDLK_F3 ) {
         //Prints out coordinates in terminal
         glm::vec4 tempo = player->getWorldTransform()[3];
@@ -229,7 +223,7 @@ void InGameState::handleKeyDown( SDL_Event e ) {
     }
 }
 
-void InGameState::handleKeyUp( SDL_Event e ) {
+void InGameState::handleKeyUpStateSpecific( SDL_Event e ) {
     SDL_Keycode key = e.key.keysym.sym;
     if( key == SDLK_w ) {
         w = false;
@@ -251,7 +245,7 @@ void InGameState::handleKeyUp( SDL_Event e ) {
     }
 }
 
-void InGameState::handleMouseMotion( SDL_Event e ) {
+void InGameState::handleMouseMotionStateSpecific( SDL_Event e ) {
     // For captured mode, get relative mouse motion, not absolute position
     //Scale necessary to scale down movement speed, otherwise blisteringly fast.
     //dx needs to be inverted for proper mouse directional navigation.
@@ -259,7 +253,7 @@ void InGameState::handleMouseMotion( SDL_Event e ) {
     float dx = -e.motion.xrel * scale;
     float dy = e.motion.yrel * scale;
 
-    camera->updateCamera(dx,dy);
+    camera->modifyAngles(dx,dy);
         // std::cout << "Registered mouse motion with dx, dy: " << dx << ", " << dy << std::endl;
 }
 

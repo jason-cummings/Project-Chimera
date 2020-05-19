@@ -26,7 +26,11 @@ public:
     void addColorTextureHighPrecision( std::string texture_name, int width, int height );
     void addDepthBuffer( int width, int height );
 
+    // Clear all textures and internal buffers
+    void clearAll();
+
     FBTexture * getTexture( std::string texture_name );
+    inline GLuint getID() { return framebuffer_id; }
 };
 
 // Special framebuffer that only renders depth
@@ -44,6 +48,8 @@ public:
     void bind();
     void addDepthBuffer( int width, int height );
     void addDepthTexture( std::string texture_name, int width, int height );
+
+    void clearAll();
 
     inline FBTexture * getDepthTexture() { return depth_texture; }
 };

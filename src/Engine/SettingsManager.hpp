@@ -11,10 +11,12 @@ enum ShadowMode {
 
 class UserSettings {
 private:
+    static std::string settingsPath();
     static void assignSetting( std::string setting, std::string value );
 
 public:
     static void loadFromFile();
+    static void writeToFile();
 
     // Assign default settings values
     static int resolution_width;

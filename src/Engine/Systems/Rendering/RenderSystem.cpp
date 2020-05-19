@@ -6,7 +6,7 @@
 #include "TextureLoader.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
-#define BLOOM_PASSES 4
+#define BLOOM_PASSES 8
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 
@@ -40,7 +40,7 @@ RenderSystem::RenderSystem() {
 	texture_height = UserSettings::resolution_height;
 
 	// Setup the necessary framebuffers for rendering
-	createFramebuffers();
+	addFramebufferTextures();
 
 	// And in the last step, Jason said "Let there be light"
 	sun.location = glm::vec3(.707f,.3f,-.707f);
@@ -53,6 +53,8 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
+
+	use_bloom = UserSettings::use_bloom;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -64,6 +66,24 @@ RenderSystem & RenderSystem::getRenderSystem() {
 void RenderSystem::reshape( int x_size, int y_size ) {
 	view_width = x_size;
 	view_height = y_size;
+}
+
+// To call on a change in render resolution
+void RenderSystem::recreateFramebuffers() {
+	texture_width = UserSettings::resolution_width;
+	texture_height = UserSettings::resolution_height;
+	if( camera ) {
+		camera->setResolution( texture_width, texture_height );
+	}
+
+	deferred_buffer.clearAll();
+	shading_buffer.clearAll();
+	blur_buffer[0].clearAll();
+	blur_buffer[1].clearAll();
+	shadow_mapping_buffer.clearAll();
+	depth_shadow_buffer.clearAll();
+
+	addFramebufferTextures();
 }
 
 /**
@@ -78,7 +98,7 @@ void RenderSystem::testGLError( const char *loc ) {
 }
 
 
-void RenderSystem::createFramebuffers() {
+void RenderSystem::addFramebufferTextures() {
 	// Add the color textures to render to in the deffered rendering step
 	deferred_buffer.addColorTextureHighPrecision( "position", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "normal", texture_width, texture_height );
@@ -105,7 +125,7 @@ void RenderSystem::createFramebuffers() {
 	blur_buffer[0].addColorTexture( "FragColor", texture_width, texture_height );
 	blur_buffer[1].addColorTexture( "FragColor", texture_width, texture_height );
 
-	testGLError( "Framebuffer Setup" );
+	testGLError( "Framebuffer Textures" );
 }
 
 
@@ -263,7 +283,7 @@ void RenderSystem::render( double dt ) {
 	glClear( GL_COLOR_BUFFER_BIT );
 	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
-	if( UserSettings::use_bloom ) {
+	if( use_bloom ) {
 		applyBloom();
 	}
 

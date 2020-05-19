@@ -12,6 +12,9 @@ private:
     AnimationSystem * animation_system;
     StandardTimer timer;
 
+    // Camera to be used for 3D objects in the world (not overlay/HUD meshes)
+    Camera *camera;
+
     void handleButtonEvent( MenuButton *clicked );
 
     void init() override {}
@@ -19,9 +22,6 @@ private:
 public:
     MainMenu();
     ~MainMenu();
-
-    void handleMouseButtonDown( SDL_Event e ) override;
-    void handleMouseButtonUp( SDL_Event e ) override;
 
     void gameLoop() override;
 };
