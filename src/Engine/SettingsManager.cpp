@@ -53,6 +53,7 @@ void UserSettings::writeToFile() {
     settings_file << "resolution_height=" << resolution_height << std::endl;
     settings_file << "shadow_mode=" << (int)shadow_mode << std::endl;
     settings_file << "use_bloom=" << use_bloom << std::endl;
+    settings_file << "use_volumetric_light_scattering=" << use_volumetric_light_scattering << std::endl;
 
     settings_file.close();
 }

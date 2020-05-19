@@ -61,6 +61,9 @@ void GameState::handleKeyDown( SDL_Event e ) {
         }
         render_system.recreateFramebuffers();
     }
+    else if( key == SDLK_F5 ) {
+        UserSettings::use_volumetric_light_scattering = !UserSettings::use_volumetric_light_scattering;
+    }
     
     handleKeyDownStateSpecific(e);
 }
