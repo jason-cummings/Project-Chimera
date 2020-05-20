@@ -10,6 +10,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "RenderUtils.hpp"
 #include "Renderable.hpp"
 
 #include "ShaderManager.hpp"
@@ -22,6 +23,7 @@
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "../../SettingsManager.hpp"
+
 
 
 struct Light {
@@ -44,11 +46,6 @@ private:
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
 
-    //VAO for simple quad
-    GLuint quad_vao;
-
-    // VBO object for a simple quad
-    GLuint quad_vbo;
 
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
@@ -93,9 +90,6 @@ private:
         Rendering Pipeline Setup
     **/
 
-    // Use for testing to pinpoint OpenGL errors
-	void testGLError( const char *loc = "default" );
-
     // Set up the framebuffers necessary for the rendering process
     void createFramebuffers();
 
@@ -108,8 +102,6 @@ private:
     // Draw a quad with texture tex that takes up the whole viewport
     void drawTexture( GLuint tex );
 
-    // Draw a quad that tatkes up viewport
-    void drawQuad();
 
     // draws the meshList
     void drawMeshList(bool useMaterials, Shader * shader);
@@ -176,17 +168,6 @@ public:
 
     inline void cycleShadows() { UserSettings::shadow_mode = (ShadowMode)((UserSettings::shadow_mode + 1) % 3); }
     inline void toggleBloom() { use_bloom = !use_bloom; }
-};
-
-// The VBO for rendering a quad over the whole viewport
-const GLfloat quad_vbo_data[] = {
-//   x     y     w       u     v
-    -1.0f,-1.0f, 0.0f,   0.0f, 0.0f,
-     1.0f,-1.0f, 0.0f,   1.0f, 0.0f,
-    -1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-	-1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-     1.0f,-1.0f, 0.0f,   1.0f, 0.0f,
-     1.0f, 1.0f, 0.0f,   1.0f, 1.0f
 };
 
 
