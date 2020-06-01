@@ -11,6 +11,8 @@
 
 #include "../LevelLoader.hpp"
 
+#include "../SettingsManager.hpp"
+
 InGameState::InGameState( std::string level_to_load ) {
     current_level = level_to_load;
     init();

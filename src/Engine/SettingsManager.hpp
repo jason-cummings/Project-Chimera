@@ -3,10 +3,16 @@
 
 #include <string>
 
-enum ShadowMode {
+enum class ShadowMode {
     NONE = 0,
     SINGLE_PASS = 1,
     ITERATE = 2
+};
+
+enum class BloomMode {
+    NONE = 0,
+    GAUSSIAN = 1,
+    LINEAR_GAUSSIAN = 2
 };
 
 class UserSettings {
@@ -23,7 +29,7 @@ public:
     static int resolution_height;
     
     static ShadowMode shadow_mode;
-    static bool use_bloom;
+    static BloomMode bloom_mode;
     static bool use_volumetric_light_scattering;
 };
 

@@ -123,6 +123,11 @@ void ShaderManager::loadShaders() {
     blur_shader->addUniform( "colorTexture" );
     shaders["blur"] = blur_shader;
 
+    Shader *linear_blur_shader = new Shader("linear-blur", "DrawQuad.vert", "GaussianBlurLinear.frag");
+    linear_blur_shader->addUniform( "horizontal" );
+    linear_blur_shader->addUniform( "colorTexture" );
+    shaders["linear-blur"] = linear_blur_shader;
+
     Shader * vls_shader = new Shader("volumetricLightScattering","DrawQuad.vert","VolumetricLightScattering.frag");
     vls_shader->addUniform("sunScreenCoords");
     vls_shader->addUniform("frame");

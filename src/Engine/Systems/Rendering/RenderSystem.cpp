@@ -4,9 +4,15 @@
 
 #include "../../Utilities/Asset.hpp"
 #include "TextureLoader.hpp"
+#include "../../SettingsManager.hpp"
+
+#include "Mesh.hpp"
+#include "SkinnedMesh.hpp"
+#include "OverlayMesh.hpp"
+#include "Material.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
-#define BLOOM_PASSES 8
+#define BLOOM_PASSES 4
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 
@@ -53,8 +59,6 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
-
-	use_bloom = UserSettings::use_bloom;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -283,7 +287,7 @@ void RenderSystem::render( double dt ) {
 	glClear( GL_COLOR_BUFFER_BIT );
 	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
-	if( use_bloom ) {
+	if( UserSettings::bloom_mode != BloomMode::NONE ) {
 		applyBloom();
 	}
 
@@ -613,7 +617,18 @@ void RenderSystem::shadingStep() {
 
 
 void RenderSystem::applyBloom() {
-	Shader *blur_shader = sm->getShader("blur");
+	Shader *blur_shader;
+	if( UserSettings::bloom_mode == BloomMode::GAUSSIAN ) {
+		blur_shader = sm->getShader("blur");
+	}
+	else if( UserSettings::bloom_mode == BloomMode::LINEAR_GAUSSIAN ) {
+		blur_shader = sm->getShader("linear-blur");
+	}
+	else {
+		std::cerr << "Unknown bloom mode: " << (int)UserSettings::bloom_mode << std::endl;
+		return;
+	}
+
 	blur_shader->bind();
 	blur_shader->setUniformInt( "colorTexture", 0 );
 	glActiveTexture( GL_TEXTURE0 );

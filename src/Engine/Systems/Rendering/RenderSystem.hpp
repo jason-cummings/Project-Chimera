@@ -14,10 +14,6 @@
 
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
-#include "Mesh.hpp"
-#include "SkinnedMesh.hpp"
-#include "OverlayMesh.hpp"
-#include "Material.hpp"
 #include "Skybox.hpp"
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
@@ -55,13 +51,10 @@ private:
     Framebuffer shading_buffer;
     
     // Blur buffers and settings
-    bool use_bloom;
     bool current_blur_buffer;
     Framebuffer blur_buffer[2];
 
     // Volumetric light scattering settings
-    bool use_vls;
-
 
     // The depth-only framebuffer for shadows and buffer for shadow mapping
     ShadowFramebuffer depth_shadow_buffer;
@@ -176,9 +169,6 @@ public:
     inline Camera * getRegisteredCamera() { return camera; }
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
-
-    inline void cycleShadows() { UserSettings::shadow_mode = (ShadowMode)((UserSettings::shadow_mode + 1) % 3); }
-    inline void toggleBloom() { use_bloom = !use_bloom; }
 
     inline int getViewWidth() { return view_width; }
     inline int getViewHeight() { return view_height; }
