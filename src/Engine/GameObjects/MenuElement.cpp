@@ -32,7 +32,7 @@ MenuElement::MenuElement(std::string id, float xinput, float yinput, float winpu
 
     fs::path mat_path = Asset::assetPath();
     mat_path.append( "Materials/" + material_name );
-    Material *element_material = MaterialFactory::createMaterial( mat_path );
+    Material *element_material = MaterialFactory::createMaterial2D( mat_path );
     mesh->setMaterial( element_material );
 
     setTransform( glm::vec3(width, height, 1.f), glm::quat(), glm::vec3(xcoord, ycoord, 0.f) );

@@ -19,8 +19,8 @@ InGameState::InGameState( std::string level_to_load ) {
 InGameState::~InGameState() {
     delete physics_system;
     delete animation_system;
+    if( camera == render_system.getRegisteredCamera() ) render_system.registerCamera( nullptr );
     delete camera;
-    render_system.registerCamera( nullptr );
 }
 
 void InGameState::init() {

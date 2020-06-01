@@ -29,7 +29,8 @@ public:
 class MaterialFactory {
 public:
     static Material* createMaterial(fs::path input_directory);
-    static Material* createMaterial(fs::path input_directory, fs::path textures_path);
+    static Material* createMaterial2D(fs::path input_directory);
+    static Material* createMaterial(fs::path input_directory, fs::path textures_path, bool clamp_textures);
 };
 
 #endif

@@ -337,9 +337,9 @@ void RenderSystem::clearRenderLists() {
 }
 
 void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
-	std::remove(mesh_list.begin(),mesh_list.end(),game_object);
-	std::remove(skinned_mesh_list.begin(),skinned_mesh_list.end(),game_object);
-	std::remove(overlay_mesh_list.begin(),overlay_mesh_list.end(),game_object);
+	static_cast<void>(std::remove(mesh_list.begin(),mesh_list.end(),game_object));
+	static_cast<void>(std::remove(skinned_mesh_list.begin(),skinned_mesh_list.end(),game_object));
+	static_cast<void>(std::remove(overlay_mesh_list.begin(),overlay_mesh_list.end(),game_object));
 }
 
 void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {

@@ -173,6 +173,7 @@ public:
 
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    inline Camera * getRegisteredCamera() { return camera; }
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 

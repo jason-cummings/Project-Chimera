@@ -296,7 +296,7 @@ void LevelLoader::loadMaterials( fs::path dir, fs::path textures_dir ) {
         for( auto& materials_dir: fs::directory_iterator( dir ) ) {
             if(fswrapper::is_dir(materials_dir)) {
                 fs::path materials_path = materials_dir.path();
-                loaded_materials[materials_path.filename().string()] = MaterialFactory::createMaterial( materials_path, textures_dir );
+                loaded_materials[materials_path.filename().string()] = MaterialFactory::createMaterial( materials_path, textures_dir, false );
             }
         }
     }
