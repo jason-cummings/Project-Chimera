@@ -20,19 +20,7 @@ RenderSystem::RenderSystem() {
 	camera = nullptr;
 	skybox = nullptr;
 
-	//set up quad vao
-	glGenVertexArrays( 1, &quad_vao );
-	glBindVertexArray( quad_vao );
-	
-	// Create the VBO for the quad
-	glGenBuffers( 1, &quad_vbo );
-	glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
-	glBufferData( GL_ARRAY_BUFFER, sizeof(float) * 30, &quad_vbo_data, GL_STATIC_DRAW );
-
-	glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
-	glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
-	glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
-	glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
+	RenderUtils::init();
 
 	// Get the shader manager
 	// Create the basic VAO
@@ -94,13 +82,6 @@ void RenderSystem::recreateFramebuffers() {
 	Rendering Pipeline Setup
 **/
 
-// Wrapper function to catch GL errors
-void RenderSystem::testGLError( const char *loc ) {
-	int err;
-	if( (err = glGetError()) != GL_NO_ERROR )
-		std::cerr << "OpenGL error at " << loc << ": " << err << std::endl;
-}
-
 
 void RenderSystem::addFramebufferTextures() {
 	// Add the color textures to render to in the deffered rendering step
@@ -129,7 +110,7 @@ void RenderSystem::addFramebufferTextures() {
 	blur_buffer[0].addColorTexture( "FragColor", texture_width, texture_height );
 	blur_buffer[1].addColorTexture( "FragColor", texture_width, texture_height );
 
-	testGLError( "Framebuffer Textures" );
+	RenderUtils::testGLError( "Framebuffer Setup" );
 }
 
 
@@ -148,7 +129,7 @@ void RenderSystem::drawTexture( GLuint tex ) {
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
-	drawQuad();
+	RenderUtils::drawQuad();
 }
 
 void RenderSystem::drawDepthTexture( GLuint tex ) {
@@ -161,14 +142,7 @@ void RenderSystem::drawDepthTexture( GLuint tex ) {
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
-	drawQuad();
-}
-
-void RenderSystem::drawQuad() {
-	glBindVertexArray( quad_vao );
-	glDrawArrays( GL_TRIANGLES, 0, 6 );
-	glBindVertexArray( 0 );
-	testGLError("Quad");
+	RenderUtils::drawQuad();
 }
 
 void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
@@ -424,7 +398,7 @@ void RenderSystem::deferredRenderStep() {
 	glDisable( GL_CULL_FACE );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	testGLError("Deferred Rendering");
+	RenderUtils::testGLError("Deferred Rendering");
 }
 
 // Render all meshes to the shadow buffer
@@ -479,7 +453,7 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	glDisable( GL_CULL_FACE );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	testGLError("Depth Texture render");
+	RenderUtils::testGLError("Depth Texture render");
 }
 
 // Create the shadow map texture to pass to the shading step
@@ -523,7 +497,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	mapping_shader->setUniformFloat( "iterate", UserSettings::shadow_mode == ShadowMode::ITERATE ? 1.f : 0.f );
 
 	// Render the shadow map
-	drawQuad();
+	RenderUtils::drawQuad();
 
 
 	// // Blur the shadow map
@@ -544,7 +518,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// 	GLuint tex_to_use = i == 0 ? shadow_mapping_buffer.getTexture( "shadow_map" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
 	// 	glBindTexture( GL_TEXTURE_2D, tex_to_use );
 
-	// 	drawQuad();
+	// 	RenderUtils::drawQuad();
 
 	// 	current_blur_buffer = !current_blur_buffer;
 	// }
@@ -555,7 +529,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// End Render
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	testGLError("Shadow Map render");
+	RenderUtils::testGLError("Shadow Map render");
 }
 
 void RenderSystem::shadingStep() {
@@ -607,9 +581,9 @@ void RenderSystem::shadingStep() {
 	cartoon_shading->setUniformFloat( "light.quadraticAttenuation", sun.quadratic_attenuation );
 	cartoon_shading->setUniformFloat( "light.directional", sun.directional );
 
-	drawQuad();
+	RenderUtils::drawQuad();
 
-	testGLError("Shading");
+	RenderUtils::testGLError("Shading");
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
@@ -645,12 +619,12 @@ void RenderSystem::applyBloom() {
 		GLuint tex_to_use = i == 0 ? shading_buffer.getTexture( "BrightColor" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
 		glBindTexture( GL_TEXTURE_2D, tex_to_use );
 
-		drawQuad();
+		RenderUtils::drawQuad();
 
 		current_blur_buffer = !current_blur_buffer;
 	}
 
-	testGLError("Blur");
+	RenderUtils::testGLError("Blur");
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glViewport( 0, 0, view_width, view_height );
@@ -681,13 +655,13 @@ void RenderSystem::applyVolumetricLightScattering() {
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture("occlusion")->getID() );
 
-	testGLError("VolumetricLightScattering");
+	RenderUtils::testGLError("VolumetricLightScattering");
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glViewport( 0, 0, view_width, view_height );
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_ONE, GL_ONE );
-	drawQuad();
+	RenderUtils::drawQuad();
 	glDisable( GL_BLEND );
 
 	glUseProgram(0);
@@ -714,7 +688,7 @@ void RenderSystem::renderOverlay() {
 	
 	glDisable( GL_BLEND );
 
-	testGLError("Overlay");
+	RenderUtils::testGLError("Overlay");
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
