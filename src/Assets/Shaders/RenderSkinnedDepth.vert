@@ -1,4 +1,4 @@
-#version 330
+#version 460
 
 layout(location = 0) in vec4 Vertex;
 layout(location = 6) in vec4 Joint1to4;
