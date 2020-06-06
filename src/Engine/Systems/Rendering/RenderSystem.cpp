@@ -12,9 +12,11 @@
 #include "Material.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
+#define VARIANCE_SHADOW_MAP_DIMENSION 1024
 #define BLOOM_PASSES 4
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
+const float variance_sun_distances[4] = { 5.f, 10.f, 15.f, 100.f };
 
 RenderSystem::RenderSystem() {
 	camera = nullptr;
@@ -39,6 +41,7 @@ RenderSystem::RenderSystem() {
 	// And in the last step, Jason said "Let there be light"
 	sun.location = glm::vec3(.707f,.3f,-.707f);
 	sun.diffuse = glm::vec3(0.5f,0.3f,0.2f);
+	// sun.diffuse = glm::vec3(0.9f,0.7f,0.2f);
 	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
@@ -94,13 +97,19 @@ void RenderSystem::addFramebufferTextures() {
 
 	// Add the depth texture for the shadow buffer
 	depth_shadow_buffer.addDepthBuffer( 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-	depth_shadow_buffer.addDepthTexture( "shadow_depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	depth_shadow_buffer.addDepthTexture( "depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 
 	// Add an output shadow texture for the shadow mapping buffer
 	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
-	shadow_mapping_buffer.addColorTexture( "secondary", texture_width, texture_height );
-	shadow_mapping_buffer.addColorTexture( "three", texture_width, texture_height );
-	shadow_mapping_buffer.addColorTexture( "four", texture_width, texture_height );
+
+	// Add the depth texture for the shadow buffer
+	variance_depth_shadow_buffer.addDepthBuffer( VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	variance_depth_shadow_buffer.addDepthTexture( "depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	variance_depth_shadow_buffer.addColorTexture( "depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	
+	// Add textures to blur depth textures
+	variance_shadow_blur_buffer[0].addColorTexture( "blurred_depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	variance_shadow_blur_buffer[1].addColorTexture( "blurred_depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
 
 	// Set up the shading framebuffer
 	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
@@ -245,8 +254,14 @@ void RenderSystem::render( double dt ) {
 
 	if( UserSettings::shadow_mode != ShadowMode::NONE ) {
 		// Render shadow maps
-		renderDirectionalDepthTexture( &sun );
-		createDirectionalShadowMap( &sun );
+		if( UserSettings::shadow_mode == ShadowMode::VARIANCE ) {
+			renderVarianceDirectionalDepthTexture( &sun );
+			createDirectionalVarianceShadowMap( &sun );
+		}
+		else {
+			renderDirectionalDepthTexture( &sun );
+			createDirectionalShadowMap( &sun );
+		}
 	}
 
 	// Perform shading
@@ -271,6 +286,13 @@ void RenderSystem::render( double dt ) {
 
 	// drawTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
 
+	// glViewport(0, 0, view_width, view_height);
+	// drawDepthTexture( shadow_mapping_buffer.getTexture("shadow_map")->getID() );
+
+	// glViewport(0, 0, view_width/2, view_height);
+	// drawDepthTexture( variance_depth_shadow_buffer.getTexture("depth")->getID() );
+	// glViewport(view_width/2, 0, view_width/2, view_height);
+	// drawDepthTexture( variance_depth_shadow_buffer.getDepthTexture()->getID() );
 
 	glFinish();
 	
@@ -500,21 +522,163 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	RenderUtils::drawQuad();
 
 
-	// // Blur the shadow map
-	// Shader *blur_shader = sm->getShader("blur");
-	// blur_shader->bind();
-	// blur_shader->setUniformInt( "colorTexture", 0 );
+	// Blur the shadow map
+	Shader *blur_shader = sm->getShader("linear-blur");
+	blur_shader->bind();
+	blur_shader->setUniformInt( "colorTexture", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+
+	current_blur_buffer = 0;
+
+	for( int i=0; i<4; i++ ) { // BLOOM_PASSES
+		blur_shader->bind();
+		blur_buffer[current_blur_buffer].bind();
+		glViewport( 0, 0, texture_width, texture_height );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
+		GLuint tex_to_use = i == 0 ? shadow_mapping_buffer.getTexture( "shadow_map" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
+		glBindTexture( GL_TEXTURE_2D, tex_to_use );
+
+		RenderUtils::drawQuad();
+
+		current_blur_buffer = !current_blur_buffer;
+	}
+
+	shadow_mapping_buffer.bind();
+	drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
+
+	// End Render
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	RenderUtils::testGLError("Shadow Map render");
+}
+
+// Render all meshes to the shadow buffer
+void RenderSystem::renderVarianceDirectionalDepthTexture( Light *light ) {
+	// Get the necessary shaders for this step
+	Shader *depth_shader = sm->getShader("depth");
+	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
+
+	// Create the view matricx for the light's view
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 variance_sun_proj_mat = glm::ortho( -variance_sun_distances[2], variance_sun_distances[2], -variance_sun_distances[2], variance_sun_distances[2], -100.f, 100.f );
+
+	// Bind and clear the depth only framebuffer
+	variance_depth_shadow_buffer.bind();
+	glClearColor(1.f, 1.f, 1.f, 1.f);
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_CULL_FACE );
+
+	glViewport( 0, 0, VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+
+	// Bind the shader and render everything for normal meshes
+	depth_shader->bind();
+	depth_shader->setUniformMat4( "View", light_view_mat );
+	depth_shader->setUniformMat4( "Projection", variance_sun_proj_mat );
+	drawMeshListVerticesOnly( depth_shader );
+	
+	// Bind the shader and render everything for skinned meshes
+	skinned_depth_shader->bind();
+	skinned_depth_shader->setUniformMat4( "View", light_view_mat );
+	skinned_depth_shader->setUniformMat4( "Projection", variance_sun_proj_mat );
+	drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
+
+	// End Render
+	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_CULL_FACE );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	RenderUtils::testGLError("Variance Depth Texture render");
+}
+
+// Create the shadow map texture to pass to the shading step
+void RenderSystem::createDirectionalVarianceShadowMap( Light *light ) {
+	// Blur the depth texture
+	Shader *blur_shader = sm->getShader("linear-blur");
+	blur_shader->bind();
+	blur_shader->setUniformInt( "colorTexture", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+
+	current_blur_buffer = 0;
+
+	for( int i=0; i<4; i++ ) { // BLOOM_PASSES
+		blur_shader->bind();
+		variance_shadow_blur_buffer[current_blur_buffer].bind();
+		glViewport( 0, 0, VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+		glClear( GL_COLOR_BUFFER_BIT );
+		
+		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
+		GLuint tex_to_use = i == 0 ? variance_depth_shadow_buffer.getTexture( "depth" )->getID() : variance_shadow_blur_buffer[!current_blur_buffer].getTexture( "blurred_depth" )->getID();
+		glBindTexture( GL_TEXTURE_2D, tex_to_use );
+
+		RenderUtils::drawQuad();
+
+		current_blur_buffer = !current_blur_buffer;
+	}
+
+	variance_depth_shadow_buffer.bind();
+	drawTexture( variance_shadow_blur_buffer[!current_blur_buffer].getTexture("blurred_depth")->getID() );
+
+
+
+
+
+	// Get the necessary shaders for this step
+	Shader *mapping_shader = sm->getShader("variance-shadows");
+
+	// Create the view and projection matrices for the light's view
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 variance_sun_proj_mat = glm::ortho( -variance_sun_distances[2], variance_sun_distances[2], -variance_sun_distances[2], variance_sun_distances[2], -100.f, 100.f );
+
+	// Bind and clear the mapping buffer
+	shadow_mapping_buffer.bind();
+	glClear( GL_COLOR_BUFFER_BIT );
+	glViewport( 0, 0, texture_width, texture_height );
+
+	mapping_shader->bind();
+
+	// Bind the necessary textures for shadow mapping
+	mapping_shader->setUniformInt( "positionTexture", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "position" )->getID() );
+
+	mapping_shader->setUniformInt( "normalTexture", 1 );
+	glActiveTexture( GL_TEXTURE1 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "normal" )->getID() );
+	
+	mapping_shader->setUniformInt( "depthTexture", 2 );
+	glActiveTexture( GL_TEXTURE2 );
+	glBindTexture( GL_TEXTURE_2D, variance_depth_shadow_buffer.getTexture( "depth" )->getID() );
+	// glBindTexture( GL_TEXTURE_2D, variance_depth_shadow_buffer.getDepthTexture()->getID() );
+
+	// Load the lightspace transform matrices
+	mapping_shader->setUniformMat4( "lightView", light_view_mat );
+	mapping_shader->setUniformMat4( "lightProjection", variance_sun_proj_mat );
+	mapping_shader->setUniformVec3( "lightLocation", light->location );
+
+	// Render the shadow map
+	RenderUtils::drawQuad();
+
+
+
+
+	// // Blur the resulting shadow map
+	// Shader *mean_blur_shader = sm->getShader( "mean-blur" );
+	// mean_blur_shader->bind();
+	// mean_blur_shader->setUniformInt( "colorTexture", 0 );
 	// glActiveTexture( GL_TEXTURE0 );
 
 	// current_blur_buffer = 0;
 
-	// for( int i=0; i<8; i++ ) { // BLOOM_PASSES
-	// 	blur_shader->bind();
+	// for( int i=0; i<2; i++ ) { // BLOOM_PASSES
 	// 	blur_buffer[current_blur_buffer].bind();
 	// 	glViewport( 0, 0, texture_width, texture_height );
 	// 	glClear( GL_COLOR_BUFFER_BIT );
 		
-	// 	blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
+	// 	mean_blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
 	// 	GLuint tex_to_use = i == 0 ? shadow_mapping_buffer.getTexture( "shadow_map" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
 	// 	glBindTexture( GL_TEXTURE_2D, tex_to_use );
 
@@ -526,10 +690,13 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// shadow_mapping_buffer.bind();
 	// drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
 
+
+
+
 	// End Render
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	RenderUtils::testGLError("Shadow Map render");
+	RenderUtils::testGLError("Variance Shadow Map render");
 }
 
 void RenderSystem::shadingStep() {

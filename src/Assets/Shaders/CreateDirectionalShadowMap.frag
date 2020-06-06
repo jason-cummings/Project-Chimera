@@ -38,33 +38,27 @@ void main() {
         }
     }
 
-    // Make sure that lighting can be applied to this fragment
-    if( dot(lightDir, worldNorm) < 0.0 ) {
-        // Get the location of the fragment in lightspace
-        vec4 lightSpaceLoc = lightProjections[mapIndex] * lightView * vec4( worldLoc, 1.0 );
-		vec3 projLoc = lightSpaceLoc.xyz * 0.5 + 0.5;
+    // Get the location of the fragment in lightspace
+    vec4 lightSpaceLoc = lightProjections[mapIndex] * lightView * vec4( worldLoc, 1.0 );
+    vec3 projLoc = lightSpaceLoc.xyz * 0.5 + 0.5;
 
-        // Test if the fragment is on the depth texture
-        if( projLoc.x >= 0.0 && projLoc.x <= 1.0 && projLoc.y >= 0.0 && projLoc.y <= 1.0 ) {
-            // Adjust the x texture coord to account for 4 stage texture
-            projLoc.x = (projLoc.x + mapIndex)/4.0;
+    // Test if the fragment is on the depth texture
+    if( projLoc.x >= 0.0 && projLoc.x <= 1.0 && projLoc.y >= 0.0 && projLoc.y <= 1.0 ) {
+        // Adjust the x texture coord to account for 4 stage texture
+        projLoc.x = (projLoc.x + mapIndex)/4.0;
 
-            // Get depth of the fragment from the light
-            float closestDepth = texture(depthTexture, projLoc.xy).r;
+        // Get depth of the fragment from the light
+        float closestDepth = texture(depthTexture, projLoc.xy).r;
 
-            // Get the depth of the fragment in consideration
-            float fragDepth = projLoc.z;
-        
-            // Test if the fragment minus a bias is closer than the current depth
-            float bias = 0.0002*(mapIndex+1);
-            if( fragDepth - bias > closestDepth ) {
-                // Fragment should be lit
-                outCol = vec3(0.0);
-            }
+        // Get the depth of the fragment in consideration
+        float fragDepth = projLoc.z;
+    
+        // Test if the fragment minus a bias is closer than the current depth
+        float bias = 0.0002*(mapIndex+1);
+        if( fragDepth - bias > closestDepth ) {
+            // Fragment should be lit
+            outCol = vec3(0.0);
         }
-    }
-    else {
-        outCol = vec3(0.0);
     }
 
     FragColor = vec4(outCol, 1.0);

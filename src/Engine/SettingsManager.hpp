@@ -6,7 +6,8 @@
 enum class ShadowMode {
     NONE = 0,
     SINGLE_PASS = 1,
-    ITERATE = 2
+    ITERATE = 2,
+    VARIANCE = 3
 };
 
 enum class BloomMode {

@@ -54,9 +54,11 @@ private:
     // Volumetric light scattering settings
 
     // The depth-only framebuffer for shadows and buffer for shadow mapping
-    ShadowFramebuffer depth_shadow_buffer;
+    Framebuffer depth_shadow_buffer;
     Framebuffer shadow_mapping_buffer;
 
+    Framebuffer variance_depth_shadow_buffer;
+    Framebuffer variance_shadow_blur_buffer[2];
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height; // Render resolution
@@ -118,6 +120,10 @@ private:
     // shadows
     void renderDirectionalDepthTexture( Light *light );
     void createDirectionalShadowMap( Light *light );
+
+    void renderVarianceDirectionalDepthTexture( Light *light );
+    void createDirectionalVarianceShadowMap( Light *light );
+
     void drawDepthTexture( GLuint tex );
 
     // shading step

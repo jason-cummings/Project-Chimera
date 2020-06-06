@@ -110,6 +110,15 @@ void ShaderManager::loadShaders() {
     directional_shadows_shader->addUniform( "iterate" );
     shaders["directional-shadows"] = directional_shadows_shader;
     
+    Shader *variance_shadows_shader = new Shader( "variance-shadows", "DrawQuad.vert", "CreateDirectionalVarianceShadowMap.frag" );
+    variance_shadows_shader->addUniform( "positionTexture" );
+    variance_shadows_shader->addUniform( "normalTexture" );
+    variance_shadows_shader->addUniform( "depthTexture" );
+    variance_shadows_shader->addUniform( "lightLocation" );
+    variance_shadows_shader->addUniform( "lightView" );
+    variance_shadows_shader->addUniform( "lightProjection" );
+    shaders["variance-shadows"] = variance_shadows_shader;
+    
     Shader *skybox_shader = new Shader("skybox", "SkyboxDeferred.vert", "SkyboxDeferred.frag");
     skybox_shader->addUniform( "View" );
     skybox_shader->addUniform( "Projection" );
@@ -127,6 +136,11 @@ void ShaderManager::loadShaders() {
     linear_blur_shader->addUniform( "horizontal" );
     linear_blur_shader->addUniform( "colorTexture" );
     shaders["linear-blur"] = linear_blur_shader;
+
+    Shader *mean_blur_shader = new Shader("mean-blur", "DrawQuad.vert", "MeanBlur.frag");
+    mean_blur_shader->addUniform( "horizontal" );
+    mean_blur_shader->addUniform( "colorTexture" );
+    shaders["mean-blur"] = mean_blur_shader;
 
     Shader * vls_shader = new Shader("volumetricLightScattering","DrawQuad.vert","VolumetricLightScattering.frag");
     vls_shader->addUniform("sunScreenCoords");

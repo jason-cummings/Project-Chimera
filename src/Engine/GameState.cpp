@@ -44,7 +44,7 @@ void GameState::handleKeyDown( SDL_Event e ) {
     SDL_Keycode key = e.key.keysym.sym;
     if( key == SDLK_F1 ) {
         // Cycle shadow modes
-        UserSettings::shadow_mode = static_cast<ShadowMode>((static_cast<int>(UserSettings::shadow_mode) + 1) % 3);
+        UserSettings::shadow_mode = static_cast<ShadowMode>((static_cast<int>(UserSettings::shadow_mode) + 1) % 4);
     }
     else if( key == SDLK_F2 ) {
         // Cycle bloom modes
