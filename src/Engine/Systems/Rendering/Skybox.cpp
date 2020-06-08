@@ -4,6 +4,7 @@
 
 #include "../../Utilities/FilesystemWrapper.hpp"
 #include "../../Utilities/WAIWrapper.hpp"
+#include "../../Utilities/Asset.hpp"
 
 bool SkyboxFactory::initialized = false;
 GLuint SkyboxFactory::vao = 0;
@@ -82,7 +83,7 @@ GLuint SkyboxFactory::createCubeMap(std::vector<fs::path> texture_names) {
 
 Skybox * SkyboxFactory::getSkybox(std::string directory) {
 
-	fs::path directory_path = (fs::path)(WAIWrapper::getExecutablePath() +  "/Assets/" + directory);
+	fs::path directory_path = Asset::assetPath().append(directory);
 	if(!initialized) {
 		initializeVAO();
 	}

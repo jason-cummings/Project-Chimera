@@ -1,6 +1,6 @@
 #include "LevelLoader.hpp"
 
-#define DEBUG_LOADER
+// #define DEBUG_LOADER
 
 #include <iostream>
 
@@ -15,12 +15,11 @@
 #include "Systems/Animation/AnimationFactory.hpp"
 
 #include "Utilities/Asset.hpp"
-#include "Utilities/WAIWrapper.hpp"
 #include "Utilities/FilesystemWrapper.hpp"
 
 // Root directory for any levels
-#define LEVELS_DIRECTORY "Assets/Levels/"
-#define PLAYER_MODEL_DIRECTORY "Assets/Player_Model"
+#define LEVELS_DIRECTORY "Levels/"
+#define PLAYER_MODEL_DIRECTORY "Player_Model/"
 
 // Directories of stored properties under the level root directory 
 #define LEVEL_MESH_DNAME                "Meshes"
@@ -73,7 +72,7 @@ LevelLoader::~LevelLoader() {
 
 // Get the root path of the level
 fs::path LevelLoader::levelPath( std::string level_name ) const {
-    return (fs::path)(WAIWrapper::getExecutablePath() +  "/" + level_name);
+    return pathAppend( Asset::assetPath(), level_name );
 }
 
 // Wrapper for appending to an fs::path
@@ -137,7 +136,7 @@ void LevelLoader::createLevel( std::string level_name ) {
 
     // Create the scene with the properties read in
     createScene( scene_properties );
-    #ifdef DEBUG
+    #ifdef DEBUG_LOADER
     scene->print();
     #endif
 
@@ -269,7 +268,7 @@ void LevelLoader::loadSkinnedMeshes( fs::path dir ) {
             //     // Use the default material
             //     created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
             // }
-            #ifdef DEBUG
+            #ifdef DEBUG_LOADER
             std::cout << "Created skinned mesh: " << skinned_mesh_path.filename().string() << " pointer: " << created_mesh << std::endl;
             #endif
             loaded_skinned_meshes[skinned_mesh_path.filename().string()] = created_mesh;
@@ -331,7 +330,7 @@ void LevelLoader::loadJointList(fs::path dir) {
 
         Asset size(joints_size_dir);
         int num_joints = *((int *)size.getBuffer());
-        #ifdef DEBUG
+        #ifdef DEBUG_LOADER
         std::cout << "Loading joints: " << num_joints << std::endl;
         #endif
         if(num_joints > 0) {
@@ -401,25 +400,23 @@ GameObject * LevelLoader::createGameObject( LoadedObjectProperties *obj_props, b
         obj = new SceneRenderable( obj_props->identifier, use_mesh );
     }
     else if(has_skinned_mesh) {
-        #ifdef DEBUG
+        #ifdef DEBUG_LOADER
         std::cout << "Creating a Player: " << obj_props->identifier << std::endl;
         #endif
         SkinnedMesh* use_skinned_mesh = loaded_skinned_meshes[obj_props->skinned_mesh_id];
         obj = new Player(obj_props->identifier, use_skinned_mesh);
     }
     else if(is_bone) {
-        #ifdef DEBUG
+        #ifdef DEBUG_LOADER
         std::cout << "Creating a bone: " << obj_props->identifier << std::endl;
         #endif
         obj = new Bone(obj_props->identifier);
     }
     else {
-        #ifdef DEBUG
+        #ifdef DEBUG_LOADER
         std::cout << "Creating Generic GameObject Node: " << obj_props->identifier << std::endl;
         #endif
         obj = new GameObject(obj_props->identifier);
-        // std::cerr << "Unknown object config: mesh - " << has_mesh << " | col - " << has_collision_shape << " | material - " << has_material << std::endl;
-        // return nullptr;      std::cout << "Creating Generic GameObject"
     }
 
     // Set the transformation data for the newly created object
