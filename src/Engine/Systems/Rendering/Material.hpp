@@ -14,6 +14,7 @@ private:
     float shininess = 0;
 
     static Material *default_material;
+    static Material *default_material_2d;
 
 public:
     Material(GLuint texture_, GLuint emissive_, float shininess_);
@@ -24,6 +25,7 @@ public:
 
     static void loadDefaultMaterial();
     static Material * getDefaultMaterial() { return default_material; }
+    static Material * getDefaultMaterial2D() { return default_material_2d; }
 };
 
 class MaterialFactory {

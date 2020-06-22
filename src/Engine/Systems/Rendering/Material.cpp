@@ -10,6 +10,7 @@
 // Material Implementation
 
 Material *Material::default_material = nullptr;
+Material *Material::default_material_2d = nullptr;
 
 Material::Material(GLuint texture_, GLuint emissive_, float shininess_){
     texture = texture_;
@@ -33,11 +34,10 @@ void Material::bind(Shader *shader, bool use_shininess) {
 
 void Material::loadDefaultMaterial() { 
     // Get the paths for the default material
-    fs::path default_path = Asset::assetPath();
-    default_path.append( DEFAULT_MATERIAl_PATH );
-    fs::path default_textures_path = Asset::assetPath();
-    default_textures_path.append( DEFAULT_TEXTURES_PATH );
+    fs::path default_path = Asset::assetPath().append( DEFAULT_MATERIAl_PATH );
+    fs::path default_textures_path = Asset::assetPath().append( DEFAULT_TEXTURES_PATH );
     default_material = MaterialFactory::createMaterial( default_path, default_textures_path, false );
+    default_material_2d = MaterialFactory::createMaterial( default_path, default_textures_path, true );
 }
 
 

@@ -4,7 +4,7 @@ OverlayMesh::OverlayMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
 	vbo = vbo_in;
 	ibo = ibo_in;
 	num_vertices = num_vertices_in;
-	material = Material::getDefaultMaterial();
+	material = Material::getDefaultMaterial2D();
 
 	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
@@ -26,9 +26,7 @@ OverlayMesh::~OverlayMesh() {
 }
 
 void OverlayMesh::draw() {
-	// std::cout << "Drawing vao " << vao << std::endl;
 	glBindVertexArray( vao );
-	// glDrawElements( GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0 );
 	glDrawArrays( GL_TRIANGLES, 0, 6 );
 	glBindVertexArray( 0 );
 }

@@ -245,7 +245,7 @@ void RenderSystem::render( double dt ) {
 		camera_loc = glm::vec3(camera->getWorldTransform()[3]);
 	}
 	else {
-		std::cerr << "Camera is null - using default matrices" << std::endl;
+		// std::cerr << "Camera is null - using default matrices" << std::endl;
 		createOrthoMatrices();
 	}
 
@@ -308,6 +308,7 @@ void RenderSystem::populateRenderLists( GameObject * game_object ) {
 		populateRenderLists(game_object->getChild(i));
 	}
 }
+
 // non recursive
 void RenderSystem::addToRenderLists( GameObject * game_object ) {
 	if(game_object->hasRenderable()) {
@@ -322,8 +323,24 @@ void RenderSystem::addToRenderLists( GameObject * game_object ) {
 				skinned_mesh_list.push_back(game_object);
 				break;
 			case RenderableType::OVERLAY:
-				overlay_mesh_list.push_back(game_object);
+			{
+				int insert_z = ((OverlayMesh*)game_object_renderable)->getZLevel(); 
+
+				std::vector<GameObject*>::iterator &it = overlay_mesh_list.begin();
+				bool inserted = false;
+				while( !inserted && it < overlay_mesh_list.end() ) {
+					int current_z = ((OverlayMesh*)((*it)->getRenderable()))->getZLevel();
+					if( insert_z > current_z ) {
+						it = overlay_mesh_list.insert( it, game_object );
+						inserted = true;
+					}
+					it++;
+				}
+				if( !inserted ) {
+					overlay_mesh_list.push_back( game_object );
+				}
 				break;
+			}
 			default:
 				break;
 		}
@@ -337,9 +354,16 @@ void RenderSystem::clearRenderLists() {
 }
 
 void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
-	static_cast<void>(std::remove(mesh_list.begin(),mesh_list.end(),game_object));
-	static_cast<void>(std::remove(skinned_mesh_list.begin(),skinned_mesh_list.end(),game_object));
-	static_cast<void>(std::remove(overlay_mesh_list.begin(),overlay_mesh_list.end(),game_object));
+	std::vector<GameObject*>::iterator it;
+
+	it = std::remove( mesh_list.begin(), mesh_list.end(), game_object );
+	if( it != mesh_list.end() ) mesh_list.erase( it );
+	
+	it = std::remove( skinned_mesh_list.begin(), skinned_mesh_list.end(), game_object );
+	if( it != skinned_mesh_list.end() ) skinned_mesh_list.erase( it );
+	
+	it = std::remove( overlay_mesh_list.begin(), overlay_mesh_list.end(), game_object );
+	if( it != overlay_mesh_list.end() ) overlay_mesh_list.erase( it );
 }
 
 void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {

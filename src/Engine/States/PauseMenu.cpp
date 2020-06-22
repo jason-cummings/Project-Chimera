@@ -21,7 +21,6 @@ PauseMenu::PauseMenu( GameState* input ){
 }
 
 PauseMenu::~PauseMenu() {
-    // delete camera;
     scene->setDestroyAll( true );
     delete scene;
 }

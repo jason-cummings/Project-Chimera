@@ -5,7 +5,7 @@
 
 // The VBO for a rectangular button
 const GLfloat element_vbo_data[] = {
-//   x   y    u   v
+//    x    y    u  v
     -.5, -.5,   0, 0,
      .5, -.5,   1, 0,
     -.5,  .5,   0, 1,
@@ -24,6 +24,8 @@ MenuElement::MenuElement(std::string id, float xinput, float yinput, float winpu
     width = winput;
     height = hinput;
 
+    int z_level = 100;
+
     if( element_vbo == 0 ) {
         createBuffers();
     }
@@ -38,9 +40,7 @@ MenuElement::MenuElement(std::string id, float xinput, float yinput, float winpu
     setTransform( glm::vec3(width, height, 1.f), glm::quat(), glm::vec3(xcoord, ycoord, 0.f) );
 }
 
-MenuElement::~MenuElement() {
-    // delete mesh;
-}
+MenuElement::~MenuElement() {}
 
 void MenuElement::createBuffers() {
     glGenBuffers( 1, &element_vbo );

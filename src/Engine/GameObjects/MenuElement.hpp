@@ -11,6 +11,7 @@ class MenuElement: public GameObject
 {
 protected:
     float xcoord, ycoord, width, height;
+    int z_level;
     OverlayMesh *mesh;
 
     static GLuint element_vbo;
@@ -24,6 +25,8 @@ public:
 
     bool hasRenderable() const override { return true; }
     Renderable * getRenderable() const override { return (Renderable *)mesh; }
+
+    inline void setZLevel( int z_in ) { mesh->setZLevel(z_in); }
 };
 
 

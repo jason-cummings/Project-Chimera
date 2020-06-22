@@ -21,6 +21,7 @@ private:
 
     // Camera to be used for 3D objects in the world (not overlay/HUD meshes)
     Camera *camera;
+    bool player_visible;
 
     //Stops movement for pause menu
     void movementFalse();
@@ -55,6 +56,8 @@ private:
     bool endGame();
     bool isNear(float input, float goal);
     bool fell();
+
+    void togglePlayerVisibility();
 
     // TEMP
     void addPhysicsThings();

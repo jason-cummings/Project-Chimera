@@ -62,6 +62,7 @@ LevelLoader * LevelLoader::loadLevelFile(std::string name) {
 LevelLoader::LevelLoader( std::string level_name ) {
     scene = nullptr;
     joint_list = nullptr;
+    endGameCoordVec = glm::vec3( 0.f, 100.f, 0.f ); 
     createLevel(level_name);
 }
 
@@ -176,7 +177,6 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     // Look for any possible relevant property paths
     fs::path obj_mesh_path =            pathAppend( object_path, OBJECT_MESH_FNAME );
     fs::path obj_skinned_mesh_path =    pathAppend( object_path, OBJECT_SKINNED_MESH_FNAME );
-    // fs::path obj_material_path =        pathAppend( object_path, OBJECT_MATERIAL_FNAME );
 
     fs::path obj_collision_shape_path = pathAppend( object_path, OBJECT_COLLISION_SHAPE_FNAME );
     fs::path obj_rotation_path =        pathAppend( object_path, OBJECT_ROTATION_FNAME );
@@ -188,7 +188,6 @@ LoadedObjectProperties * LevelLoader::parseObjectDirectory( std::string object_n
     // Read in the property indicators
     new_obj->mesh_id =                  getPropertyContents( obj_mesh_path );
     new_obj->skinned_mesh_id =          getPropertyContents( obj_skinned_mesh_path );
-    // new_obj->material_id =              getPropertyContents( obj_material_path );
     new_obj->collision_shape_id =       getPropertyContents( obj_collision_shape_path );
 
 
@@ -264,10 +263,6 @@ void LevelLoader::loadSkinnedMeshes( fs::path dir ) {
                 std::string material_name = getPropertyContents( material_path );
                 created_mesh->setMaterial( loaded_materials[material_name] );
             }
-            // else { 
-            //     // Use the default material
-            //     created_mesh->setMaterial( loaded_materials["__DefaultMaterial"] );
-            // }
             #ifdef DEBUG_LOADER
             std::cout << "Created skinned mesh: " << skinned_mesh_path.filename().string() << " pointer: " << created_mesh << std::endl;
             #endif
