@@ -324,9 +324,10 @@ void RenderSystem::addToRenderLists( GameObject * game_object ) {
 				break;
 			case RenderableType::OVERLAY:
 			{
+				// Insert overlay meshes acording to z level to ensure in order rendering
 				int insert_z = ((OverlayMesh*)game_object_renderable)->getZLevel(); 
 
-				std::vector<GameObject*>::iterator &it = overlay_mesh_list.begin();
+				std::vector<GameObject*>::iterator it = overlay_mesh_list.begin();
 				bool inserted = false;
 				while( !inserted && it < overlay_mesh_list.end() ) {
 					int current_z = ((OverlayMesh*)((*it)->getRenderable()))->getZLevel();
