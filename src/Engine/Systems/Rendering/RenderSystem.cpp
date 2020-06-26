@@ -6,7 +6,6 @@
 #include "TextureLoader.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
-#define BLOOM_PASSES 4
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 
@@ -27,6 +26,9 @@ RenderSystem::RenderSystem() {
 	texture_width = UserSettings::resolution_width;
 	texture_height = UserSettings::resolution_height;
 
+	RenderUtils::setTextureHeight(texture_height);
+	RenderUtils::setTextureWidth(texture_width);
+
 	// Setup the necessary framebuffers for rendering
 	createFramebuffers();
 
@@ -41,6 +43,14 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
+
+	// create post process objects
+	FXAA_process = new FXAA(deferred_buffer.getTexture( "position" )->getID(), shading_buffer.getTexture( "FragColor" )->getID(), nullptr);
+
+	vls_post_process = new VolumetricLightScattering(deferred_buffer.getTexture( "occlusion" )->getID(), nullptr);
+
+	bloom_post_process = new Bloom(shading_buffer.getTexture("BrightColor")->getID(), nullptr);
+	bloom_post_process->createFrameBuffers();
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -52,6 +62,9 @@ RenderSystem & RenderSystem::getRenderSystem() {
 void RenderSystem::reshape( int x_size, int y_size ) {
 	view_width = x_size;
 	view_height = y_size;
+	RenderUtils::setViewHeight(y_size);
+	RenderUtils::setViewWidth(x_size);
+
 }
 
 /**
@@ -81,10 +94,6 @@ void RenderSystem::createFramebuffers() {
 	// Set up the shading framebuffer
 	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
 	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
-
-	// Set up the pingpong buffers for blurring
-	blur_buffer[0].addColorTexture( "FragColor", texture_width, texture_height );
-	blur_buffer[1].addColorTexture( "FragColor", texture_width, texture_height );
 
 	RenderUtils::testGLError( "Framebuffer Setup" );
 }
@@ -235,24 +244,33 @@ void RenderSystem::render( double dt ) {
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glViewport( 0, 0, view_width, view_height );
 	glClear( GL_COLOR_BUFFER_BIT );
-	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	if(/* UserSettings::use_FXAA*/true)
+		FXAA_process->apply();
+	else drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	
 
 	if( UserSettings::use_bloom ) {
-		applyBloom();
+		bloom_post_process->apply();
 	}
 
 	if( UserSettings::use_volumetric_light_scattering ) {
-		applyVolumetricLightScattering();
+		
+		// calculate and set sun screen space location
+		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+		glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+		light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
+		light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
+		light_screen_space_vec4 = light_screen_space_vec4 * .5f;
+		glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
+
+		vls_post_process->setSunScreenCoords(sun_screen_loc);
+
+		vls_post_process->apply();
 	}
 
-	// drawTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
-
-
 	glFinish();
-	
-	// mesh_list.clear(); // this probably should be moved
-	// skinned_mesh_list.clear();
-	// overlay_mesh_list.clear();
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
@@ -566,71 +584,71 @@ void RenderSystem::shadingStep() {
 }
 
 
-void RenderSystem::applyBloom() {
-	Shader *blur_shader = sm->getShader("blur");
-	blur_shader->bind();
-	blur_shader->setUniformInt( "colorTexture", 0 );
-	glActiveTexture( GL_TEXTURE0 );
+// void RenderSystem::applyBloom() {
+// 	Shader *blur_shader = sm->getShader("blur");
+// 	blur_shader->bind();
+// 	blur_shader->setUniformInt( "colorTexture", 0 );
+// 	glActiveTexture( GL_TEXTURE0 );
 
-	current_blur_buffer = 0;
+// 	current_blur_buffer = 0;
 
-	for( int i=0; i<BLOOM_PASSES; i++ ) { // BLOOM_PASSES
-		blur_shader->bind();
-		blur_buffer[current_blur_buffer].bind();
-		glViewport( 0, 0, texture_width, texture_height );
-		glClear( GL_COLOR_BUFFER_BIT );
+// 	for( int i=0; i<BLOOM_PASSES; i++ ) { // BLOOM_PASSES
+// 		blur_shader->bind();
+// 		blur_buffer[current_blur_buffer].bind();
+// 		glViewport( 0, 0, texture_width, texture_height );
+// 		glClear( GL_COLOR_BUFFER_BIT );
 		
-		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
-		GLuint tex_to_use = i == 0 ? shading_buffer.getTexture( "BrightColor" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
-		glBindTexture( GL_TEXTURE_2D, tex_to_use );
+// 		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
+// 		GLuint tex_to_use = i == 0 ? shading_buffer.getTexture( "BrightColor" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
+// 		glBindTexture( GL_TEXTURE_2D, tex_to_use );
 
-		RenderUtils::drawQuad();
+// 		RenderUtils::drawQuad();
 
-		current_blur_buffer = !current_blur_buffer;
-	}
+// 		current_blur_buffer = !current_blur_buffer;
+// 	}
 
-	RenderUtils::testGLError("Blur");
+// 	RenderUtils::testGLError("Blur");
 
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, view_width, view_height );
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_ONE, GL_ONE );
-	drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
-	glDisable( GL_BLEND );
+// 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+// 	glViewport( 0, 0, view_width, view_height );
+// 	glEnable( GL_BLEND );
+// 	glBlendFunc( GL_ONE, GL_ONE );
+// 	drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
+// 	glDisable( GL_BLEND );
 
-	glUseProgram(0);
-}
+// 	glUseProgram(0);
+// }
 
-void RenderSystem::applyVolumetricLightScattering() {
-	Shader *vls_shader = sm->getShader("volumetricLightScattering");
-	vls_shader->bind();
+// void RenderSystem::applyVolumetricLightScattering() {
+// 	Shader *vls_shader = sm->getShader("volumetricLightScattering");
+// 	vls_shader->bind();
 
-	// calculate and set sun screen space location
-	glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
-	glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
-	light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
-	light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
-	light_screen_space_vec4 = light_screen_space_vec4 * .5f;
-	glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
+// 	// calculate and set sun screen space location
+// 	glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+// 	glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+// 	light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
+// 	light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
+// 	light_screen_space_vec4 = light_screen_space_vec4 * .5f;
+// 	glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
 
-	vls_shader->setUniformVec2("sunScreenCoords",sun_screen_loc);
+// 	vls_shader->setUniformVec2("sunScreenCoords",sun_screen_loc);
 
-	// set occlusion texture
-	vls_shader->setUniformInt( "frame", 0 );
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture("occlusion")->getID() );
+// 	// set occlusion texture
+// 	vls_shader->setUniformInt( "frame", 0 );
+// 	glActiveTexture( GL_TEXTURE0 );
+// 	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture("occlusion")->getID() );
 
-	RenderUtils::testGLError("VolumetricLightScattering");
+// 	RenderUtils::testGLError("VolumetricLightScattering");
 
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, view_width, view_height );
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_ONE, GL_ONE );
-	RenderUtils::drawQuad();
-	glDisable( GL_BLEND );
+// 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+// 	glViewport( 0, 0, view_width, view_height );
+// 	glEnable( GL_BLEND );
+// 	glBlendFunc( GL_ONE, GL_ONE );
+// 	RenderUtils::drawQuad();
+// 	glDisable( GL_BLEND );
 
-	glUseProgram(0);
-}
+// 	glUseProgram(0);
+// }
 
 void RenderSystem::renderOverlay() {
 	shading_buffer.bind();

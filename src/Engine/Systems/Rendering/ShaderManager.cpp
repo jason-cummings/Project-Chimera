@@ -127,6 +127,11 @@ void ShaderManager::loadShaders() {
     vls_shader->addUniform("sunScreenCoords");
     vls_shader->addUniform("frame");
     shaders["volumetricLightScattering"] = vls_shader;
+
+    Shader *FXAA_shader = new Shader("FXAA", "DrawQuad.vert", "FXAA.frag");
+    FXAA_shader->addUniform( "position_texture" );
+    FXAA_shader->addUniform( "color_texture" );
+    shaders["FXAA"] = FXAA_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

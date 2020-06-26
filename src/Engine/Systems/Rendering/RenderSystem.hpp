@@ -23,6 +23,9 @@
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "../../SettingsManager.hpp"
+#include "PostProcessing/FXAA.hpp"
+#include "PostProcessing/VolumetricLightScattering.hpp"
+#include "PostProcessing/Bloom.hpp"
 
 
 
@@ -53,8 +56,6 @@ private:
     
     // Blur buffers and settings
     bool use_bloom;
-    bool current_blur_buffer;
-    Framebuffer blur_buffer[2];
 
     // Volumetric light scattering settings
     bool use_vls;
@@ -84,6 +85,11 @@ private:
     std::vector<GameObject*> mesh_list;
     std::vector<GameObject*> skinned_mesh_list;
     std::vector<GameObject*> overlay_mesh_list;
+
+    // Post processes
+    PostProcess * FXAA_process;
+    VolumetricLightScattering * vls_post_process;
+    Bloom * bloom_post_process;
 
 
     /**
@@ -131,10 +137,10 @@ private:
     void shadingStep();
 
     // bloom
-    void applyBloom();
+    // void applyBloom();
 
     // volumetric light scattering
-    void applyVolumetricLightScattering();
+    // void applyVolumetricLightScattering();
 
     // 2D overlay elements
     void renderOverlay();

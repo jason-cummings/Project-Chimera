@@ -3,6 +3,12 @@
 GLuint RenderUtils::quad_vao = 0;
 GLuint RenderUtils::quad_vbo = 0;
 
+int RenderUtils::texture_width = 100;
+int RenderUtils::texture_height = 100;
+
+int RenderUtils::view_width = 100;
+int RenderUtils::view_height = 100;
+
 void RenderUtils::init() {
 	//set up quad vao
 	glGenVertexArrays( 1, &quad_vao );
