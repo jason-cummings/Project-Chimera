@@ -256,13 +256,15 @@ void RenderSystem::render( double dt ) {
 	}
 
 	if( UserSettings::use_volumetric_light_scattering ) {
-		
+
 		// calculate and set sun screen space location
 		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
 		glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+
 		light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
 		light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
 		light_screen_space_vec4 = light_screen_space_vec4 * .5f;
+		
 		glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
 
 		vls_post_process->setSunScreenCoords(sun_screen_loc);
