@@ -13,6 +13,7 @@ int UserSettings::resolution_width = 2880;
 int UserSettings::resolution_height = 1800;
 
 ShadowMode UserSettings::shadow_mode = ShadowMode::ITERATE;
+bool UserSettings::blur_shadow_map = false;
 BloomMode UserSettings::bloom_mode = BloomMode::LINEAR_GAUSSIAN;
 bool UserSettings::use_volumetric_light_scattering = true;
 
@@ -52,6 +53,7 @@ void UserSettings::writeToFile() {
     settings_file << "resolution_width=" << resolution_width << std::endl;
     settings_file << "resolution_height=" << resolution_height << std::endl;
     settings_file << "shadow_mode=" << static_cast<int>(shadow_mode) << std::endl;
+    settings_file << "blur_shadow_map=" << blur_shadow_map << std::endl;
     settings_file << "bloom_mode=" << static_cast<int>(bloom_mode) << std::endl;
     settings_file << "use_volumetric_light_scattering=" << use_volumetric_light_scattering << std::endl;
 
@@ -69,10 +71,13 @@ void UserSettings::assignSetting( std::string setting, std::string value ) {
     else if( setting == "shadow_mode" ) {
         shadow_mode = (ShadowMode)std::stoi(value);
     }
+    else if( setting == "blur_shadow_map" ) {
+        blur_shadow_map = (bool)std::stoi(value);
+    }
     else if( setting == "use_bloom" ) {
         bloom_mode = (BloomMode)std::stoi(value);
     }
     else if( setting == "use_volumetric_light_scattering" ) {
-        use_volumetric_light_scattering = (int)std::stoi(value);
+        use_volumetric_light_scattering = (bool)std::stoi(value);
     }
 }

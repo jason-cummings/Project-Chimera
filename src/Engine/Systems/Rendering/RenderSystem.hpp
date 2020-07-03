@@ -22,6 +22,7 @@
 #include "PostProcessing/FXAA.hpp"
 #include "PostProcessing/VolumetricLightScattering.hpp"
 #include "PostProcessing/Bloom.hpp"
+#include "PostProcessing/Blur.hpp"
 
 
 
@@ -55,12 +56,18 @@ private:
 
     // Volumetric light scattering settings
 
-    // The depth-only framebuffer for shadows and buffer for shadow mapping
+    // Framebuffers and processes required for basic shadow mapping
     Framebuffer depth_shadow_buffer;
-    Framebuffer shadow_mapping_buffer;
+    Framebuffer shadow_blurred_depth_out; // To be used as the out buffer from a blur PostProcess
 
+    // Framebuffers and processes required for variance shadow mapping
     Framebuffer variance_depth_shadow_buffer;
-    Framebuffer variance_shadow_blur_buffer[2];
+    Framebuffer variance_blurred_depth_out; // To be used as the out buffer from a blur PostProcess
+    Blur * variance_blur_process; // Blurs the depth
+
+    // Framebuffer and process for creating the final shadow map, regardless of technique used
+    Framebuffer shadow_mapping_buffer;
+    Blur * shadow_map_blur_process;
 
     // Variables for the output sizes of the textures
     int texture_width, texture_height; // Render resolution

@@ -30,6 +30,7 @@ public:
     static int resolution_height;
     
     static ShadowMode shadow_mode;
+    static bool blur_shadow_map;
     static BloomMode bloom_mode;
     static bool use_volumetric_light_scattering;
 };
