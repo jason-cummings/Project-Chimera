@@ -63,7 +63,7 @@ TextManager::TextManager( std::string font_path, unsigned int size ) {
             texture,
             glm::ivec2( face->glyph->bitmap.width, face->glyph->bitmap.rows ),
             glm::ivec2( face->glyph->bitmap_left, face->glyph->bitmap_top ),
-            (int)face->glyph->advance.x >> 6
+            static_cast<unsigned int>(face->glyph->advance.x) >> 6
         };
 
         // Keep track of maximum y bearing for best approximation of font height

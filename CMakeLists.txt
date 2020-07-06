@@ -49,6 +49,9 @@ else()
 endif()
 
 find_package( OpenGL REQUIRED )
+find_package( PNG REQUIRED )
+find_package( BZIP2 REQUIRED )
+find_package( ZLIB REQUIRED )
 
 set( GAME_LIBS
 	${OPENGL_LIBRARY}
@@ -56,6 +59,9 @@ set( GAME_LIBS
 	${GLEW_LIBRARIES}
 	${WHEREAMI_LIBRARY}
 	${BULLET_LIBRARY}
+	${PNG_LIBRARY}
+	${ZLIB_LIBRARY}
+	${BZIP2_LIBRARY}
 	${FREETYPE_LIBRARIES}
 )
 set( GAME_INCLUDES

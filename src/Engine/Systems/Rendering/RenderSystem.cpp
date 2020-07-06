@@ -82,7 +82,6 @@ void RenderSystem::reshape( int x_size, int y_size ) {
 	view_height = y_size;
 	RenderUtils::setViewHeight(y_size);
 	RenderUtils::setViewWidth(x_size);
-
 }
 
 // To call on a change in render resolution
@@ -396,7 +395,7 @@ void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_ob
 
 // Function to create default view and projection matrices only if the camera seg faults
 void RenderSystem::createOrthoMatrices() {
-	float aspect_ratio = view_width / (float)view_height;
+	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
 	float left_edge = (aspect_ratio - 1.f) / -2.f;
 	proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 	view_mat = glm::mat4(1.f);
@@ -809,7 +808,8 @@ void RenderSystem::shadingStep() {
 
 void RenderSystem::renderOverlay() {
 	// shading_buffer.bind();
-	glViewport( 0, 0, texture_width, texture_height );
+	// glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
 
