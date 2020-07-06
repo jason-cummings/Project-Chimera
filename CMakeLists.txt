@@ -49,9 +49,11 @@ else()
 endif()
 
 find_package( OpenGL REQUIRED )
-find_package( PNG REQUIRED )
-find_package( BZIP2 REQUIRED )
-find_package( ZLIB REQUIRED )
+if( NOT WIN32 )
+	find_package( PNG REQUIRED )
+	find_package( BZIP2 REQUIRED )
+	find_package( ZLIB REQUIRED )
+endif()
 
 set( GAME_LIBS
 	${OPENGL_LIBRARY}
