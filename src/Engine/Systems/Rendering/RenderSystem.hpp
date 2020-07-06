@@ -25,7 +25,6 @@
 #include "PostProcessing/Blur.hpp"
 
 
-
 struct Light {
     glm::vec3 location;
     glm::vec3 diffuse;
@@ -93,7 +92,6 @@ private:
     PostProcess * FXAA_process;
     VolumetricLightScattering * vls_post_process;
     Bloom * bloom_post_process;
-
 
     /**
         Rendering Pipeline Setup

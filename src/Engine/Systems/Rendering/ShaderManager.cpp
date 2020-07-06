@@ -151,6 +151,13 @@ void ShaderManager::loadShaders() {
     FXAA_shader->addUniform( "position_texture" );
     FXAA_shader->addUniform( "color_texture" );
     shaders["FXAA"] = FXAA_shader;
+    
+    Shader *text_shader = new Shader( "text", "OverlayShading.vert", "CreateTextTexture.frag" );
+    text_shader->addUniform( "Model" );
+    text_shader->addUniform( "Projection" );
+    text_shader->addUniform( "textColor" );
+    text_shader->addUniform( "textTexture" );
+    shaders["text"] = text_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

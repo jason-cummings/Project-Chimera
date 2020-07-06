@@ -6,10 +6,19 @@
 #define PLAY_GAME_BUTTON_ID "Play Game"
 #define EXIT_GAME_BUTTON_ID "Exit"
 
+#include "../Systems/Rendering/TextManager.hpp"
+
 MainMenu::MainMenu() {
     animation_system = new AnimationSystem();
 
-    MenuElement *title = new MenuElement( "logo", .5f, .75f, 1.4f, .35f, "MainMenuChimeraLogo" );
+    // MenuElement *title = new MenuElement( "logo", .5f, .75f, 1.4f, .35f, "MainMenuChimeraLogo" );
+    
+    TextManager tm( FONT_THERAMIN_GOTHIC_CONDENSED_PATH, 256 );
+    GLuint mat;
+    unsigned int t_w, t_h;
+    tm.createTextTexture("Project Chimera", glm::vec4(1.f, 0.f, 1.f, 1.f), mat, t_w, t_h);
+    Material *toUse = new Material( mat, mat, 0 );
+    MenuElement *title = new MenuElement( "logo", .5f, .75f, .25f * t_w/(float)t_h, .25f, toUse );
     buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .42f, .6f, .15f, "MainMenuPlay" ) );
     buttons.push_back( new MenuButton( EXIT_GAME_BUTTON_ID, .5f, .25f, .6f, .15f, "MainMenuExit" ) );
 

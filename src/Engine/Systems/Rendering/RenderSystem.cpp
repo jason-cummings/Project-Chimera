@@ -284,22 +284,16 @@ void RenderSystem::render( double dt ) {
 	// Perform shading
 	shadingStep();
 
-	// Render overlays
-	renderOverlay();
-
 	// Draw the resulting texture from the shading step
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glViewport( 0, 0, view_width, view_height );
 	glClear( GL_COLOR_BUFFER_BIT );
 
+	
 	if(/* UserSettings::use_FXAA*/true)
 		FXAA_process->apply();
 	else drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 	
-	if( UserSettings::bloom_mode != BloomMode::NONE ) {
-		bloom_post_process->apply();
-	}
-
 	if( UserSettings::use_volumetric_light_scattering ) {
 
 		// calculate and set sun screen space location
@@ -315,14 +309,13 @@ void RenderSystem::render( double dt ) {
 		vls_post_process->setSunScreenCoords(sun_screen_loc);
 		vls_post_process->apply();
 	}
-
-	// glViewport(0, 0, view_width, view_height);
-	// drawDepthTexture( shadow_mapping_buffer.getTexture("shadow_map")->getID() );
-
-	// glViewport(0, 0, view_width/2, view_height);
-	// drawDepthTexture( variance_depth_shadow_buffer.getTexture("depth")->getID() );
-	// glViewport(view_width/2, 0, view_width/2, view_height);
-	// drawDepthTexture( variance_depth_shadow_buffer.getDepthTexture()->getID() );
+	
+	if( UserSettings::bloom_mode != BloomMode::NONE ) {
+		bloom_post_process->apply();
+	}
+	
+	// Render overlays
+	renderOverlay();
 
 	glFinish();
 }
@@ -815,7 +808,7 @@ void RenderSystem::shadingStep() {
 // }
 
 void RenderSystem::renderOverlay() {
-	shading_buffer.bind();
+	// shading_buffer.bind();
 	glViewport( 0, 0, texture_width, texture_height );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();

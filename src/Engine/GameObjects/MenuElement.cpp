@@ -18,7 +18,17 @@ const GLint element_ibo_data[] = { 0, 1, 2, 3, 4, 5 };
 GLuint MenuElement::element_vbo = 0;
 GLuint MenuElement::element_ibo = 0;
 
-MenuElement::MenuElement(std::string id, float xinput, float yinput, float winput, float hinput, std::string material_name ): GameObject(id) {
+MenuElement::MenuElement(std::string id, float xinput, float yinput, float winput, float hinput, std::string material_name ):
+MenuElement(
+    id,
+    xinput,
+    yinput,
+    winput,
+    hinput,
+    MaterialFactory::createMaterial2D( Asset::assetPath().append("Materials/" + material_name) )
+) {}
+
+MenuElement::MenuElement(std::string id, float xinput, float yinput, float winput, float hinput, Material *mat ): GameObject(id) {
     xcoord = xinput;
     ycoord = yinput;
     width = winput;
@@ -31,11 +41,7 @@ MenuElement::MenuElement(std::string id, float xinput, float yinput, float winpu
     }
 
     mesh = new OverlayMesh( element_vbo, element_ibo, 6 );
-
-    fs::path mat_path = Asset::assetPath();
-    mat_path.append( "Materials/" + material_name );
-    Material *element_material = MaterialFactory::createMaterial2D( mat_path );
-    mesh->setMaterial( element_material );
+    mesh->setMaterial( mat );
 
     setTransform( glm::vec3(width, height, 1.f), glm::quat(), glm::vec3(xcoord, ycoord, 0.f) );
 }

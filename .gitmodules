@@ -14,3 +14,9 @@
 [submodule "dependencies/whereami"]
 	path = dependencies/whereami
 	url = https://github.com/gpakosz/whereami
+[submodule "freetype2"]
+	path = freetype2
+	url = https://github.com/aseprite/freetype2
+[submodule "dependencies/freetype2"]
+	path = dependencies/freetype2
+	url = https://github.com/aseprite/freetype2

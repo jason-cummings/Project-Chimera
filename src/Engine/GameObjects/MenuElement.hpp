@@ -21,6 +21,7 @@ protected:
 
 public:
     MenuElement(std::string id, float xinput, float yinput, float winput, float hinput, std::string material_name);
+    MenuElement(std::string id, float xinput, float yinput, float winput, float hinput, Material *mat);
     ~MenuElement();
 
     bool hasRenderable() const override { return true; }

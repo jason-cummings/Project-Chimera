@@ -39,6 +39,9 @@ set( GLM_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/glm/ )
 set( WHEREAMI_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/whereami/src/ )
 set( WHEREAMI_LIBRARY whereami )
 
+set( FREETYPE_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/freetype2/include/ )
+set( FREETYPE_LIBRARIES freetyped )
+
 if( WIN32 )
 	set( CMAKE_CXX_FLAGS "/W3 /EHsc" )
 else()
@@ -53,6 +56,7 @@ set( GAME_LIBS
 	${GLEW_LIBRARIES}
 	${WHEREAMI_LIBRARY}
 	${BULLET_LIBRARY}
+	${FREETYPE_LIBRARIES}
 )
 set( GAME_INCLUDES
 	${GLM_INCLUDE_DIRS}
@@ -61,6 +65,7 @@ set( GAME_INCLUDES
 	${GLEW_INCLUDE_DIRS}
 	${WHEREAMI_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS}
+	${FREETYPE_INCLUDE_DIRS}
 )
 
 # Only include boost on Mac

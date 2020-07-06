@@ -39,3 +39,11 @@ void PauseMenu::handleButtonEvent( MenuButton *clicked ) {
         setNextState( to_set, true );
     }
 }
+
+void PauseMenu::handleKeyDownStateSpecific( SDL_Event e ) {
+    if( e.key.keysym.sym == SDLK_ESCAPE ) {
+        // Change state back into game on escape
+        scene->removeChild( last_state->getScene() );
+        setNextState( last_state, false );
+    }
+}
