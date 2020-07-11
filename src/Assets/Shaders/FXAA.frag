@@ -19,13 +19,12 @@ void main() {
    vec3 edge_detection_result = vec3(0.0f);
    vec3 blur_result = vec3(0.0f);
 
-   // for(int i = -1; i < 2; i+=1) {
-   //    for(int j = -1; j < 2; j+=1) {
-   //       vec2 n_texCoords = texCoords + vec2(i,j) * texelSize;
-   //       edge_detection_result += texture(position_texture,n_texCoords).xyz * laplacian_weights[3*(i+1) + j + 1];
-   //       blur_result += texture(color_texture,n_texCoords).xyz * gaussian_weights[3*(i+1) + j + 1];
-   //    }
-   // }
+   // loop unrolled version of edge detection and gaussian blur.
+   //    a 3x3 kernel is used for both, and they are done simultaneously to reduce the number 
+   //    of calculations related to identifying the texels to sample
+
+
+   // (-1,-1) to (-1,1) relative to this texel
 
    vec2 n_texCoords = texCoords + vec2(-1.0f,-1.0f) * texelSize;
    edge_detection_result += texture(position_texture,n_texCoords).xyz * laplacian_weights[0];
@@ -39,7 +38,8 @@ void main() {
    edge_detection_result += texture(position_texture,n_texCoords).xyz * laplacian_weights[2];
    blur_result += texture(color_texture,n_texCoords).xyz * gaussian_weights[2];
 
-   //
+
+   // (0,-1) to (0,1) relative to this texel
 
    n_texCoords = texCoords + vec2(0.0f,-1.0f) * texelSize;
    edge_detection_result += texture(position_texture,n_texCoords).xyz * laplacian_weights[3];
@@ -53,7 +53,7 @@ void main() {
    edge_detection_result += texture(position_texture,n_texCoords).xyz * laplacian_weights[5];
    blur_result += texture(color_texture,n_texCoords).xyz * gaussian_weights[5];
 
-   //
+   // (1,-1) to (1,1) relative to this texel
 
    n_texCoords = texCoords + vec2(1.0f,-1.0f) * texelSize;
    edge_detection_result += texture(position_texture,n_texCoords).xyz * laplacian_weights[6];
@@ -68,8 +68,12 @@ void main() {
    blur_result += texture(color_texture,n_texCoords).xyz * gaussian_weights[8];
 
    
-
+   // detect edges and determine how much of the blur result should be used for the final image
    float blend_amount = min(length(edge_detection_result),1.0f);
 
+   // mix the resulting color from the gaussian blur with the original color of the pixel. 
+   // If the edge detection detects a strong edge, the blurred version. The weaker the edge, the
+   // more the original color is used instead of the blurred version. If no edge was detected at
+   // all, the original color is used 
    FragColor = vec4(mix(texture(color_texture, texCoords).xyz,blur_result,blend_amount),1.0f);
 }

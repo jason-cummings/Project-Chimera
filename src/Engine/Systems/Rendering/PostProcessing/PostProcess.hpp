@@ -28,10 +28,7 @@ protected:
 
 public:
 	inline PostProcess(Framebuffer * target) {target_buffer = target;}
-	inline virtual void createFrameBuffers() {} // change?
-	
-	// inline virtual void setTextureSize(int texture_width, int texture_height) {} // make static?
-	// inline virtual void setViewSize(int view_width, int view_height) {} // make static?
+	inline virtual void createFrameBuffers() {} 
 
 
 	virtual void apply() = 0;
