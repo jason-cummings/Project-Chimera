@@ -1,7 +1,7 @@
 #include "Bloom.hpp"
 
-Bloom::Bloom(GLuint bright_texture_in, Framebuffer * target) : PostProcess(target) {
-	bright_texture = bright_texture_in;
+Bloom::Bloom(Framebuffer * target) : PostProcess(target) {
+	bright_texture = 0;
 	sm = ShaderManager::getShaderManager();
 }
 
@@ -9,6 +9,12 @@ void Bloom::createFrameBuffers() {
 	// Set up the pingpong buffers for blurring
 	blur_buffer[0].addColorTexture( "FragColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	blur_buffer[1].addColorTexture( "FragColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+}
+
+void Bloom::clearFrameBufferTextures() {
+	// Set up the pingpong buffers for blurring
+	blur_buffer[0].clearAll();
+	blur_buffer[1].clearAll();
 } 
 
 void Bloom::apply() {

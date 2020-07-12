@@ -1,7 +1,7 @@
 #include "VolumetricLightScattering.hpp"
 
-VolumetricLightScattering::VolumetricLightScattering(GLuint occlusion_texture_in, Framebuffer * target) : PostProcess(target) {
-	occlusion_texture = occlusion_texture_in;
+VolumetricLightScattering::VolumetricLightScattering( Framebuffer * target) : PostProcess(target) {
+	occlusion_texture = 0;
 	sm = ShaderManager::getShaderManager();
 }
 

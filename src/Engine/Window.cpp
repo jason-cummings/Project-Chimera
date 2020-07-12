@@ -75,12 +75,6 @@ glm::vec2 Window::getDrawableSize() {
 	return glm::vec2( w, h );
 }
 
-// Either capture or release the mouse in the window
-void Window::toggleMouseLock() {
-	mouse_lock = !mouse_lock;
-	SDL_SetRelativeMouseMode( mouse_lock ? SDL_TRUE : SDL_FALSE );
-}
-
 // Explicitly set mouse locking
 void Window::setMouseLock( bool new_val ) {
 	mouse_lock = new_val;

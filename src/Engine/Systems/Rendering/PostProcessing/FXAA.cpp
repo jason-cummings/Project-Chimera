@@ -1,8 +1,8 @@
 #include "FXAA.hpp"
 
-FXAA::FXAA(GLuint position_texture_in, GLuint color_texture_in, Framebuffer * target) : PostProcess(target) {
-	position_texture = position_texture_in;
-	color_texture = color_texture_in;
+FXAA::FXAA( Framebuffer * target) : PostProcess(target) {
+	position_texture = 0;
+	color_texture = 0;
 	sm = ShaderManager::getShaderManager();
 }
 

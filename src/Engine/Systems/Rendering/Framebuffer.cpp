@@ -8,14 +8,15 @@ Framebuffer::Framebuffer() {
 }
 
 Framebuffer::~Framebuffer() {
-
+    glDeleteFramebuffers( 1, &framebuffer_id );
+    clearAll();
 }
 
 void Framebuffer::bind() {
     glBindFramebuffer( GL_FRAMEBUFFER, framebuffer_id );
     GLuint err;
     if( (err = glGetError()) != GL_NO_ERROR ) {
-        std::cerr << "GL error " << err << " binding " << std::endl;
+        std::cerr << "GL error " << err << " binding Framebuffer " << framebuffer_id << std::endl;
     }
 }
 
@@ -46,16 +47,21 @@ void Framebuffer::addColorTextureHelper( std::string texture_name, int width, in
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
     // Set the texture as a color attachment for the framebuffer and keep track of which it is
-    GLenum current_attachment = GL_COLOR_ATTACHMENT0 + color_attachments.size();
+    GLenum current_attachment = (GLenum)(GL_COLOR_ATTACHMENT0 + color_attachments.size());
     glFramebufferTexture2D( GL_FRAMEBUFFER, current_attachment, GL_TEXTURE_2D, new_texture_id, 0 );
     color_attachments.push_back( current_attachment );
 
     // Tell the framebuffer how many color attachments it has
-    glDrawBuffers( color_attachments.size(), &color_attachments[0] );
+    glDrawBuffers( (GLsizei)color_attachments.size(), &color_attachments[0] );
 
     // Unbind the framebuffer and created texture
     glBindTexture( GL_TEXTURE_2D, 0 );
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+    GLuint err = glGetError();
+    if( err != GL_NO_ERROR ) {
+        std::cerr << "Error creating texture " << texture_name << " at " << width << "x" << height << " as attachment " << color_attachments.size()-1 << std::endl;
+    }
 }
 
 void Framebuffer::addDepthBuffer( int width, int height ) {
@@ -73,6 +79,15 @@ FBTexture * Framebuffer::getTexture( std::string texture_name ) {
     return textures[texture_name];
 }
 
+void Framebuffer::clearAll() {
+    if( depth_buffer ) glDeleteRenderbuffers( 1, &depth_buffer );
+    depth_buffer = 0;
+    for( std::map<std::string, FBTexture*>::iterator it=textures.begin(); it!=textures.end(); it++ ) {
+        delete it->second;
+    }
+    textures.clear();
+    color_attachments.clear();
+}
 
 
 
@@ -84,17 +99,19 @@ FBTexture * Framebuffer::getTexture( std::string texture_name ) {
 ShadowFramebuffer::ShadowFramebuffer() {
     glGenFramebuffers( 1, &framebuffer_id );
     depth_buffer = 0;
+    depth_texture = nullptr;
 }
 
 ShadowFramebuffer::~ShadowFramebuffer() {
-
+    glDeleteFramebuffers( 1, &framebuffer_id );
+    clearAll();
 }
 
 void ShadowFramebuffer::bind() {
     glBindFramebuffer( GL_FRAMEBUFFER, framebuffer_id );
     GLuint err;
     if( (err = glGetError()) != GL_NO_ERROR ) {
-        std::cerr << "GL error " << err << " binding " << std::endl;
+        std::cerr << "GL error " << err << " binding ShadowFramebuffer " << framebuffer_id << std::endl;
     }
 }
 
@@ -135,3 +152,11 @@ void ShadowFramebuffer::addDepthTexture( std::string texture_name, int width, in
     glBindTexture( GL_TEXTURE_2D, 0 );
     glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }
+
+void ShadowFramebuffer::clearAll() {
+    if( depth_buffer ) glDeleteRenderbuffers( 1, &depth_buffer );
+    depth_buffer = 0;
+    if( depth_texture ) delete depth_texture;
+    depth_texture = nullptr;
+}
+

@@ -29,8 +29,17 @@ RenderSystem::RenderSystem() {
 	RenderUtils::setTextureHeight(texture_height);
 	RenderUtils::setTextureWidth(texture_width);
 
+	// create post process objects
+	FXAA_process = new FXAA( nullptr );
+
+	vls_post_process = new VolumetricLightScattering( nullptr );
+
+	bloom_post_process = new Bloom(nullptr);
+	//bloom_post_process->createFrameBuffers();
+
+
 	// Setup the necessary framebuffers for rendering
-	createFramebuffers();
+	addFramebufferTextures();
 
 	// And in the last step, Jason said "Let there be light"
 	sun.location = glm::vec3(.707f,.3f,-.707f);
@@ -43,14 +52,9 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
+	
 
-	// create post process objects
-	FXAA_process = new FXAA(deferred_buffer.getTexture( "position" )->getID(), shading_buffer.getTexture( "FragColor" )->getID(), nullptr);
-
-	vls_post_process = new VolumetricLightScattering(deferred_buffer.getTexture( "occlusion" )->getID(), nullptr);
-
-	bloom_post_process = new Bloom(shading_buffer.getTexture("BrightColor")->getID(), nullptr);
-	bloom_post_process->createFrameBuffers();
+	use_bloom = UserSettings::use_bloom;
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -67,12 +71,30 @@ void RenderSystem::reshape( int x_size, int y_size ) {
 
 }
 
+// To call on a change in render resolution
+void RenderSystem::recreateFramebuffers() {
+	texture_width = UserSettings::resolution_width;
+	texture_height = UserSettings::resolution_height;
+	if( camera ) {
+		camera->setResolution( texture_width, texture_height );
+	}
+
+	deferred_buffer.clearAll();
+	shading_buffer.clearAll();
+	shadow_mapping_buffer.clearAll();
+	depth_shadow_buffer.clearAll();
+
+	bloom_post_process->clearFrameBufferTextures();
+
+	addFramebufferTextures();
+}
+
 /**
 	Rendering Pipeline Setup
 **/
 
 
-void RenderSystem::createFramebuffers() {
+void RenderSystem::addFramebufferTextures() {
 	// Add the color textures to render to in the deffered rendering step
 	deferred_buffer.addColorTextureHighPrecision( "position", texture_width, texture_height );
 	deferred_buffer.addColorTexture( "normal", texture_width, texture_height );
@@ -95,7 +117,15 @@ void RenderSystem::createFramebuffers() {
 	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
 	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
 
-	RenderUtils::testGLError( "Framebuffer Setup" );
+	bloom_post_process->setBrightTexture(shading_buffer.getTexture("BrightColor")->getID());
+	bloom_post_process->createFrameBuffers();
+
+	vls_post_process->setOcclusionTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
+
+	((FXAA*)FXAA_process)->setPositionTexture( deferred_buffer.getTexture( "position" )->getID() );
+	((FXAA*)FXAA_process)->setColorTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	RenderUtils::testGLError( "Framebuffer Textures" );
 }
 
 
