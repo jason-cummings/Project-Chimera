@@ -6,7 +6,6 @@
 #include "TextureLoader.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
-#define BLOOM_PASSES 8
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
 
@@ -14,19 +13,7 @@ RenderSystem::RenderSystem() {
 	camera = nullptr;
 	skybox = nullptr;
 
-	//set up quad vao
-	glGenVertexArrays( 1, &quad_vao );
-	glBindVertexArray( quad_vao );
-	
-	// Create the VBO for the quad
-	glGenBuffers( 1, &quad_vbo );
-	glBindBuffer( GL_ARRAY_BUFFER, quad_vbo );
-	glBufferData( GL_ARRAY_BUFFER, sizeof(float) * 30, &quad_vbo_data, GL_STATIC_DRAW );
-
-	glEnableVertexAttribArray( ShaderAttrib2D::Vertex2D );
-	glEnableVertexAttribArray( ShaderAttrib2D::Texture2D );
-	glVertexAttribPointer( ShaderAttrib2D::Vertex2D,  3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(0) );
-	glVertexAttribPointer( ShaderAttrib2D::Texture2D, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3*sizeof(GLfloat)) );
+	RenderUtils::init();
 
 	// Get the shader manager
 	// Create the basic VAO
@@ -39,13 +26,25 @@ RenderSystem::RenderSystem() {
 	texture_width = UserSettings::resolution_width;
 	texture_height = UserSettings::resolution_height;
 
+	RenderUtils::setTextureHeight(texture_height);
+	RenderUtils::setTextureWidth(texture_width);
+
+	// create post process objects
+	FXAA_process = new FXAA( nullptr );
+
+	vls_post_process = new VolumetricLightScattering( nullptr );
+
+	bloom_post_process = new Bloom(nullptr);
+	//bloom_post_process->createFrameBuffers();
+
+
 	// Setup the necessary framebuffers for rendering
 	addFramebufferTextures();
 
 	// And in the last step, Jason said "Let there be light"
 	sun.location = glm::vec3(.707f,.3f,-.707f);
 	sun.diffuse = glm::vec3(0.5f,0.3f,0.2f);
-	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
+	sun.specular = glm::vec3(0.5f,0.3f,0.2f);
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
 	sun.directional = 1.0f;
@@ -53,6 +52,7 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
+	
 
 	use_bloom = UserSettings::use_bloom;
 }
@@ -66,6 +66,9 @@ RenderSystem & RenderSystem::getRenderSystem() {
 void RenderSystem::reshape( int x_size, int y_size ) {
 	view_width = x_size;
 	view_height = y_size;
+	RenderUtils::setViewHeight(y_size);
+	RenderUtils::setViewWidth(x_size);
+
 }
 
 // To call on a change in render resolution
@@ -78,10 +81,10 @@ void RenderSystem::recreateFramebuffers() {
 
 	deferred_buffer.clearAll();
 	shading_buffer.clearAll();
-	blur_buffer[0].clearAll();
-	blur_buffer[1].clearAll();
 	shadow_mapping_buffer.clearAll();
 	depth_shadow_buffer.clearAll();
+
+	bloom_post_process->clearFrameBufferTextures();
 
 	addFramebufferTextures();
 }
@@ -89,13 +92,6 @@ void RenderSystem::recreateFramebuffers() {
 /**
 	Rendering Pipeline Setup
 **/
-
-// Wrapper function to catch GL errors
-void RenderSystem::testGLError( const char *loc ) {
-	int err;
-	if( (err = glGetError()) != GL_NO_ERROR )
-		std::cerr << "OpenGL error at " << loc << ": " << err << std::endl;
-}
 
 
 void RenderSystem::addFramebufferTextures() {
@@ -121,11 +117,15 @@ void RenderSystem::addFramebufferTextures() {
 	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
 	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
 
-	// Set up the pingpong buffers for blurring
-	blur_buffer[0].addColorTexture( "FragColor", texture_width, texture_height );
-	blur_buffer[1].addColorTexture( "FragColor", texture_width, texture_height );
+	bloom_post_process->setBrightTexture(shading_buffer.getTexture("BrightColor")->getID());
+	bloom_post_process->createFrameBuffers();
 
-	testGLError( "Framebuffer Textures" );
+	vls_post_process->setOcclusionTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
+
+	((FXAA*)FXAA_process)->setPositionTexture( deferred_buffer.getTexture( "position" )->getID() );
+	((FXAA*)FXAA_process)->setColorTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	RenderUtils::testGLError( "Framebuffer Textures" );
 }
 
 
@@ -144,7 +144,7 @@ void RenderSystem::drawTexture( GLuint tex ) {
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
-	drawQuad();
+	RenderUtils::drawQuad();
 }
 
 void RenderSystem::drawDepthTexture( GLuint tex ) {
@@ -157,14 +157,7 @@ void RenderSystem::drawDepthTexture( GLuint tex ) {
 	glActiveTexture( GL_TEXTURE0 );
 	glBindTexture( GL_TEXTURE_2D, tex );
 
-	drawQuad();
-}
-
-void RenderSystem::drawQuad() {
-	glBindVertexArray( quad_vao );
-	glDrawArrays( GL_TRIANGLES, 0, 6 );
-	glBindVertexArray( 0 );
-	testGLError("Quad");
+	RenderUtils::drawQuad();
 }
 
 void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
@@ -255,7 +248,7 @@ void RenderSystem::render( double dt ) {
 	if( camera != nullptr ) {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
-		camera_loc = glm::vec3(camera->getWorldTransform()[3]);
+		camera_loc = glm::vec3(camera->getEyePos());
 	}
 	else {
 		std::cerr << "Camera is null - using default matrices" << std::endl;
@@ -281,24 +274,35 @@ void RenderSystem::render( double dt ) {
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glViewport( 0, 0, view_width, view_height );
 	glClear( GL_COLOR_BUFFER_BIT );
-	drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	if( UserSettings::use_FXAA )
+		FXAA_process->apply();
+	else drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+
+	
 
 	if( use_bloom ) {
-		applyBloom();
+		bloom_post_process->apply();
 	}
 
 	if( UserSettings::use_volumetric_light_scattering ) {
-		applyVolumetricLightScattering();
+
+		// calculate and set sun screen space location
+		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
+		glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+
+		light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
+		light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
+		light_screen_space_vec4 = light_screen_space_vec4 * .5f;
+		
+		glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
+
+		vls_post_process->setSunScreenCoords(sun_screen_loc);
+
+		vls_post_process->apply();
 	}
 
-	// drawTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
-
-
 	glFinish();
-	
-	// mesh_list.clear(); // this probably should be moved
-	// skinned_mesh_list.clear();
-	// overlay_mesh_list.clear();
 }
 
 void RenderSystem::populateRenderLists( GameObject * game_object ) {
@@ -420,7 +424,7 @@ void RenderSystem::deferredRenderStep() {
 	glDisable( GL_CULL_FACE );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	testGLError("Deferred Rendering");
+	RenderUtils::testGLError("Deferred Rendering");
 }
 
 // Render all meshes to the shadow buffer
@@ -475,7 +479,7 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	glDisable( GL_CULL_FACE );
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	testGLError("Depth Texture render");
+	RenderUtils::testGLError("Depth Texture render");
 }
 
 // Create the shadow map texture to pass to the shading step
@@ -519,7 +523,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	mapping_shader->setUniformFloat( "iterate", UserSettings::shadow_mode == ShadowMode::ITERATE ? 1.f : 0.f );
 
 	// Render the shadow map
-	drawQuad();
+	RenderUtils::drawQuad();
 
 
 	// // Blur the shadow map
@@ -540,7 +544,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// 	GLuint tex_to_use = i == 0 ? shadow_mapping_buffer.getTexture( "shadow_map" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
 	// 	glBindTexture( GL_TEXTURE_2D, tex_to_use );
 
-	// 	drawQuad();
+	// 	RenderUtils::drawQuad();
 
 	// 	current_blur_buffer = !current_blur_buffer;
 	// }
@@ -551,7 +555,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// End Render
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
-	testGLError("Shadow Map render");
+	RenderUtils::testGLError("Shadow Map render");
 }
 
 void RenderSystem::shadingStep() {
@@ -582,7 +586,7 @@ void RenderSystem::shadingStep() {
 	glActiveTexture( GL_TEXTURE4 );
 	glBindTexture( GL_TEXTURE_2D, shadow_mapping_buffer.getTexture( "shadow_map" )->getID());
 
-	cartoon_shading->setUniformVec3( "cameraLoc",glm::vec3(0.0f,0.0f,10.0f) );
+	cartoon_shading->setUniformVec3( "cameraLoc", camera_loc );
 
 	cartoon_shading->setUniformFloat("ambientAmount", 0.3f );
 
@@ -603,78 +607,11 @@ void RenderSystem::shadingStep() {
 	cartoon_shading->setUniformFloat( "light.quadraticAttenuation", sun.quadratic_attenuation );
 	cartoon_shading->setUniformFloat( "light.directional", sun.directional );
 
-	drawQuad();
+	RenderUtils::drawQuad();
 
-	testGLError("Shading");
+	RenderUtils::testGLError("Shading");
 	
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glUseProgram(0);
-}
-
-
-void RenderSystem::applyBloom() {
-	Shader *blur_shader = sm->getShader("blur");
-	blur_shader->bind();
-	blur_shader->setUniformInt( "colorTexture", 0 );
-	glActiveTexture( GL_TEXTURE0 );
-
-	current_blur_buffer = 0;
-
-	for( int i=0; i<BLOOM_PASSES; i++ ) { // BLOOM_PASSES
-		blur_shader->bind();
-		blur_buffer[current_blur_buffer].bind();
-		glViewport( 0, 0, texture_width, texture_height );
-		glClear( GL_COLOR_BUFFER_BIT );
-		
-		blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
-		GLuint tex_to_use = i == 0 ? shading_buffer.getTexture( "BrightColor" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
-		glBindTexture( GL_TEXTURE_2D, tex_to_use );
-
-		drawQuad();
-
-		current_blur_buffer = !current_blur_buffer;
-	}
-
-	testGLError("Blur");
-
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, view_width, view_height );
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_ONE, GL_ONE );
-	drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
-	glDisable( GL_BLEND );
-
-	glUseProgram(0);
-}
-
-void RenderSystem::applyVolumetricLightScattering() {
-	Shader *vls_shader = sm->getShader("volumetricLightScattering");
-	vls_shader->bind();
-
-	// calculate and set sun screen space location
-	glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
-	glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
-	light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
-	light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
-	light_screen_space_vec4 = light_screen_space_vec4 * .5f;
-	glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
-
-	vls_shader->setUniformVec2("sunScreenCoords",sun_screen_loc);
-
-	// set occlusion texture
-	vls_shader->setUniformInt( "frame", 0 );
-	glActiveTexture( GL_TEXTURE0 );
-	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture("occlusion")->getID() );
-
-	testGLError("VolumetricLightScattering");
-
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, view_width, view_height );
-	glEnable( GL_BLEND );
-	glBlendFunc( GL_ONE, GL_ONE );
-	drawQuad();
-	glDisable( GL_BLEND );
-
 	glUseProgram(0);
 }
 
@@ -699,7 +636,7 @@ void RenderSystem::renderOverlay() {
 	
 	glDisable( GL_BLEND );
 
-	testGLError("Overlay");
+	RenderUtils::testGLError("Overlay");
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);

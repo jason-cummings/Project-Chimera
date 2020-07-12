@@ -10,6 +10,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "RenderUtils.hpp"
 #include "Renderable.hpp"
 
 #include "ShaderManager.hpp"
@@ -22,6 +23,10 @@
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
 #include "../../SettingsManager.hpp"
+#include "PostProcessing/FXAA.hpp"
+#include "PostProcessing/VolumetricLightScattering.hpp"
+#include "PostProcessing/Bloom.hpp"
+
 
 
 struct Light {
@@ -44,11 +49,6 @@ private:
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
 
-    //VAO for simple quad
-    GLuint quad_vao;
-
-    // VBO object for a simple quad
-    GLuint quad_vbo;
 
     // The deferred rendering framebuffer
     Framebuffer deferred_buffer;
@@ -56,8 +56,6 @@ private:
     
     // Blur buffers and settings
     bool use_bloom;
-    bool current_blur_buffer;
-    Framebuffer blur_buffer[2];
 
     // Volumetric light scattering settings
     bool use_vls;
@@ -88,13 +86,15 @@ private:
     std::vector<GameObject*> skinned_mesh_list;
     std::vector<GameObject*> overlay_mesh_list;
 
+    // Post processes
+    PostProcess * FXAA_process;
+    VolumetricLightScattering * vls_post_process;
+    Bloom * bloom_post_process;
+
 
     /**
         Rendering Pipeline Setup
     **/
-
-    // Use for testing to pinpoint OpenGL errors
-	void testGLError( const char *loc = "default" );
 
     // Set up the framebuffers necessary for the rendering process
     void addFramebufferTextures();
@@ -108,8 +108,6 @@ private:
     // Draw a quad with texture tex that takes up the whole viewport
     void drawTexture( GLuint tex );
 
-    // Draw a quad that tatkes up viewport
-    void drawQuad();
 
     // draws the meshList
     void drawMeshList(bool useMaterials, Shader * shader);
@@ -139,10 +137,10 @@ private:
     void shadingStep();
 
     // bloom
-    void applyBloom();
+    // void applyBloom();
 
     // volumetric light scattering
-    void applyVolumetricLightScattering();
+    // void applyVolumetricLightScattering();
 
     // 2D overlay elements
     void renderOverlay();
@@ -181,17 +179,6 @@ public:
 
     inline int getViewWidth() { return view_width; }
     inline int getViewHeight() { return view_height; }
-};
-
-// The VBO for rendering a quad over the whole viewport
-const GLfloat quad_vbo_data[] = {
-//   x     y     w       u     v
-    -1.0f,-1.0f, 0.0f,   0.0f, 0.0f,
-     1.0f,-1.0f, 0.0f,   1.0f, 0.0f,
-    -1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-	-1.0f, 1.0f, 0.0f,   0.0f, 1.0f,
-     1.0f,-1.0f, 0.0f,   1.0f, 0.0f,
-     1.0f, 1.0f, 0.0f,   1.0f, 1.0f
 };
 
 
