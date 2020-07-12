@@ -35,7 +35,7 @@ RenderSystem::RenderSystem() {
 	// And in the last step, Jason said "Let there be light"
 	sun.location = glm::vec3(.707f,.3f,-.707f);
 	sun.diffuse = glm::vec3(0.5f,0.3f,0.2f);
-	sun.specular = glm::vec3(0.0f,0.0f,0.0f);
+	sun.specular = glm::vec3(0.5f,0.3f,0.2f);
 	sun.linear_attenuation = 0.08f;
 	sun.quadratic_attenuation = 0.0f;
 	sun.directional = 1.0f;
@@ -218,7 +218,7 @@ void RenderSystem::render( double dt ) {
 	if( camera != nullptr ) {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
-		camera_loc = glm::vec3(camera->getWorldTransform()[3]);
+		camera_loc = glm::vec3(camera->getEyePos());
 	}
 	else {
 		std::cerr << "Camera is null - using default matrices" << std::endl;
@@ -245,13 +245,13 @@ void RenderSystem::render( double dt ) {
 	glViewport( 0, 0, view_width, view_height );
 	glClear( GL_COLOR_BUFFER_BIT );
 
-	if(/* UserSettings::use_FXAA*/true)
+	if( UserSettings::use_FXAA )
 		FXAA_process->apply();
 	else drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
 	
 
-	if( UserSettings::use_bloom ) {
+	if( use_bloom ) {
 		bloom_post_process->apply();
 	}
 
@@ -556,7 +556,7 @@ void RenderSystem::shadingStep() {
 	glActiveTexture( GL_TEXTURE4 );
 	glBindTexture( GL_TEXTURE_2D, shadow_mapping_buffer.getTexture( "shadow_map" )->getID());
 
-	cartoon_shading->setUniformVec3( "cameraLoc",glm::vec3(0.0f,0.0f,10.0f) );
+	cartoon_shading->setUniformVec3( "cameraLoc", camera_loc );
 
 	cartoon_shading->setUniformFloat("ambientAmount", 0.3f );
 

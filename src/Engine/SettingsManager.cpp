@@ -16,6 +16,7 @@ int UserSettings::resolution_height = 1800;
 ShadowMode UserSettings::shadow_mode = ITERATE;
 bool UserSettings::use_bloom = true;
 bool UserSettings::use_volumetric_light_scattering = true;
+bool UserSettings::use_FXAA = true;
 
 // Opens file at [exe path]/../../settings.txt and assigns all relevant settings
 void UserSettings::loadFromFile() {
@@ -54,5 +55,8 @@ void UserSettings::assignSetting( std::string setting, std::string value ) {
     }
     else if( setting == "use_volumetric_light_scattering" ) {
         use_bloom = (bool)std::stoi(value);
+    }
+    else if ( setting == "use_FXAA" ) {
+        use_FXAA = (bool)std::stoi(value);
     }
 }

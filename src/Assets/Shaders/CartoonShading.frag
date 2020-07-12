@@ -38,7 +38,7 @@ void main()
 	vec3 fragPos = texture(positionTexture, texCoords).rgb;
 	vec3 normal = normalize(texture(normalTexture, texCoords).rgb);
 	vec3 diffuseColor = texture(diffuseTexture, texCoords).rgb;
-	float shininess = texture(diffuseTexture, texCoords).a;
+	float shininess = texture(diffuseTexture, texCoords).a + .1f;
 	vec4 emission = texture(emissiveTexture, texCoords);
 	vec3 shadow = vec3(1.0); if( applyShadows ) shadow = texture(shadowTexture, texCoords).rgb;
 	// vec4 reflectivity = texture(reflectivityTexture, texCoords);
@@ -55,39 +55,35 @@ void main()
 	
 
 	vec3 lightDirection = light.directional ? normalize(light.location) : normalize(light.location - fragPos);
-	// vec3 lightDirection = normalize(light.location - fragPos);
+	
+	// diffuse
+
 	float diffuseAmount = max(dot(normalize(normal), lightDirection),0.0);
+
+	// give the diffuse lighting a cartoon effect by clamping the color values at different levels
+	diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
 	
 	
-	//vec3 diffuse = diffuseColor * diffuseAmount * light.diffuse;
+	// Specular
 
 	vec3 R = reflect( -1.0 * lightDirection,normal);
-	//vec3 halfwaydir = normalize(lightDirection + viewDirection);
-
-	//float specularAmount = max(dot(normal,halfwaydir),0.0);
-	float specularAmount = pow(max(dot(R,viewDirection),0.0),shininess);
-
-	if(specularAmount > .4) {
-		specularAmount = .4;
-	}
-	else specularAmount = 0.0;
+	vec3 halfwaydir = normalize(lightDirection + viewDirection);
+	float specularAmount = pow(max(dot(normal,halfwaydir),0.0),shininess);
 	
-
 	vec3 specular = vec3(0.0);
 	if(diffuseAmount > 0.0)
-		specular = specularAmount * light.specular;
+		specular = specularAmount * light.specular * diffuseColor;
 
+	// calculate attenuation of the light
 
 	float d = length(light.location - fragPos);
 	float attenuation = light.directional ? 1.0 : 1.0 / (1.0 + light.linearAttenuation * d + light.quadraticAttenuation * d * d);
 
-	//finalColor += shadowVal * (diffuse * attenuation + specular * attenuation);
+	
 
-	//finalColor += (diffuseAmount * light.diffuse + specular) * attenuation;// * diffuseColor;
+	// combine shadow, diffuse color, and specular color and apply attenuation
 
-	diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
-
-	finalColor += shadow * (diffuseAmount * diffuseColor * light.diffuse + specular) * attenuation;// * diffuseColor;
+	finalColor += shadow * (diffuseAmount * diffuseColor * light.diffuse + specular) * attenuation;
 
 	// luminosity += (diffuseAmount + specularAmount) * attenuation * shadowVal;
 
