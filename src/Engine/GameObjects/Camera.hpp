@@ -19,6 +19,7 @@ public:
     // Getters to be used by render system
     inline glm::mat4 getViewMatrix() { return view_mat; }
     inline glm::mat4 getProjectionMatrix() { return proj_mat; }
+    glm::vec3 getEyePos();
 
     inline float getTh() { return th; }
     inline float getPh() { return ph; }

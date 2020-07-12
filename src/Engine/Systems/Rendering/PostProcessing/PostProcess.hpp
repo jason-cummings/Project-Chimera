@@ -9,8 +9,13 @@
 //  - A post process is defined as a process that applies any kind of visual effect to an image
 
 // PostProcess Subclass Constructors
-//  - Any input data needed by the post process (frame buffer textures for input to shaders) 
-//    should be passed in through the constructor of the post process
+//  - PostProcesses should avoid having input data textures in the constructor. The identifier of the data 
+//    textures may change when the resolution of textures is changed in game. Instead of setting these 
+//    values through the constructor, these values should be set using setters. the setters should be 
+//    called in the setFrameBufferTextures function in RenderSystem. this will be called at initialization,
+//    and ensures that these values will be reset anytime the texture resolution is changed.
+//  - Any values provided in the constructor should be values that will not change due to resetting texture 
+//    resolutions.
 
 // Post process target framebuffer
 //  - The target framebuffer (required by the post process constructor) should only have one texture target
@@ -28,10 +33,8 @@ protected:
 
 public:
 	inline PostProcess(Framebuffer * target) {target_buffer = target;}
-	inline virtual void createFrameBuffers() {} // change?
-	
-	// inline virtual void setTextureSize(int texture_width, int texture_height) {} // make static?
-	// inline virtual void setViewSize(int view_width, int view_height) {} // make static?
+	inline virtual void createFrameBuffers() {} 
+	inline virtual void clearFrameBufferTextures() {}
 
 
 	virtual void apply() = 0;

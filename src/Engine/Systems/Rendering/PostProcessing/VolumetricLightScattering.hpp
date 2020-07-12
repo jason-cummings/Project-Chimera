@@ -13,11 +13,13 @@ private:
 
 	glm::vec2 sun_screen_coords;
 public:
-	VolumetricLightScattering(GLuint occlusion_texture_in, Framebuffer * target);
+	VolumetricLightScattering(Framebuffer * target);
 
 	void apply() override;
 
-	void setSunScreenCoords(glm::vec2 sun_loc);
+	void setSunScreenCoords( glm::vec2 sun_loc );
+
+	inline void setOcclusionTexture (GLuint occlusion_texture_in ) { occlusion_texture = occlusion_texture_in; }
 };
 
 #endif

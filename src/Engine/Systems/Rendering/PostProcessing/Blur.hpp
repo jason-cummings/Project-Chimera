@@ -18,7 +18,7 @@ private:
     int out_width, out_height;
 
 public:
-	Blur(GLuint to_blur_texture_in, Framebuffer * target );
+	Blur( GLuint to_blur_texture_in, Framebuffer * target );
 
 	void createFrameBuffers() override;
     

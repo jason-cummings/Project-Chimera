@@ -16,6 +16,7 @@ ShadowMode UserSettings::shadow_mode = ShadowMode::ITERATE;
 bool UserSettings::blur_shadow_map = false;
 BloomMode UserSettings::bloom_mode = BloomMode::LINEAR_GAUSSIAN;
 bool UserSettings::use_volumetric_light_scattering = true;
+bool UserSettings::use_FXAA = true;
 
 // Return the path to the settings file
 std::string UserSettings::settingsPath() {
@@ -79,5 +80,8 @@ void UserSettings::assignSetting( std::string setting, std::string value ) {
     }
     else if( setting == "use_volumetric_light_scattering" ) {
         use_volumetric_light_scattering = (bool)std::stoi(value);
+    }
+    else if ( setting == "use_FXAA" ) {
+        use_FXAA = (bool)std::stoi(value);
     }
 }

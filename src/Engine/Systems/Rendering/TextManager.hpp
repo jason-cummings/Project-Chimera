@@ -15,6 +15,7 @@
 #define FONT_THERAMIN_GOTHIC_PATH "Fonts/SFTheraminGothic.ttf"
 #define FONT_THERAMIN_GOTHIC_SHADED_OBLIQUE_PATH "Fonts/SFTheraminGothicShadedOblique.ttf"
 #define FONT_THERAMIN_GOTHIC_CONDENSED_PATH "Fonts/SFTheraminGothicCondensed.ttf"
+#define FONT_XENOSPHERE_PATH "Fonts/Xenosphere.ttf"
 
 struct Character {
     GLuint       tex_id;    // ID handle of the glyph texture

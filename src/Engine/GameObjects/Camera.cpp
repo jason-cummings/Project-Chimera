@@ -55,3 +55,9 @@ void Camera::createMatrices() {
     view_mat = glm::lookAt( eyepos, viewpos, updir );
     proj_mat = glm::perspective( glm::radians(fov), aspect_ratio , 1.f, 10000.f );
 }
+
+glm::vec3 Camera::getEyePos() {
+    float offset = 3;
+    glm::vec3 viewpos = glm::vec3( parent->getWorldTransform() * glm::vec4(0.f,1.f,0.f,1.f) );
+    return viewpos + offset * glm::vec3(sin(th) * cos(ph), sin(ph), cos(th) * cos(ph));
+}

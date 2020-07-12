@@ -33,6 +33,7 @@ public:
     static bool blur_shadow_map;
     static BloomMode bloom_mode;
     static bool use_volumetric_light_scattering;
+    static bool use_FXAA;
 };
 
 #endif
