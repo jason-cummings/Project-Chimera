@@ -44,11 +44,11 @@ void GameState::handleKeyDown( SDL_Event e ) {
     SDL_Keycode key = e.key.keysym.sym;
     if( key == SDLK_F1 ) {
         // Cycle shadow modes
-        render_system.cycleShadows();
+        UserSettings::shadow_mode = static_cast<ShadowMode>((static_cast<int>(UserSettings::shadow_mode) + 1) % 4);
     }
     else if( key == SDLK_F2 ) {
         // Cycle bloom modes
-        render_system.toggleBloom();
+        UserSettings::bloom_mode = static_cast<BloomMode>((static_cast<int>(UserSettings::bloom_mode) + 1) % 3);
     }
     else if( key == SDLK_F4 ) {
         if( UserSettings::resolution_width > 2000 ) {
@@ -56,8 +56,8 @@ void GameState::handleKeyDown( SDL_Event e ) {
             UserSettings::resolution_height = 480;
         }
         else {
-            UserSettings::resolution_width = 3840;
-            UserSettings::resolution_height = 2160;
+            UserSettings::resolution_width = 2560;
+            UserSettings::resolution_height = 1440;
         }
         render_system.recreateFramebuffers();
     }

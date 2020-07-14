@@ -33,7 +33,7 @@ public:
 
     inline bool success() const { return read_success; }
 
-    static fs::path assetPath() { return fs::path(WAIWrapper::getExecutablePath() + "/Assets/"); };
+    static fs::path assetPath();
 };
 
 #endif

@@ -2,22 +2,10 @@
 #define PLAYERMOVEMENTSYSTEM_H
 
 #include "./../../GameObjects/Player.hpp"
-#include "./../../GameObjects/Obstacle.hpp"
 #include "./../../GameObjects/Camera.hpp"
+#include "./../../GameObjects/Obstacle.hpp"
 #include "./../Physics/PhysicsSystem.hpp"
 #include "./../Animation/AnimationStack.hpp"
-
-#define GROUND_MOVE_SPEED 3.f // m/s
-#define GROUND_SPRINT_SPEED 6.f // m/s
-#define AIR_MOVE_FORCE 1000.f // ?
-#define JUMP_IMPULSE_VALUE 700.f // Newtons?
-
-#define RAYCAST_ANGLE 2.5307f // (~145 degrees) //2.0944f // Radians (~120 degerees from vertical y)
-#define GROUND_DISTANCE_THRESHOLD 0.04f // m
-// #define MAX_CLIMBABLE_ANGLE 0.7854f // Radians (~45 degrees)
-
-#define JUMP_COOLDOWN_TIME 0.15f // s
-#define TURN_TIMEFACTOR .1f // s
 
 enum PlayerState {
     Idle = 0,
@@ -25,14 +13,6 @@ enum PlayerState {
     Running = 2,
     InAir = 3,
     Landing = 4
-};
-
-const std::string animation_names[5] = {
-    "idle",
-    "walk",
-    "sprint",
-    "in_air",
-    "land"
 };
 
 class PlayerMovementSystem
@@ -53,27 +33,30 @@ private:
     PlayerState player_current_state;
     PlayerState player_previous_state;
 
+    bool flying;
 
     void setPlayerAnimations();
     void setPlayerState( bool f, bool b, bool r, bool l, bool space, bool shift );
+    
+    // On ground movement
+    void movePlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt );
+    // Old movement style
+    void flyPlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt );
 
 public:
     PlayerMovementSystem( PhysicsSystem *physics_in, Player* playerptr, AnimationStack * animation_stack_in );
     ~PlayerMovementSystem();
 
-    // On ground movement
-    void movePlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt );
+    void updatePlayerMovement( bool f, bool b, bool r, bool l, bool space, bool shift, double dt );
 
     // Perform any necessary operations after the physics step
     void makePostPhysicsAdjustments();
-
-    // Old movement style
-    void flyPlayer( int ad, int ss, int ws, double dt );
 
     // Perform tests to determine whether or not the player is grounded
     void testOnGround();
 
     inline void registerCamera( Camera* input ) { camera = input; }
+    inline void toggleFlying() { flying = !flying; }
 };
 
 #endif

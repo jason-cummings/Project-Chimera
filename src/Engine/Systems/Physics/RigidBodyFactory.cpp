@@ -90,7 +90,7 @@ RigidBodyPhysicsComponent * RigidBodyFactory::createCapsuleComponent( std::strin
 // If scale is nullptr, don't scale, else scale must be a 3 float array
 btBvhTriangleMeshShape * RigidBodyFactory::createBvhTriangleMeshFromFiles( fs::path directory ) {
     // Test if this shape already exsts
-    std::string mesh_shape_name = directory.filename().string();
+    std::string mesh_shape_name = directory.parent_path().parent_path().filename().string() + "-" + directory.filename().string();
     btBvhTriangleMeshShape *mesh_shape = (btBvhTriangleMeshShape*)findCollisionShape( mesh_shape_name );
 
     // If it doesn't exist, create it and add it to the map

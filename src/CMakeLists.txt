@@ -21,6 +21,6 @@ target_link_libraries(projectchimera ${GAME_LIBS})
 #       ${CMAKE_CURRENT_SOURCE_DIR}/Assets
 #       $<TARGET_FILE_DIR:projectchimera>/Assets)
 
-add_custom_target(copy_assets ALL DEPENDS projectchimera COMMAND ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_CURRENT_SOURCE_DIR}/Assets
-      $<TARGET_FILE_DIR:projectchimera>/Assets)
+# add_custom_target(copy_assets ALL DEPENDS projectchimera COMMAND ${CMAKE_COMMAND} -E copy_directory
+#       ${CMAKE_CURRENT_SOURCE_DIR}/Assets
+#       $<TARGET_FILE_DIR:projectchimera>/Assets)

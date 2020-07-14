@@ -3,6 +3,14 @@
 #include <iostream>
 #include <fstream>
 
+fs::path Asset::assetPath() {
+    fs::path exe_path = fs::path( WAIWrapper::getExecutablePath() );
+    fs::path asset_path = exe_path.parent_path().parent_path();
+    asset_path.append( "src/Assets/" );
+
+    return asset_path;
+}
+
 Asset::Asset( std::string fname ) {
     // Get the path to the executable, then add the file name
     std::string fpath = assetPath().string() + std::string(fname);
@@ -36,7 +44,7 @@ bool Asset::readInAsset( std::string fpath ) {
     }
 
     file.seekg( 0, std::ios::end );
-    n_bytes = file.tellg();
+    n_bytes = (int)(file.tellg());
     file.seekg( 0, std::ios::beg );
     buffer = new char[n_bytes/sizeof(char)+1];
     file.read( buffer, n_bytes );
@@ -54,3 +62,4 @@ char * Asset::copyBuffer() {
     }
     return retbuffer;
 }
+

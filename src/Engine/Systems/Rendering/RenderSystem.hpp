@@ -15,10 +15,6 @@
 
 #include "ShaderManager.hpp"
 #include "Framebuffer.hpp"
-#include "Mesh.hpp"
-#include "SkinnedMesh.hpp"
-#include "OverlayMesh.hpp"
-#include "Material.hpp"
 #include "Skybox.hpp"
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
@@ -26,7 +22,7 @@
 #include "PostProcessing/FXAA.hpp"
 #include "PostProcessing/VolumetricLightScattering.hpp"
 #include "PostProcessing/Bloom.hpp"
-
+#include "PostProcessing/Blur.hpp"
 
 
 struct Light {
@@ -54,21 +50,18 @@ private:
     Framebuffer deferred_buffer;
     Framebuffer shading_buffer;
     
-    // Blur buffers and settings
-    bool use_bloom;
+    // Framebuffers and processes required for basic shadow mapping
+    Framebuffer depth_shadow_buffer;
+    Framebuffer shadow_blurred_depth_out; // To be used as the out buffer from a blur PostProcess
 
-    // Volumetric light scattering settings
-    bool use_vls;
+    // Framebuffers and processes required for variance shadow mapping
+    Framebuffer variance_depth_shadow_buffer;
+    Framebuffer variance_blurred_depth_out; // To be used as the out buffer from a blur PostProcess
+    Blur * variance_blur_process; // Blurs the depth
 
-
-    // The depth-only framebuffer for shadows and buffer for shadow mapping
-    ShadowFramebuffer depth_shadow_buffer;
+    // Framebuffer and process for creating the final shadow map, regardless of technique used
     Framebuffer shadow_mapping_buffer;
-
-
-    // Variables for the output sizes of the textures
-    int texture_width, texture_height; // Render resolution
-    int view_width, view_height; // Actual display
+    Blur * shadow_map_blur_process;
 
     // The shader manager for the render system
     ShaderManager *sm;
@@ -90,7 +83,6 @@ private:
     PostProcess * FXAA_process;
     VolumetricLightScattering * vls_post_process;
     Bloom * bloom_post_process;
-
 
     /**
         Rendering Pipeline Setup
@@ -131,21 +123,19 @@ private:
     // shadows
     void renderDirectionalDepthTexture( Light *light );
     void createDirectionalShadowMap( Light *light );
+
+    void renderVarianceDirectionalDepthTexture( Light *light );
+    void createDirectionalVarianceShadowMap( Light *light );
+
     void drawDepthTexture( GLuint tex );
 
     // shading step
     void shadingStep();
 
-    // bloom
-    // void applyBloom();
-
-    // volumetric light scattering
-    // void applyVolumetricLightScattering();
-
     // 2D overlay elements
     void renderOverlay();
 
-
+    // Singleton constructor
     RenderSystem();
 
 public:
@@ -171,14 +161,9 @@ public:
 
     // Set the camera for the rendersystem
     inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    inline Camera * getRegisteredCamera() { return camera; }
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
-
-    inline void cycleShadows() { UserSettings::shadow_mode = (ShadowMode)((UserSettings::shadow_mode + 1) % 3); }
-    inline void toggleBloom() { use_bloom = !use_bloom; }
-
-    inline int getViewWidth() { return view_width; }
-    inline int getViewHeight() { return view_height; }
 };
 
 
