@@ -4,10 +4,18 @@
 
 #include "../../Utilities/Asset.hpp"
 #include "TextureLoader.hpp"
+#include "../../SettingsManager.hpp"
+
+#include "Mesh.hpp"
+#include "SkinnedMesh.hpp"
+#include "OverlayMesh.hpp"
+#include "Material.hpp"
 
 #define SHADOW_MAP_DIMENSION 2048
+#define VARIANCE_SHADOW_MAP_DIMENSION 1024
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
+const float variance_sun_distances[4] = { 5.f, 10.f, 15.f, 100.f };
 
 RenderSystem::RenderSystem() {
 	camera = nullptr;
@@ -23,18 +31,15 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( 0 );
 
 	// Assign values based on user settings
-	texture_width = UserSettings::resolution_width;
-	texture_height = UserSettings::resolution_height;
-
-	RenderUtils::setTextureHeight(texture_height);
-	RenderUtils::setTextureWidth(texture_width);
+	RenderUtils::setTextureHeight( UserSettings::resolution_height );
+	RenderUtils::setTextureWidth( UserSettings::resolution_width );
 
 	// create post process objects
 	FXAA_process = new FXAA( nullptr );
 
 	vls_post_process = new VolumetricLightScattering( nullptr );
 
-	bloom_post_process = new Bloom(nullptr);
+	bloom_post_process = new Bloom( nullptr );
 	//bloom_post_process->createFrameBuffers();
 
 
@@ -53,8 +58,14 @@ RenderSystem::RenderSystem() {
 	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
 	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
 	
+	// Add intermediate bloom processes
+	variance_blur_process = new Blur( variance_depth_shadow_buffer.getTexture( "depth" )->getID(), &variance_blurred_depth_out );
+	variance_blur_process->setOutSize( VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	variance_blur_process->createFrameBuffers();
 
-	use_bloom = UserSettings::use_bloom;
+	// Add blur process to final shadow map
+	shadow_map_blur_process = new Blur( shadow_mapping_buffer.getTexture( "shadow_map" )->getID(), &shadow_mapping_buffer );
+	shadow_map_blur_process->createFrameBuffers();
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -64,19 +75,14 @@ RenderSystem & RenderSystem::getRenderSystem() {
 }
 
 void RenderSystem::reshape( int x_size, int y_size ) {
-	view_width = x_size;
-	view_height = y_size;
 	RenderUtils::setViewHeight(y_size);
 	RenderUtils::setViewWidth(x_size);
-
 }
 
 // To call on a change in render resolution
 void RenderSystem::recreateFramebuffers() {
-	texture_width = UserSettings::resolution_width;
-	texture_height = UserSettings::resolution_height;
 	if( camera ) {
-		camera->setResolution( texture_width, texture_height );
+		camera->setResolution( UserSettings::resolution_width, UserSettings::resolution_height );
 	}
 
 	deferred_buffer.clearAll();
@@ -96,26 +102,31 @@ void RenderSystem::recreateFramebuffers() {
 
 void RenderSystem::addFramebufferTextures() {
 	// Add the color textures to render to in the deffered rendering step
-	deferred_buffer.addColorTextureHighPrecision( "position", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "normal", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "diffuse", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "emissive", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "occlusion", texture_width, texture_height );
-	deferred_buffer.addDepthBuffer( texture_width, texture_height );
+	deferred_buffer.addColorTextureHighPrecision( "position", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "normal", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "diffuse", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "emissive", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "occlusion", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addDepthBuffer( RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	// Add the depth texture for the shadow buffer
 	depth_shadow_buffer.addDepthBuffer( 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
-	depth_shadow_buffer.addDepthTexture( "shadow_depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
+	depth_shadow_buffer.addDepthTexture( "depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 
 	// Add an output shadow texture for the shadow mapping buffer
-	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
-	shadow_mapping_buffer.addColorTexture( "secondary", texture_width, texture_height );
-	shadow_mapping_buffer.addColorTexture( "three", texture_width, texture_height );
-	shadow_mapping_buffer.addColorTexture( "four", texture_width, texture_height );
+	shadow_mapping_buffer.addColorTexture( "shadow_map", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+
+	// Add the depth texture for the shadow buffer
+	variance_depth_shadow_buffer.addDepthBuffer( VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	variance_depth_shadow_buffer.addDepthTexture( "depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	variance_depth_shadow_buffer.addColorTexture( "depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+	
+	// Add textures to blur depth textures
+	variance_blurred_depth_out.addColorTexture( "blurred_depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
 
 	// Set up the shading framebuffer
-	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
-	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
+	shading_buffer.addColorTexture( "FragColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	shading_buffer.addColorTexture( "BrightColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	bloom_post_process->setBrightTexture(shading_buffer.getTexture("BrightColor")->getID());
 	bloom_post_process->createFrameBuffers();
@@ -251,7 +262,7 @@ void RenderSystem::render( double dt ) {
 		camera_loc = glm::vec3(camera->getEyePos());
 	}
 	else {
-		std::cerr << "Camera is null - using default matrices" << std::endl;
+		// std::cerr << "Camera is null - using default matrices" << std::endl;
 		createOrthoMatrices();
 	}
 
@@ -260,31 +271,28 @@ void RenderSystem::render( double dt ) {
 
 	if( UserSettings::shadow_mode != ShadowMode::NONE ) {
 		// Render shadow maps
-		renderDirectionalDepthTexture( &sun );
-		createDirectionalShadowMap( &sun );
+		if( UserSettings::shadow_mode == ShadowMode::VARIANCE ) {
+			renderVarianceDirectionalDepthTexture( &sun );
+			createDirectionalVarianceShadowMap( &sun );
+		}
+		else {
+			renderDirectionalDepthTexture( &sun );
+			createDirectionalShadowMap( &sun );
+		}
 	}
 
 	// Perform shading
 	shadingStep();
 
-	// Render overlays
-	renderOverlay();
-
 	// Draw the resulting texture from the shading step
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, view_width, view_height );
+	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	glClear( GL_COLOR_BUFFER_BIT );
 
 	if( UserSettings::use_FXAA )
 		FXAA_process->apply();
 	else drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
-
 	
-
-	if( use_bloom ) {
-		bloom_post_process->apply();
-	}
-
 	if( UserSettings::use_volumetric_light_scattering ) {
 
 		// calculate and set sun screen space location
@@ -298,9 +306,15 @@ void RenderSystem::render( double dt ) {
 		glm::vec2 sun_screen_loc = glm::vec2(light_screen_space_vec4);
 
 		vls_post_process->setSunScreenCoords(sun_screen_loc);
-
 		vls_post_process->apply();
 	}
+	
+	if( UserSettings::bloom_mode != BloomMode::NONE ) {
+		bloom_post_process->apply();
+	}
+	
+	// Render overlays
+	renderOverlay();
 
 	glFinish();
 }
@@ -312,6 +326,7 @@ void RenderSystem::populateRenderLists( GameObject * game_object ) {
 		populateRenderLists(game_object->getChild(i));
 	}
 }
+
 // non recursive
 void RenderSystem::addToRenderLists( GameObject * game_object ) {
 	if(game_object->hasRenderable()) {
@@ -326,8 +341,25 @@ void RenderSystem::addToRenderLists( GameObject * game_object ) {
 				skinned_mesh_list.push_back(game_object);
 				break;
 			case RenderableType::OVERLAY:
-				overlay_mesh_list.push_back(game_object);
+			{
+				// Insert overlay meshes acording to z level to ensure in order rendering
+				int insert_z = ((OverlayMesh*)game_object_renderable)->getZLevel(); 
+
+				std::vector<GameObject*>::iterator it = overlay_mesh_list.begin();
+				bool inserted = false;
+				while( !inserted && it < overlay_mesh_list.end() ) {
+					int current_z = ((OverlayMesh*)((*it)->getRenderable()))->getZLevel();
+					if( insert_z > current_z ) {
+						it = overlay_mesh_list.insert( it, game_object );
+						inserted = true;
+					}
+					it++;
+				}
+				if( !inserted ) {
+					overlay_mesh_list.push_back( game_object );
+				}
 				break;
+			}
 			default:
 				break;
 		}
@@ -341,9 +373,16 @@ void RenderSystem::clearRenderLists() {
 }
 
 void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
-	std::remove(mesh_list.begin(),mesh_list.end(),game_object);
-	std::remove(skinned_mesh_list.begin(),skinned_mesh_list.end(),game_object);
-	std::remove(overlay_mesh_list.begin(),overlay_mesh_list.end(),game_object);
+	std::vector<GameObject*>::iterator it;
+
+	it = std::remove( mesh_list.begin(), mesh_list.end(), game_object );
+	if( it != mesh_list.end() ) mesh_list.erase( it );
+	
+	it = std::remove( skinned_mesh_list.begin(), skinned_mesh_list.end(), game_object );
+	if( it != skinned_mesh_list.end() ) skinned_mesh_list.erase( it );
+	
+	it = std::remove( overlay_mesh_list.begin(), overlay_mesh_list.end(), game_object );
+	if( it != overlay_mesh_list.end() ) overlay_mesh_list.erase( it );
 }
 
 void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {
@@ -356,7 +395,7 @@ void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_ob
 
 // Function to create default view and projection matrices only if the camera seg faults
 void RenderSystem::createOrthoMatrices() {
-	float aspect_ratio = view_width / (float)view_height;
+	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
 	float left_edge = (aspect_ratio - 1.f) / -2.f;
 	proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 	view_mat = glm::mat4(1.f);
@@ -372,7 +411,7 @@ void RenderSystem::deferredRenderStep() {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	if(skybox) {
 		Shader *skybox_shader = sm->getShader("skybox");
@@ -493,7 +532,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
 	glClear( GL_COLOR_BUFFER_BIT );
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	mapping_shader->bind();
 
@@ -525,32 +564,10 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// Render the shadow map
 	RenderUtils::drawQuad();
 
-
-	// // Blur the shadow map
-	// Shader *blur_shader = sm->getShader("blur");
-	// blur_shader->bind();
-	// blur_shader->setUniformInt( "colorTexture", 0 );
-	// glActiveTexture( GL_TEXTURE0 );
-
-	// current_blur_buffer = 0;
-
-	// for( int i=0; i<8; i++ ) { // BLOOM_PASSES
-	// 	blur_shader->bind();
-	// 	blur_buffer[current_blur_buffer].bind();
-	// 	glViewport( 0, 0, texture_width, texture_height );
-	// 	glClear( GL_COLOR_BUFFER_BIT );
-		
-	// 	blur_shader->setUniformFloat( "horizontal", (float)current_blur_buffer );
-	// 	GLuint tex_to_use = i == 0 ? shadow_mapping_buffer.getTexture( "shadow_map" )->getID() : blur_buffer[!current_blur_buffer].getTexture( "FragColor" )->getID();
-	// 	glBindTexture( GL_TEXTURE_2D, tex_to_use );
-
-	// 	RenderUtils::drawQuad();
-
-	// 	current_blur_buffer = !current_blur_buffer;
-	// }
-
-	// shadow_mapping_buffer.bind();
-	// drawTexture( blur_buffer[!current_blur_buffer].getTexture("FragColor")->getID() );
+	// Blur the resulting shadow map
+	if( UserSettings::blur_shadow_map ) {
+		shadow_map_blur_process->apply();
+	}
 
 	// End Render
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
@@ -558,11 +575,103 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	RenderUtils::testGLError("Shadow Map render");
 }
 
+// Render all meshes to the shadow buffer
+void RenderSystem::renderVarianceDirectionalDepthTexture( Light *light ) {
+	// Get the necessary shaders for this step
+	Shader *depth_shader = sm->getShader("depth");
+	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
+
+	// Create the view matricx for the light's view
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 variance_sun_proj_mat = glm::ortho( -variance_sun_distances[2], variance_sun_distances[2], -variance_sun_distances[2], variance_sun_distances[2], -100.f, 100.f );
+
+	// Bind and clear the depth only framebuffer
+	variance_depth_shadow_buffer.bind();
+	glClearColor(1.f, 1.f, 1.f, 1.f);
+	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+	glClearColor(0.f, 0.f, 0.f, 1.f);
+	glEnable( GL_DEPTH_TEST );
+	glEnable( GL_CULL_FACE );
+
+	glViewport( 0, 0, VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
+
+	// Bind the shader and render everything for normal meshes
+	depth_shader->bind();
+	depth_shader->setUniformMat4( "View", light_view_mat );
+	depth_shader->setUniformMat4( "Projection", variance_sun_proj_mat );
+	drawMeshListVerticesOnly( depth_shader );
+	
+	// Bind the shader and render everything for skinned meshes
+	skinned_depth_shader->bind();
+	skinned_depth_shader->setUniformMat4( "View", light_view_mat );
+	skinned_depth_shader->setUniformMat4( "Projection", variance_sun_proj_mat );
+	drawSkinnedMeshListVerticesOnly( skinned_depth_shader );
+
+	// End Render
+	glDisable( GL_DEPTH_TEST );
+	glDisable( GL_CULL_FACE );
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	RenderUtils::testGLError("Variance Depth Texture render");
+}
+
+// Create the shadow map texture to pass to the shading step
+void RenderSystem::createDirectionalVarianceShadowMap( Light *light ) {
+	// Blurs the depth texture from the variance_depth_shadow_buffer Framebuffer
+	// The resulting blurred texture is "blurred_depth" in the variance_blurred_depth_out Framebuffer
+	variance_blur_process->apply();
+
+	// Get the necessary shaders for this step
+	Shader *mapping_shader = sm->getShader("variance-shadows");
+
+	// Create the view and projection matrices for the light's view
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 variance_sun_proj_mat = glm::ortho( -variance_sun_distances[2], variance_sun_distances[2], -variance_sun_distances[2], variance_sun_distances[2], -100.f, 100.f );
+
+	// Bind and clear the mapping buffer
+	shadow_mapping_buffer.bind();
+	glClear( GL_COLOR_BUFFER_BIT );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+
+	mapping_shader->bind();
+
+	// Bind the necessary textures for shadow mapping
+	mapping_shader->setUniformInt( "positionTexture", 0 );
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "position" )->getID() );
+
+	mapping_shader->setUniformInt( "normalTexture", 1 );
+	glActiveTexture( GL_TEXTURE1 );
+	glBindTexture( GL_TEXTURE_2D, deferred_buffer.getTexture( "normal" )->getID() );
+	
+	mapping_shader->setUniformInt( "depthTexture", 2 );
+	glActiveTexture( GL_TEXTURE2 );
+	glBindTexture( GL_TEXTURE_2D, variance_blurred_depth_out.getTexture( "blurred_depth" )->getID() );
+
+	// Load the lightspace transform matrices
+	mapping_shader->setUniformMat4( "lightView", light_view_mat );
+	mapping_shader->setUniformMat4( "lightProjection", variance_sun_proj_mat );
+	mapping_shader->setUniformVec3( "lightLocation", light->location );
+
+	// Render the shadow map
+	RenderUtils::drawQuad();
+
+	// Blur the resulting shadow map
+	if( UserSettings::blur_shadow_map ) {
+		shadow_map_blur_process->apply();
+	}
+
+	// End Render
+	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	glUseProgram(0);
+	RenderUtils::testGLError("Variance Shadow Map render");
+}
+
 void RenderSystem::shadingStep() {
 	// Bind the shading framebuffer
 	shading_buffer.bind();
 
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
 
@@ -616,14 +725,14 @@ void RenderSystem::shadingStep() {
 }
 
 void RenderSystem::renderOverlay() {
-	shading_buffer.bind();
-	glViewport( 0, 0, texture_width, texture_height );
+	// shading_buffer.bind();
+	// glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
 
 	// Create the orthographic matrices to render the overlay
-	
-	float aspect_ratio = view_width / (float)view_height;
+	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
 	float left_edge = (aspect_ratio - 1.f) / -2.f;
 	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 

@@ -69,6 +69,7 @@ void Engine::testAndHandleStateChange() {
     if( next != nullptr ) {
         RenderSystem &rs = RenderSystem::getRenderSystem();
         rs.clearRenderLists();
+        
         // Test if the current state should be destroyed
         if( state->shouldDestroy() ) {
             delete state;

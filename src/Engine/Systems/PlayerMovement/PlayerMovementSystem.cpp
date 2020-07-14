@@ -1,8 +1,31 @@
 #include "PlayerMovementSystem.hpp"
 
 #include <glm/vec3.hpp>
-// #include <glm/gtx/string_cast.hpp>
 #include <math.h>
+
+#include <iostream>
+
+#define GROUND_MOVE_SPEED 3.f // m/s
+#define GROUND_SPRINT_SPEED 6.f // m/s
+#define AIR_MOVE_FORCE 1000.f // ?
+#define JUMP_IMPULSE_VALUE 700.f // Newtons?
+
+#define RAYCAST_ANGLE 2.5307f // (~145 degrees) //2.0944f // Radians (~120 degerees from vertical y)
+#define GROUND_DISTANCE_THRESHOLD 0.04f // m
+// #define MAX_CLIMBABLE_ANGLE 0.7854f // Radians (~45 degrees)
+
+#define JUMP_COOLDOWN_TIME 0.15f // s
+#define TURN_TIMEFACTOR .1f // s
+
+
+const std::string animation_names[5] = {
+    "idle",
+    "walk",
+    "sprint",
+    "in_air",
+    "land"
+};
+
 
 void PlayerMovementSystem::setPlayerAnimations() {
     if(player_current_state != player_previous_state) {
@@ -158,6 +181,7 @@ PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* p
     // Assume off ground by default
     on_ground = false;
     current_ground = nullptr;
+    flying = false;
 
     jump_cool_down = 0;
     in_air_time = 0;
@@ -183,6 +207,15 @@ PlayerMovementSystem::PlayerMovementSystem( PhysicsSystem *physics_in, Player* p
 }
 
 PlayerMovementSystem::~PlayerMovementSystem() {}
+
+void PlayerMovementSystem::updatePlayerMovement( bool f, bool b, bool r, bool l, bool space, bool shift, double dt ) {
+    if( flying ) {
+        flyPlayer( f, b, r, l, space, shift, dt );
+    }
+    else {
+        movePlayer( f, b, r, l, space, shift, dt );
+    }
+}
 
 void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt ) {
     // Ensure player_body has an up to date collision object
@@ -218,6 +251,7 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
     // Set friction to 0 by default and change as necessary
     player_body->setFriction(0.f);
     player_body->setDamping(0.f, 0.f);
+    player_body->setGravity( btVector3(0.f, btScalar(DEFAULT_GRAVITY), 0.f) );
 
     // Only rotate if there is a non-canceled movement input
     if( (f ^ b) || (r ^ l) ) {
@@ -313,38 +347,88 @@ void PlayerMovementSystem::movePlayer( bool f, bool b, bool r, bool l, bool spac
 }
 
 void PlayerMovementSystem::makePostPhysicsAdjustments() {
-    btVector3 current_position = player_body->getWorldTransform().getOrigin();
-    btScalar last_speed = ((current_position - last_tick_position) / last_tick_time).length2();
-
-    // If the player was on the ground before the last physics tick, attempt to keep them on the ground
-    if( last_speed > .4 && on_ground ) {
+    if( !flying ) {
         btVector3 current_position = player_body->getWorldTransform().getOrigin();
-        btVector3 ray_to = current_position - btVector3( 0.f, 500.f, 0.f );
-        btCollisionWorld::ClosestRayResultCallback callback( current_position, ray_to );
-        physics_system->closestRayCast( current_position, ray_to, callback );
+        btScalar last_speed = ((current_position - last_tick_position) / last_tick_time).length2();
 
-        if( callback.hasHit() ) {
-            btScalar dist = current_position.distance2( callback.m_hitPointWorld );
-            btScalar ground_dot = callback.m_hitNormalWorld.getY();
-            if( dist < PLAYER_HEIGHT/2.f+1.f ) {
-                float adjust_value = (.3f * (1.f - ground_dot));
-                float adjusted_y = PLAYER_HEIGHT/2.f + adjust_value;
-                player_body->getWorldTransform().setOrigin( callback.m_hitPointWorld + btVector3(0.f, adjusted_y, 0.f) );
-            }
-        }        
+        // If the player was on the ground before the last physics tick, attempt to keep them on the ground
+        if( last_speed > .4 && on_ground ) {
+            btVector3 current_position = player_body->getWorldTransform().getOrigin();
+            btVector3 ray_to = current_position - btVector3( 0.f, 500.f, 0.f );
+            btCollisionWorld::ClosestRayResultCallback callback( current_position, ray_to );
+            physics_system->closestRayCast( current_position, ray_to, callback );
+
+            if( callback.hasHit() ) {
+                btScalar dist = current_position.distance2( callback.m_hitPointWorld );
+                btScalar ground_dot = callback.m_hitNormalWorld.getY();
+                if( dist < PLAYER_HEIGHT/2.f+1.f ) {
+                    float adjust_value = (.3f * (1.f - ground_dot));
+                    float adjusted_y = PLAYER_HEIGHT/2.f + adjust_value;
+                    player_body->getWorldTransform().setOrigin( callback.m_hitPointWorld + btVector3(0.f, adjusted_y, 0.f) );
+                }
+            }        
+        }
     }
 }
 
-void PlayerMovementSystem::flyPlayer( int ad, int ss, int ws, double dt ){
-    float th = camera == nullptr ? 0.f : camera->getTh();
-    float movex = GROUND_MOVE_SPEED * (ws * sin(th) + ad * cos(th));
-    float movey = GROUND_MOVE_SPEED * (float)ss;
-    float movez = GROUND_MOVE_SPEED * (ws * cos(th) + ad * -sin(th));
-    
-    glm::vec3 movement = glm::vec3( movex, movey, movez ) * (float)dt;
+void PlayerMovementSystem::flyPlayer( bool f, bool b, bool r, bool l, bool space, bool shift, double dt ) {
+    btQuaternion current_orientation = player_body->getOrientation();
+    btScalar current_th = current_orientation.getAngle();
+    btVector3 current_axis = current_orientation.getAxis();
+    if( current_th > 3.1416 ) {
+        current_th -= btScalar(6.2832);
+    }
+    if( current_axis.getY() < 0 ) {
+        current_th *= -1;
+    }
 
-    //Moves the player with the given inputs.
-    player->setTranslation( player->getTranslation() + movement );
+    player_body->setGravity( btVector3(0.f, 0.f, 0.f) );
+    player_body->setFriction( btScalar(0.f) );
+
+    if( (f ^ b) || (r ^ l) || (space ^ shift) ) {
+        player_body->setDamping( .5f, 0.f );
+    }
+    else {
+        player_body->setDamping( .8f, 0.f );
+    }
+
+    btScalar camera_th = btScalar(camera == nullptr ? 0.f : camera->getTh());
+    btVector3 camera_relative_move_dir = -btVector3( btScalar(int(f-b) * sin(camera_th) + int(l-r) * cos(camera_th)), btScalar(shift - space), btScalar(int(f-b) * cos(camera_th) + int(l-r) * -sin(camera_th)) );    
+    btVector3 flyingForce = camera_relative_move_dir * btScalar(dt) * AIR_MOVE_FORCE * 150;
+
+    player_body->applyCentralForce( flyingForce );
+
+    if( (f ^ b) || (r ^ l) ) {
+        camera_relative_move_dir = -btVector3( int(f-b) * sin(camera_th) + int(l-r) * cos(camera_th), 0.f, int(f-b) * cos(camera_th) + int(l-r) * -sin(camera_th) );
+        btScalar desired_angle = btVector3(0.f, 0.f, 1.f).angle( camera_relative_move_dir.normalize() );
+        btScalar desired_cross = btVector3(0.f, 0.f, 1.f).cross( camera_relative_move_dir.normalize() ).getY();
+        btScalar desired_th = desired_cross < 0.f ? -desired_angle : desired_angle;
+
+        // Calculate the angle difference and bound it appropriately
+        btScalar delta_th = desired_th - current_th;
+        if( delta_th < -3.1416 ) {
+            delta_th += btScalar(6.2832);
+        }
+        else if( delta_th > 3.1416 ) {
+            delta_th -= btScalar(6.2832);
+        }
+
+        if( abs(delta_th) < .01 ) {
+            // Stop rotating
+            player_body->setAngularVelocity( btVector3(0.f, 0.f, 0.f) );
+        }
+        else {
+            // Apply angular velocity
+            btVector3 turn_axis(0.f, 1.f, 0.f);
+            btScalar turn_value = btScalar(delta_th / TURN_TIMEFACTOR);
+            btVector3 angular_velocity = turn_value * turn_axis; 
+            player_body->setAngularVelocity(angular_velocity);
+        }
+    }
+
+    player_previous_state = player_current_state;
+    player_current_state = PlayerState::InAir;
+    setPlayerAnimations();
 }
 
 void PlayerMovementSystem::testOnGround() {

@@ -10,6 +10,7 @@
 // Material Implementation
 
 Material *Material::default_material = nullptr;
+Material *Material::default_material_2d = nullptr;
 
 Material::Material(GLuint texture_, GLuint emissive_, float shininess_){
     texture = texture_;
@@ -33,11 +34,10 @@ void Material::bind(Shader *shader, bool use_shininess) {
 
 void Material::loadDefaultMaterial() { 
     // Get the paths for the default material
-    fs::path default_path = Asset::assetPath();
-    default_path.append( DEFAULT_MATERIAl_PATH );
-    fs::path default_textures_path = Asset::assetPath();
-    default_textures_path.append( DEFAULT_TEXTURES_PATH );
-    default_material = MaterialFactory::createMaterial( default_path, default_textures_path );
+    fs::path default_path = Asset::assetPath().append( DEFAULT_MATERIAl_PATH );
+    fs::path default_textures_path = Asset::assetPath().append( DEFAULT_TEXTURES_PATH );
+    default_material = MaterialFactory::createMaterial( default_path, default_textures_path, false );
+    default_material_2d = MaterialFactory::createMaterial( default_path, default_textures_path, true );
 }
 
 
@@ -47,11 +47,17 @@ void Material::loadDefaultMaterial() {
 Material* MaterialFactory::createMaterial(fs::path input_directory){
     fs::path default_tex_path = Asset::assetPath();
     default_tex_path.append("Textures");
-    return createMaterial( input_directory, default_tex_path );
+    return createMaterial( input_directory, default_tex_path, false );
+}
+
+Material* MaterialFactory::createMaterial2D(fs::path input_directory){
+    fs::path default_tex_path = Asset::assetPath();
+    default_tex_path.append("Textures");
+    return createMaterial( input_directory, default_tex_path, true );
 }
 
 
-Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path textures_folder){
+Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path textures_folder, bool clamp_textures){
     GLuint texture, emissive;
     float shininess;
     
@@ -90,8 +96,8 @@ Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path tex
 
     std::string texture_path_string = new_to_texture.string();
     std::string emissive_path_string = new_to_emissive.string();
-    texture = TextureLoader::loadTexture( texture_path_string, false );
-    emissive = TextureLoader::loadTexture( emissive_path_string, false );
+    texture = TextureLoader::loadTexture( texture_path_string, false, clamp_textures );
+    emissive = TextureLoader::loadTexture( emissive_path_string, false, clamp_textures );
     shininess = (float)strtod(shininess_asset->getBuffer(),NULL);
     
     Material *material = new Material( texture, emissive, shininess );

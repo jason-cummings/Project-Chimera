@@ -53,6 +53,7 @@ private:
     std::map<std::string, SkinnedMesh*> loaded_skinned_meshes;
     std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
     std::map<std::string, Material*> loaded_materials;
+    
     //End Game Coordinates
     glm::vec3 endGameCoordVec;
 

@@ -20,6 +20,10 @@ set( glew-cmake_BUILD_MULTI_CONTEXT OFF CACHE BOOL "Build the multi context glew
 
 add_subdirectory( glew )
 
+# freetype2
+set( BUILD_SHARED_LIBS OFF )
+add_subdirectory( freetype2 )
+
 # bullet3
 # Do this last
 set( USE_MSVC_RUNTIME_LIBRARY_DLL ON )

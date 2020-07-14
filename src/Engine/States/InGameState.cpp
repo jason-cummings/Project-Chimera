@@ -11,6 +11,8 @@
 
 #include "../LevelLoader.hpp"
 
+#include "../SettingsManager.hpp"
+
 InGameState::InGameState( std::string level_to_load ) {
     current_level = level_to_load;
     init();
@@ -19,8 +21,10 @@ InGameState::InGameState( std::string level_to_load ) {
 InGameState::~InGameState() {
     delete physics_system;
     delete animation_system;
-    delete camera;
-    render_system.registerCamera( nullptr );
+
+    if( camera == render_system.getRegisteredCamera() ) render_system.registerCamera( nullptr );
+    scene->setDestroyAll(true);
+    delete scene;
 }
 
 void InGameState::init() {
@@ -32,6 +36,7 @@ void InGameState::init() {
     render_system.registerCamera( camera );
 
     mouse_lock = true;
+    player_visible = true;
 
     LevelLoader * level_loader = LevelLoader::loadLevelFile(current_level);
     scene = level_loader->getScene();
@@ -116,6 +121,15 @@ void InGameState::addPhysicsThings() {
     scene->addChild(o3);
 }
 
+void InGameState::togglePlayerVisibility() {
+    player_visible = !player_visible;
+    if( player_visible ) {
+        render_system.populateRenderLists( player );
+    }
+    else {
+        render_system.removeGameObjectFromRenderListsRecursive( player );
+    }
+}
 
 void InGameState::gameLoop() {
     double dt = timer.getLastTickTime();
@@ -126,13 +140,20 @@ void InGameState::gameLoop() {
         dt = 0;
         first_tick = false;
     }
+    
+    if( fell() ){
+        glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
+        player->setTranslation(spawnPoint);
+    }
 
+    //If player reaches end goal
+    if( endGame() ){
+        scene->setDestroyAll( true );
+        setNextState( new WinMenu(this), false );
+    }
 
-    int xmove = int(d-a);
-    int ymove = int(space-shift);
-    int zmove = int(s-w);
     //sends movement info to Player_movementSystem.
-    player_movement->movePlayer( w, s, d, a, space, shift, dt );
+    player_movement->updatePlayerMovement( w, s, d, a, space, shift, dt );
 
     performance_logger.addOperation("Player Movement",timer.timePerformance());
 
@@ -151,23 +172,10 @@ void InGameState::gameLoop() {
 
     performance_logger.addOperation("Physics",timer.timePerformance());
 
-    // Update the state's scene graph to reflect all changes from the other systems
-    // updateScene();
-
     camera->createMatrices();
 
     // Render all
     render_system.render( dt );
-
-    if( fell() ){
-        glm::vec3 spawnPoint = glm::vec3(0.f,10.f,0.f);
-        player->setTranslation(spawnPoint);
-    }
-
-    //If player reaches end goal
-    if( endGame() ){
-        setNextState( new WinMenu(this), false );
-    }
 
     performance_logger.addOperation("Render",timer.timePerformance());
     performance_logger.stopTick();
@@ -201,6 +209,12 @@ void InGameState::handleKeyDownStateSpecific( SDL_Event e ) {
     }
     else if( key == SDLK_d ) {
         d = true;
+    }
+    else if( key == SDLK_f ) {
+        player_movement->toggleFlying();
+    }
+    else if( key == SDLK_g ) {
+        togglePlayerVisibility();
     }
     else if( key == SDLK_SPACE ) {
         space = true;

@@ -21,7 +21,6 @@ PauseMenu::PauseMenu( GameState* input ){
 }
 
 PauseMenu::~PauseMenu() {
-    // delete camera;
     scene->setDestroyAll( true );
     delete scene;
 }
@@ -38,5 +37,13 @@ void PauseMenu::handleButtonEvent( MenuButton *clicked ) {
         delete last_state;
         MainMenu* to_set = new MainMenu();
         setNextState( to_set, true );
+    }
+}
+
+void PauseMenu::handleKeyDownStateSpecific( SDL_Event e ) {
+    if( e.key.keysym.sym == SDLK_ESCAPE ) {
+        // Change state back into game on escape
+        scene->removeChild( last_state->getScene() );
+        setNextState( last_state, false );
     }
 }
