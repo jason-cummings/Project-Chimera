@@ -8,30 +8,31 @@ Menu::Menu() {
 
 Menu::~Menu() {}
 
-void Menu::handleMouseButtonDownStateSpecific( SDL_Event e ) {
-    // On Left Click
-    if( e.button.button == SDL_BUTTON_LEFT ) {
-        lastpressed = nullptr;
+glm::vec2 Menu::getMenuCoords( int screen_x, int screen_y ) {
+    int w_width = RenderUtils::getViewWidth();
+    int w_height = RenderUtils::getViewHeight();
+    int invert_y = w_height - screen_y;
 
+    float menu_x = screen_x / (float)w_height - (((w_width / (float)w_height) - 1) / 2.f);
+    float menu_y = invert_y / (float)w_height;
+
+    return glm::vec2( menu_x, menu_y );
+}
+
+void Menu::handleMouseButtonDownStateSpecific( SDL_Event e ) {
+    if( e.button.button == SDL_BUTTON_LEFT ) {
         // Click coordinates (in pixels)
         int x = 0, y = 0;
         SDL_GetMouseState( &x, &y );
 
         // Coordinates in our menu coord system
-        int w_width = render_system.getViewWidth();
-        int w_height = render_system.getViewHeight();
-        y = w_height - y;
-
-        float menu_x = x / (float)w_height - (((w_width / (float)w_height) - 1) / 2.f);
-        float menu_y = y / (float)w_height;
-
-        // std::cout << "Clicked at " << menu_x << ", " << menu_y << std::endl;
+        glm::vec2 menu_coords = getMenuCoords( x, y );
 
         // Find button clicked - set to lastpressed
+        lastpressed = nullptr;
         for( int i = 0; i < buttons.size(); i++ ) {
-            if( buttons[i]->clickTest(menu_x,menu_y) ) {
+            if( buttons[i]->clickTest( menu_coords.x, menu_coords.y ) ) {
                 lastpressed = buttons[i];
-                // std::cout << "Downed " << lastpressed->getID() << std::endl;
             }
         }
     }
@@ -44,14 +45,10 @@ void Menu::handleMouseButtonUpStateSpecific( SDL_Event e ) {
         SDL_GetMouseState( &x, &y );
 
         // Coordinates in our menu coord system
-        int w_width = render_system.getViewWidth();
-        int w_height = render_system.getViewHeight();
-        y = w_height - y;
+        glm::vec2 menu_coords = getMenuCoords( x, y );
 
-        float menu_x = x / (float)w_height - (((w_width / (float)w_height) - 1) / 2.f);
-        float menu_y = y / (float)w_height;
-
-        if( lastpressed != nullptr && lastpressed->clickTest(menu_x,menu_y) ) {
+        // Test if the button pressed down is the one being released over
+        if( lastpressed != nullptr && lastpressed->clickTest( menu_coords.x, menu_coords.y ) ) {
             handleButtonEvent(lastpressed);
         }
     }

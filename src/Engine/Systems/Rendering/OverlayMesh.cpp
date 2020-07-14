@@ -1,16 +1,14 @@
 #include "OverlayMesh.hpp"
 
 OverlayMesh::OverlayMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
-	vbo = vbo_in;
-	ibo = ibo_in;
 	num_vertices = num_vertices_in;
 	material = Material::getDefaultMaterial2D();
 
 	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
 
-	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
+	glBindBuffer( GL_ARRAY_BUFFER, vbo_in );
+	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo_in );
 
 	glEnableVertexAttribArray( ShaderAttribOverlay::VertexOverlay );
     glEnableVertexAttribArray( ShaderAttribOverlay::TextureOverlay );
@@ -20,6 +18,13 @@ OverlayMesh::OverlayMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
 
     glBindVertexArray( 0 );
 }
+
+OverlayMesh::OverlayMesh(GLuint vao_in, int num_vertices_in) {
+	vao = vao_in;
+	num_vertices = num_vertices_in;
+	material = Material::getDefaultMaterial2D();
+}
+
 
 OverlayMesh::~OverlayMesh() {
 	glDeleteVertexArrays( 1, &vao );

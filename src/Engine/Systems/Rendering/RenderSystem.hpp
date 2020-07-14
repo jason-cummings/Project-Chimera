@@ -50,11 +50,6 @@ private:
     Framebuffer deferred_buffer;
     Framebuffer shading_buffer;
     
-    // Blur buffers and settings
-    bool use_bloom;
-
-    // Volumetric light scattering settings
-
     // Framebuffers and processes required for basic shadow mapping
     Framebuffer depth_shadow_buffer;
     Framebuffer shadow_blurred_depth_out; // To be used as the out buffer from a blur PostProcess
@@ -67,10 +62,6 @@ private:
     // Framebuffer and process for creating the final shadow map, regardless of technique used
     Framebuffer shadow_mapping_buffer;
     Blur * shadow_map_blur_process;
-
-    // Variables for the output sizes of the textures
-    int texture_width, texture_height; // Render resolution
-    int view_width, view_height; // Actual display
 
     // The shader manager for the render system
     ShaderManager *sm;
@@ -141,16 +132,10 @@ private:
     // shading step
     void shadingStep();
 
-    // bloom
-    // void applyBloom();
-
-    // volumetric light scattering
-    // void applyVolumetricLightScattering();
-
     // 2D overlay elements
     void renderOverlay();
 
-
+    // Singleton constructor
     RenderSystem();
 
 public:
@@ -179,9 +164,6 @@ public:
     inline Camera * getRegisteredCamera() { return camera; }
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
-
-    inline int getViewWidth() { return view_width; }
-    inline int getViewHeight() { return view_height; }
 };
 
 

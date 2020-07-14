@@ -14,8 +14,9 @@ protected:
     int z_level;
     OverlayMesh *mesh;
 
-    static GLuint element_vbo;
-    static GLuint element_ibo;
+    static GLuint element_vao;
+    // static GLuint element_vbo;
+    // static GLuint element_ibo;
 
     static void createBuffers();
 

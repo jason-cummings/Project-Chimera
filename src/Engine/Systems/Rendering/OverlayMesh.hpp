@@ -9,15 +9,16 @@
 
 class OverlayMesh : public Renderable {
 private:
-    GLuint vao, vbo, ibo;
+    GLuint vao; //, vbo, ibo;
     int num_vertices;
     Material *material;
 
 	int z_level;
 
 public:
-	OverlayMesh(): vao(0), vbo(0), ibo(0), num_vertices(0), material(nullptr), z_level(100) {}
+	OverlayMesh(): vao(0), num_vertices(0), material(nullptr), z_level(100) {}
 	OverlayMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in);
+	OverlayMesh(GLuint vao_in, int num_vertices_in);
 	~OverlayMesh();
 
 	inline RenderableType getType() { return RenderableType::OVERLAY; }

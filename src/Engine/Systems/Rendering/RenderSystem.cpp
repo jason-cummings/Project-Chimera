@@ -31,11 +31,8 @@ RenderSystem::RenderSystem() {
 	glBindVertexArray( 0 );
 
 	// Assign values based on user settings
-	texture_width = UserSettings::resolution_width;
-	texture_height = UserSettings::resolution_height;
-
-	RenderUtils::setTextureHeight(texture_height);
-	RenderUtils::setTextureWidth(texture_width);
+	RenderUtils::setTextureHeight( UserSettings::resolution_height );
+	RenderUtils::setTextureWidth( UserSettings::resolution_width );
 
 	// create post process objects
 	FXAA_process = new FXAA( nullptr );
@@ -78,18 +75,14 @@ RenderSystem & RenderSystem::getRenderSystem() {
 }
 
 void RenderSystem::reshape( int x_size, int y_size ) {
-	view_width = x_size;
-	view_height = y_size;
 	RenderUtils::setViewHeight(y_size);
 	RenderUtils::setViewWidth(x_size);
 }
 
 // To call on a change in render resolution
 void RenderSystem::recreateFramebuffers() {
-	texture_width = UserSettings::resolution_width;
-	texture_height = UserSettings::resolution_height;
 	if( camera ) {
-		camera->setResolution( texture_width, texture_height );
+		camera->setResolution( UserSettings::resolution_width, UserSettings::resolution_height );
 	}
 
 	deferred_buffer.clearAll();
@@ -109,19 +102,19 @@ void RenderSystem::recreateFramebuffers() {
 
 void RenderSystem::addFramebufferTextures() {
 	// Add the color textures to render to in the deffered rendering step
-	deferred_buffer.addColorTextureHighPrecision( "position", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "normal", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "diffuse", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "emissive", texture_width, texture_height );
-	deferred_buffer.addColorTexture( "occlusion", texture_width, texture_height );
-	deferred_buffer.addDepthBuffer( texture_width, texture_height );
+	deferred_buffer.addColorTextureHighPrecision( "position", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "normal", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "diffuse", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "emissive", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTexture( "occlusion", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addDepthBuffer( RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	// Add the depth texture for the shadow buffer
 	depth_shadow_buffer.addDepthBuffer( 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 	depth_shadow_buffer.addDepthTexture( "depth", 4 * SHADOW_MAP_DIMENSION, SHADOW_MAP_DIMENSION );
 
 	// Add an output shadow texture for the shadow mapping buffer
-	shadow_mapping_buffer.addColorTexture( "shadow_map", texture_width, texture_height );
+	shadow_mapping_buffer.addColorTexture( "shadow_map", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	// Add the depth texture for the shadow buffer
 	variance_depth_shadow_buffer.addDepthBuffer( VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
@@ -132,8 +125,8 @@ void RenderSystem::addFramebufferTextures() {
 	variance_blurred_depth_out.addColorTexture( "blurred_depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
 
 	// Set up the shading framebuffer
-	shading_buffer.addColorTexture( "FragColor", texture_width, texture_height );
-	shading_buffer.addColorTexture( "BrightColor", texture_width, texture_height );
+	shading_buffer.addColorTexture( "FragColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	shading_buffer.addColorTexture( "BrightColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	bloom_post_process->setBrightTexture(shading_buffer.getTexture("BrightColor")->getID());
 	bloom_post_process->createFrameBuffers();
@@ -293,7 +286,7 @@ void RenderSystem::render( double dt ) {
 
 	// Draw the resulting texture from the shading step
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, view_width, view_height );
+	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	glClear( GL_COLOR_BUFFER_BIT );
 
 	if( UserSettings::use_FXAA )
@@ -418,7 +411,7 @@ void RenderSystem::deferredRenderStep() {
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_CULL_FACE );
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	if(skybox) {
 		Shader *skybox_shader = sm->getShader("skybox");
@@ -539,7 +532,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
 	glClear( GL_COLOR_BUFFER_BIT );
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	mapping_shader->bind();
 
@@ -638,7 +631,7 @@ void RenderSystem::createDirectionalVarianceShadowMap( Light *light ) {
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
 	glClear( GL_COLOR_BUFFER_BIT );
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	mapping_shader->bind();
 
@@ -678,7 +671,7 @@ void RenderSystem::shadingStep() {
 	// Bind the shading framebuffer
 	shading_buffer.bind();
 
-	glViewport( 0, 0, texture_width, texture_height );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	Shader *cartoon_shading = sm->getShader("cartoon");
 	cartoon_shading->bind();
 
@@ -733,14 +726,13 @@ void RenderSystem::shadingStep() {
 
 void RenderSystem::renderOverlay() {
 	// shading_buffer.bind();
-	// glViewport( 0, 0, texture_width, texture_height );
+	// glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
 
 	// Create the orthographic matrices to render the overlay
-	
-	float aspect_ratio = view_width / (float)view_height;
+	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
 	float left_edge = (aspect_ratio - 1.f) / -2.f;
 	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 
