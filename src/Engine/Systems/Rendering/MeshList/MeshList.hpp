@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include "../../../GameObject.hpp"
 
+#include <iostream>
+
 // MeshList Class
 //  - A MeshList is a container for a vector. Its purpose is to maintain a list of meshes to be rendered in a 
 //    particular order without requiring the full list to be sorted every frame. Instead, a Meshlist will sort 
@@ -45,7 +47,8 @@ public:
 
     inline void clearList() { list.clear(); }
 
-    inline void removeObject( GameObject * obj ) { std::remove( list.begin(), list.end(), obj ); }
+    inline void removeObject( GameObject * obj ) { auto it = std::remove( list.begin(), list.end(), obj );
+	 if( it != list.end() ) list.erase( it );} //std::remove( list.begin(), list.end(), obj ); }
 
 
 

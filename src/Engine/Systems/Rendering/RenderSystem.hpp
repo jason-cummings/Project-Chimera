@@ -24,6 +24,11 @@
 #include "PostProcessing/Bloom.hpp"
 #include "PostProcessing/Blur.hpp"
 
+#include "MeshList/MeshList.hpp"
+#include "MeshList/NoSortMeshList.hpp"
+#include "MeshList/FrontToBackMeshList.hpp"
+#include "MeshList/BackToFrontMeshList.hpp"
+
 
 struct Light {
     glm::vec3 location;
@@ -75,9 +80,18 @@ private:
 
     // vectors for lists of different types of geometry. This will be used to optimize the rendering pipeline by reducing 
     // how often the shader is switched during rendering
-    std::vector<GameObject*> mesh_list;
-    std::vector<GameObject*> skinned_mesh_list;
-    std::vector<GameObject*> overlay_mesh_list;
+    
+    /**
+            MeshList and sorted boolean will likely change with material overhaul. the process for drawing the meshlists will 
+            also drastically change as shaders will be moved to materials. This will allow for a more streamlined rendering 
+            process and will reduce the amount of code within rendersystem
+    */
+
+    MeshList * mesh_list;
+    MeshList * skinned_mesh_list;
+    MeshList * overlay_mesh_list;
+
+    bool sorted;
 
     // Post processes
     PostProcess * FXAA_process;
@@ -138,6 +152,9 @@ private:
     // Singleton constructor
     RenderSystem();
 
+    // destructor
+    ~RenderSystem();
+
 public:
 
     // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
@@ -160,7 +177,7 @@ public:
     void recreateFramebuffers();
 
     // Set the camera for the rendersystem
-    inline void registerCamera( Camera *to_register ) { camera = to_register; }
+    void registerCamera( Camera *to_register );
     inline Camera * getRegisteredCamera() { return camera; }
     
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }

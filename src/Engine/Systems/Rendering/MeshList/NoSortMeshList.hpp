@@ -8,5 +8,9 @@ public:
 
     void addGameObject( GameObject * obj ) override;
 
+    void addGameObject( GameObject * obj, int i );
+
     GameObject * longGet( int i ) override;
+
+    
 };
