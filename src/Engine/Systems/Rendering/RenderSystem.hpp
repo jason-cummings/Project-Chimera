@@ -25,9 +25,6 @@
 #include "PostProcessing/Blur.hpp"
 
 #include "MeshList/MeshList.hpp"
-#include "MeshList/NoSortMeshList.hpp"
-#include "MeshList/FrontToBackMeshList.hpp"
-#include "MeshList/BackToFrontMeshList.hpp"
 
 
 struct Light {
@@ -94,7 +91,7 @@ private:
     bool sorted;
 
     // Post processes
-    PostProcess * FXAA_process;
+    FXAA * FXAA_process;
     VolumetricLightScattering * vls_post_process;
     Bloom * bloom_post_process;
 

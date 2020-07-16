@@ -3,6 +3,7 @@
 class NoSortMeshList : public MeshList {
 public:
     NoSortMeshList();
+    ~NoSortMeshList();
 
     void sort() override;
 

@@ -2,6 +2,8 @@
 
 NoSortMeshList::NoSortMeshList() : MeshList() {}
 
+NoSortMeshList::~NoSortMeshList() {}
+
 void NoSortMeshList::sort() {
     return;
 }

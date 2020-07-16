@@ -2,6 +2,8 @@
 
 FrontToBackMeshList::FrontToBackMeshList() : MeshList() {}
 
+FrontToBackMeshList::~FrontToBackMeshList() {}
+
 void FrontToBackMeshList::sort() {
     bool sorted = false;
     while( !sorted ) {

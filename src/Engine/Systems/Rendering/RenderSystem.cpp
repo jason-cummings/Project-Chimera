@@ -11,6 +11,10 @@
 #include "OverlayMesh.hpp"
 #include "Material.hpp"
 
+#include "MeshList/NoSortMeshList.hpp"
+#include "MeshList/FrontToBackMeshList.hpp"
+#include "MeshList/BackToFrontMeshList.hpp"
+
 #define SHADOW_MAP_DIMENSION 2048
 #define VARIANCE_SHADOW_MAP_DIMENSION 1024
 
@@ -137,8 +141,8 @@ void RenderSystem::addFramebufferTextures() {
 
 	vls_post_process->setOcclusionTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
 
-	((FXAA*)FXAA_process)->setPositionTexture( deferred_buffer.getTexture( "position" )->getID() );
-	((FXAA*)FXAA_process)->setColorTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+	FXAA_process->setPositionTexture( deferred_buffer.getTexture( "position" )->getID() );
+	FXAA_process->setColorTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
 	RenderUtils::testGLError( "Framebuffer Textures" );
 }
