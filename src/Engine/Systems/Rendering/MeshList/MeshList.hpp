@@ -6,6 +6,7 @@
 #include "../../../GameObject.hpp"
 
 #include <iostream>
+#include <algorithm>
 
 // MeshList Class
 //  - A MeshList is a container for a vector. Its purpose is to maintain a list of meshes to be rendered in a 
@@ -41,7 +42,7 @@ public:
 
     // inline wrapper functions for basic list functionality
 
-    inline int size() { return list.size(); }; // get the number of gameObjects in the meshList
+    inline int size() { return (int)list.size(); }; // get the number of gameObjects in the meshList
 
     inline GameObject * quickGet( int i ) { return list[i]; } // replacement for accessing elements in the list. only accesses the element, and does nothing else
 
