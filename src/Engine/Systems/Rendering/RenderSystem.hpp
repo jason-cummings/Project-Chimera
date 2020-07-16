@@ -71,6 +71,7 @@ private:
     // Model, View, and Projection matrices for the program
     glm::mat4 view_mat, proj_mat;
     glm::vec3 camera_loc;
+    glm::vec3 shadow_focal_point;
 
     // skybox data
     Skybox * skybox;

@@ -287,6 +287,7 @@ void RenderSystem::render( double dt ) {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
 		camera_loc = glm::vec3(camera->getEyePos());
+		shadow_focal_point = glm::vec3( camera->getWorldTransform()[3] );
 
 		mesh_list->setCameraLoc(camera_loc);
 		skinned_mesh_list->setCameraLoc(camera_loc);
@@ -499,8 +500,8 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	Shader *depth_shader = sm->getShader("depth");
 	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
 
-	// Create the view matricx for the light's view
-	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	// Create the view matrix for the light's view
+	glm::mat4 light_view_mat = glm::lookAt( shadow_focal_point + light->location, shadow_focal_point, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the depth only framebuffer
 	depth_shadow_buffer.bind();
@@ -554,7 +555,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	Shader *mapping_shader = sm->getShader("directional-shadows");
 
 	// Create the view and projection matrices for the light's view
-	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_view_mat = glm::lookAt( shadow_focal_point + light->location, shadow_focal_point, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
@@ -584,7 +585,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	}
 	mapping_shader->setUniformVec3( "lightLocation", light->location );
 
-	mapping_shader->setUniformVec3( "cameraLocation", camera_loc );
+	mapping_shader->setUniformVec3( "cameraLocation", shadow_focal_point );
 
 	mapping_shader->setUniformFloat( "iterate", UserSettings::shadow_mode == ShadowMode::ITERATE ? 1.f : 0.f );
 
