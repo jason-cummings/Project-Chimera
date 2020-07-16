@@ -1,6 +1,8 @@
 #include "LoadMenu.hpp"
 
 #include "InGameState.hpp"
+#include "../Levels/TowersLevel.hpp"
+#include "../Levels/CastleLevel.hpp"
 
 #define LOAD_BUTTON_ID "Loading"
 
@@ -19,7 +21,16 @@ LoadMenu::~LoadMenu() {
 void LoadMenu::gameLoop() {
     // Boolean to allow loading screen to render once before hanging the gameloop on loading
     if( will_load ) {
-        InGameState *to_set = new InGameState( level_name );
+        Level *to_load = nullptr;
+        if( level_name == "Towers" ) {
+            to_load = new TowersLevel();
+        }
+        else if( level_name == "Castle" ) {
+            to_load = new CastleLevel();
+        }
+        to_load->populateLevel();
+
+        InGameState *to_set = new InGameState( to_load );
         setNextState( to_set, true );
     }
     else {

@@ -17,11 +17,8 @@ private:
     // Camera to be used for 3D objects in the world (not overlay/HUD meshes)
     Camera *camera;
 
-
     int selected_level;
     std::vector<MenuElement*> level_images;
-
-	virtual void init() override {}
 
     void handleButtonEvent( MenuButton *clicked ) override;
 

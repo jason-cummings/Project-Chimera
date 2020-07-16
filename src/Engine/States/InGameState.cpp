@@ -4,32 +4,19 @@
 #include "PauseMenu.hpp"
 #include "WinMenu.hpp"
 
-// #include "../GameObjects/Obstacle.hpp"
 #include "../GameObjects/DynamicCube.hpp"
-// #include "../GameObjects/StaticCubeObstacle.hpp"
 #include "../GameObjects/Player.hpp"
 
 #include "../LevelLoader.hpp"
 
 #include "../SettingsManager.hpp"
 
-InGameState::InGameState( std::string level_to_load ) {
-    current_level = level_to_load;
-    init();
-}
+#include <glm/gtx/string_cast.hpp>
 
-InGameState::~InGameState() {
-    delete physics_system;
-    delete animation_system;
-
-    if( camera == render_system.getRegisteredCamera() ) render_system.registerCamera( nullptr );
-    scene->setDestroyAll(true);
-    delete scene;
-}
-
-void InGameState::init() {
+InGameState::InGameState( Level *level ) {
     physics_system = new PhysicsSystem();
     animation_system = new AnimationSystem();
+
     camera = new Camera();
     camera->setOffset( 3.f );
     camera->setResolution( UserSettings::resolution_width, UserSettings::resolution_height );
@@ -38,19 +25,9 @@ void InGameState::init() {
     mouse_lock = true;
     player_visible = true;
 
-    LevelLoader * level_loader = LevelLoader::loadLevelFile(current_level);
-    scene = level_loader->getScene();
-    for(int i = 0; i < level_loader->getNumAnimationStacks(); i++) {
-        animation_system->addAnimationStack(level_loader->getAnimationStack(i));
-        level_loader->getAnimationStack(i)->startAllAnimations();
-    }
-
-    if(level_loader->getJointList() != nullptr) {
-        animation_system->addJointList(level_loader->getJointList());
-    }
-
-    end_coords = level_loader->getEndGameCoords();
-    addPhysicsThings();
+    scene = level->getScene();
+    level->populateAnimationSystem( animation_system );
+    end_coords = level->getGoalCoordinates();
 
     // load the player file and put it into the scene
     LevelLoader * player_loader = LevelLoader::loadCharacterModel();
@@ -89,37 +66,21 @@ void InGameState::init() {
 
     first_tick = true;
 
-    delete level_loader;
     delete player_loader;
 
     Skybox * skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
     render_system.setSkybox(skybox);
 }
 
+InGameState::~InGameState() {
+    delete physics_system;
+    delete animation_system;
 
-void InGameState::addPhysicsThings() {
-    glm::vec3 o1scale(.9f);
-    glm::quat o1rot( glm::vec3(0.f, glm::radians(0.f), 0.f) );
-    glm::vec3 o1trans(0.f, 3.f, 10.f);
-    DynamicCube *o1 = new DynamicCube( o1scale.x );
-    o1->setTransform( o1scale, o1rot, o1trans );
-    
-    glm::vec3 o2scale(.9f);
-    glm::quat o2rot( glm::vec3(glm::radians(15.f), glm::radians(15.f), 0.f) );
-    glm::vec3 o2trans(0.8f, 3.f, 10.f);
-    DynamicCube *o2 = new DynamicCube( o2scale.x );
-    o2->setTransform( o2scale, o2rot, o2trans );
-    
-    glm::vec3 o3scale(1.f);
-    glm::quat o3rot( glm::vec3(glm::radians(40.f), glm::radians(15.f), glm::radians(25.f)) );
-    glm::vec3 o3trans(-1.5f, 4.f, 10.f);
-    DynamicCube *o3 = new DynamicCube( o3scale.x );
-    o3->setTransform( o3scale, o3rot, o3trans );
-
-    scene->addChild(o1);
-    scene->addChild(o2);
-    scene->addChild(o3);
+    if( camera == render_system.getRegisteredCamera() ) render_system.registerCamera( nullptr );
+    scene->setDestroyAll(true);
+    delete scene;
 }
+
 
 void InGameState::togglePlayerVisibility() {
     player_visible = !player_visible;

@@ -10,8 +10,6 @@ private:
     void handleButtonEvent( MenuButton* clicked ) override;
     GameState* last_state;
 
-	virtual void init() override {}
-
 public:
     WinMenu( InGameState* input );
     ~WinMenu();

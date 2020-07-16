@@ -75,7 +75,6 @@ private:
 
     void loadMaterials( fs::path dir, fs::path textures_dir );
     void loadAnimations( fs::path dir );
-    void loadEndGame( fs::path dir );
     void loadJointList( fs::path dir );
     Joint loadJoint( fs::path dir );
 
@@ -101,11 +100,7 @@ public:
     AnimationStack* getAnimationStack(int i) { return animation_stacks[i]; };
 
     // return the joint list, null if no joints in this file
-    JointList * getJointList() {return joint_list;}
-
-    //return end game coordinates
-    glm::vec3 getEndGameCoords(){ return endGameCoordVec; }
-
+    JointList * getJointList() { return joint_list; }
 
     static LevelLoader * loadCharacterModel();
     static LevelLoader * loadLevelFile(std::string name);

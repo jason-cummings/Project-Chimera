@@ -10,8 +10,6 @@ private:
     void handleKeyDownStateSpecific( SDL_Event e ) override;
     GameState* last_state;
 
-	virtual void init() override {}
-
 public:
     PauseMenu( GameState* input );
     ~PauseMenu();

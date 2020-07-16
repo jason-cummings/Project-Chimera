@@ -20,8 +20,6 @@ private:
 
     void handleButtonEvent( MenuButton *clicked ) override;
 
-    void init() override {}
-
 public:
     MainMenu();
     ~MainMenu();

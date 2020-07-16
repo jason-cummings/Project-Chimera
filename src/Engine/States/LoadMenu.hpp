@@ -10,8 +10,6 @@ private:
     bool will_load = false;
     std::string level_name;
 
-	virtual void init() override {}
-
 public:
     LoadMenu( std::string to_load );
     ~LoadMenu();

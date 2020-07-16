@@ -2,6 +2,7 @@
 #define INGAMESTATE_H
 
 #include "../GameState.hpp"
+#include "../Levels/Level.hpp"
 
 #include "../Systems/PlayerMovement/PlayerMovementSystem.hpp"
 #include "../Systems/Animation/AnimationSystem.hpp"
@@ -16,7 +17,6 @@ class InGameState: public GameState {
 private:
     bool w, a, s, d, shift, space;
     Player* player;
-    std::string current_level;
     glm::vec3 end_coords;
 
     // Camera to be used for 3D objects in the world (not overlay/HUD meshes)
@@ -35,9 +35,6 @@ private:
     StandardTimer timer;
     PerformanceLogger performance_logger;
 
-    // Initialize the state
-    void init() override;
-
     // These override default methods in GameState and do not have to be implemented if necessary
     void handleKeyDownStateSpecific( SDL_Event e ) override;
     void handleKeyUpStateSpecific( SDL_Event e ) override;
@@ -52,18 +49,15 @@ private:
     // Perform any necessary updates after the physics step
     void postPhysics();
 
-    //Check if player is in endgame location 
+    // Check if player is in endgame location 
     bool endGame();
     bool isNear(float input, float goal);
     bool fell();
 
     void togglePlayerVisibility();
 
-    // TEMP
-    void addPhysicsThings();
-
 public:
-    InGameState( std::string level_to_load );
+    InGameState( Level *level );
     ~InGameState();
 
     void gameLoop() override;

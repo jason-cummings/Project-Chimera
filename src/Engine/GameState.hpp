@@ -20,10 +20,7 @@ protected:
 
     // Control variable to ensure the state was successfully initialized
     bool init_success;
-
-    // Initialize function to be called in the constructor Should set init_success to false on any failure
-    virtual void init() = 0;
-
+    
     // Variables to be accessed by Engine for transitioning between states
     bool quit_game;
     bool should_destroy_on_state_change;

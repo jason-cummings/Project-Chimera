@@ -146,18 +146,11 @@ void LevelLoader::createLevel( std::string level_name ) {
     animation_path.append( LEVEL_ANIMATION_DNAME );
     loadAnimations(animation_path);
 
-    //load endgame coordinates
-    fs::path endgame_path = level_path;
-    endgame_path.append( LEVEL_ENDGAME_DNAME );
-    loadEndGame( endgame_path );
-
     //set pointers for joint objects as they need pointers to gameobjects
     if(joint_list) {
         joint_list->setJointPointers(scene);
         joint_list->calculateInverseBindPose();
     }
-    
-
 
     delete scene_properties;
 }
@@ -307,15 +300,6 @@ void LevelLoader::loadAnimations(fs::path dir) {
         }
     }
 }
-
-void LevelLoader::loadEndGame(fs::path dir){
-    dir.append(LEVEL_ENDGAME_FNAME);
-    if( fs::exists(dir) ){
-        Asset endGameCoord(dir);
-        endGameCoordVec = *(glm::vec3*)endGameCoord.getBuffer();
-    }
-}
-
 
 void LevelLoader::loadJointList(fs::path dir) {
     if( fs::exists(dir) ) {
