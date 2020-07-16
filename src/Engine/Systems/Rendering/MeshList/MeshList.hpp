@@ -42,7 +42,7 @@ public:
 
     // inline wrapper functions for basic list functionality
 
-    inline int size() { return (int)list.size(); }; // get the number of gameObjects in the meshList
+    inline size_t size() { return (int)list.size(); }; // get the number of gameObjects in the meshList
 
     inline GameObject * quickGet( int i ) { return list[i]; } // replacement for accessing elements in the list. only accesses the element, and does nothing else
 

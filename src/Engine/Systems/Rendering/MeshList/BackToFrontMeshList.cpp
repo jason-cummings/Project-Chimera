@@ -20,7 +20,7 @@ void BackToFrontMeshList::sort() {
 
 void BackToFrontMeshList::addGameObject( GameObject * obj ) {
     bool inserted = false;
-    int i = list.size() - 1;
+    int i = int(list.size()) - 1;
     float d_obj = dist(obj);
     while(!inserted && i >= 0) {
         if(dist(list[i]) < d_obj) {
