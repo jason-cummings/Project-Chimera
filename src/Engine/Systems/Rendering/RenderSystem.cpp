@@ -11,6 +11,10 @@
 #include "OverlayMesh.hpp"
 #include "Material.hpp"
 
+#include "MeshList/NoSortMeshList.hpp"
+#include "MeshList/FrontToBackMeshList.hpp"
+#include "MeshList/BackToFrontMeshList.hpp"
+
 #define SHADOW_MAP_DIMENSION 2048
 #define VARIANCE_SHADOW_MAP_DIMENSION 1024
 
@@ -66,6 +70,10 @@ RenderSystem::RenderSystem() {
 	// Add blur process to final shadow map
 	shadow_map_blur_process = new Blur( shadow_mapping_buffer.getTexture( "shadow_map" )->getID(), &shadow_mapping_buffer );
 	shadow_map_blur_process->createFrameBuffers();
+
+	mesh_list = (MeshList *) new FrontToBackMeshList();
+	skinned_mesh_list = (MeshList *) new FrontToBackMeshList();
+	overlay_mesh_list = (MeshList *) new NoSortMeshList();
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -133,10 +141,16 @@ void RenderSystem::addFramebufferTextures() {
 
 	vls_post_process->setOcclusionTexture( deferred_buffer.getTexture( "occlusion" )->getID() );
 
-	((FXAA*)FXAA_process)->setPositionTexture( deferred_buffer.getTexture( "position" )->getID() );
-	((FXAA*)FXAA_process)->setColorTexture( shading_buffer.getTexture( "FragColor" )->getID() );
+	FXAA_process->setPositionTexture( deferred_buffer.getTexture( "position" )->getID() );
+	FXAA_process->setColorTexture( shading_buffer.getTexture( "FragColor" )->getID() );
 
 	RenderUtils::testGLError( "Framebuffer Textures" );
+}
+
+RenderSystem::~RenderSystem() {
+	delete mesh_list;
+	delete skinned_mesh_list;
+	delete overlay_mesh_list;
 }
 
 
@@ -172,13 +186,14 @@ void RenderSystem::drawDepthTexture( GLuint tex ) {
 }
 
 void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
-	for(int i = 0; i < mesh_list.size(); i++) {
-		glm::mat4 transform = mesh_list[i]->getWorldTransform();
+	for(int i = 0; i < mesh_list->size(); i++) {
+		GameObject * obj = sorted? mesh_list->quickGet(i) : mesh_list->longGet(i);
+		glm::mat4 transform = obj->getWorldTransform();
 		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(transform)));
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		Mesh *to_draw = (Mesh *) mesh_list[i]->getRenderable();
+		Mesh *to_draw = (Mesh *) obj->getRenderable();
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader );
@@ -187,13 +202,16 @@ void RenderSystem::drawMeshList(bool useMaterials, Shader * shader) {
 }
 
 void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
-	for(int i = 0; i < skinned_mesh_list.size(); i++) {
-		glm::mat4 transform = skinned_mesh_list[i]->getWorldTransform();
+	for(int i = 0; i < skinned_mesh_list->size(); i++) {
+
+		GameObject * obj = sorted? skinned_mesh_list->quickGet(i) : skinned_mesh_list->longGet(i);
+
+		glm::mat4 transform = obj->getWorldTransform();
 		glm::mat3 normal_matrix = glm::transpose(glm::inverse(glm::mat3(transform)));
 		shader->setUniformMat4( "Model", transform );
 		shader->setUniformMat3( "NormalMatrix", normal_matrix );
 
-		SkinnedMesh *to_draw = (SkinnedMesh *) skinned_mesh_list[i]->getRenderable();
+		SkinnedMesh *to_draw = (SkinnedMesh *) obj->getRenderable();
 
 		JointList * joint_list = to_draw->getJointList();
 		int num_bones = joint_list->getNumBones();
@@ -209,11 +227,14 @@ void RenderSystem::drawSkinnedMeshList(bool useMaterials, Shader * shader) {
 }
 
 void RenderSystem::drawOverlayMeshList( bool useMaterials, Shader * shader ) {
-	for( int i=0; i<overlay_mesh_list.size(); i++ ) {
-		glm::mat4 transform = overlay_mesh_list[i]->getWorldTransform();
+	for( int i=0; i<overlay_mesh_list->size(); i++ ) {
+
+		GameObject * obj = sorted? overlay_mesh_list->quickGet(i) : overlay_mesh_list->longGet(i);
+
+		glm::mat4 transform = obj->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
 
-		OverlayMesh *to_draw = (OverlayMesh *) overlay_mesh_list[i]->getRenderable();
+		OverlayMesh *to_draw = (OverlayMesh *) obj->getRenderable();
 		Material *mat_to_use = to_draw->getMaterial();
 		
 		mat_to_use->bind( shader, false );
@@ -222,20 +243,26 @@ void RenderSystem::drawOverlayMeshList( bool useMaterials, Shader * shader ) {
 }
 
 void RenderSystem::drawMeshListVerticesOnly( Shader * shader ) {
-	for(int i = 0; i < mesh_list.size(); i++) {
-		glm::mat4 transform = mesh_list[i]->getWorldTransform();
+	for(int i = 0; i < mesh_list->size(); i++) {
+
+		GameObject * obj = mesh_list->quickGet(i);
+
+		glm::mat4 transform = obj->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
-		Mesh *to_draw = (Mesh *) mesh_list[i]->getRenderable();
+		Mesh *to_draw = (Mesh *) obj->getRenderable();
 		to_draw->drawVerticesOnly();
 	}
 }
 
 void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
-	for(int i = 0; i < skinned_mesh_list.size(); i++) {
-		glm::mat4 transform = skinned_mesh_list[i]->getWorldTransform();
+	for(int i = 0; i < skinned_mesh_list->size(); i++) {
+
+		GameObject * obj = skinned_mesh_list->quickGet(i);
+
+		glm::mat4 transform = obj->getWorldTransform();
 		shader->setUniformMat4( "Model", transform );
 
-		SkinnedMesh *to_draw = (SkinnedMesh *) skinned_mesh_list[i]->getRenderable();
+		SkinnedMesh *to_draw = (SkinnedMesh *) obj->getRenderable();
 
 		JointList *joint_list = to_draw->getJointList();
 		int num_bones = joint_list->getNumBones();
@@ -260,14 +287,21 @@ void RenderSystem::render( double dt ) {
 		view_mat = camera->getViewMatrix();
 		proj_mat = camera->getProjectionMatrix();
 		camera_loc = glm::vec3(camera->getEyePos());
+
+		mesh_list->setCameraLoc(camera_loc);
+		skinned_mesh_list->setCameraLoc(camera_loc);
 	}
 	else {
 		// std::cerr << "Camera is null - using default matrices" << std::endl;
 		createOrthoMatrices();
 	}
 
+	sorted = false; // will change with material overhaul
+
 	// Do the deferred rendering
 	deferredRenderStep();
+
+	sorted = true;
 
 	if( UserSettings::shadow_mode != ShadowMode::NONE ) {
 		// Render shadow maps
@@ -335,28 +369,28 @@ void RenderSystem::addToRenderLists( GameObject * game_object ) {
 
 		switch(type) {
 			case RenderableType::MESH:
-				mesh_list.push_back(game_object);
+				mesh_list->addGameObject(game_object);
 				break;
 			case RenderableType::SKINNED_MESH:
-				skinned_mesh_list.push_back(game_object);
+				skinned_mesh_list->addGameObject(game_object);
 				break;
 			case RenderableType::OVERLAY:
 			{
 				// Insert overlay meshes acording to z level to ensure in order rendering
 				int insert_z = ((OverlayMesh*)game_object_renderable)->getZLevel(); 
 
-				std::vector<GameObject*>::iterator it = overlay_mesh_list.begin();
+				int i = 0;
 				bool inserted = false;
-				while( !inserted && it < overlay_mesh_list.end() ) {
-					int current_z = ((OverlayMesh*)((*it)->getRenderable()))->getZLevel();
+				while(!inserted && i < overlay_mesh_list->size()) {
+					int current_z = ((OverlayMesh *)(overlay_mesh_list->quickGet(i)->getRenderable()))->getZLevel();
 					if( insert_z > current_z ) {
-						it = overlay_mesh_list.insert( it, game_object );
+						((NoSortMeshList*)overlay_mesh_list)->addGameObject(game_object,i);
 						inserted = true;
 					}
-					it++;
+					i++;
 				}
 				if( !inserted ) {
-					overlay_mesh_list.push_back( game_object );
+					overlay_mesh_list->addGameObject( game_object );
 				}
 				break;
 			}
@@ -367,22 +401,15 @@ void RenderSystem::addToRenderLists( GameObject * game_object ) {
 }
 
 void RenderSystem::clearRenderLists() {
-	mesh_list.clear();
-	skinned_mesh_list.clear();
-	overlay_mesh_list.clear();
+	mesh_list->clearList();
+	skinned_mesh_list->clearList();
+	overlay_mesh_list->clearList();
 }
 
 void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
-	std::vector<GameObject*>::iterator it;
-
-	it = std::remove( mesh_list.begin(), mesh_list.end(), game_object );
-	if( it != mesh_list.end() ) mesh_list.erase( it );
-	
-	it = std::remove( skinned_mesh_list.begin(), skinned_mesh_list.end(), game_object );
-	if( it != skinned_mesh_list.end() ) skinned_mesh_list.erase( it );
-	
-	it = std::remove( overlay_mesh_list.begin(), overlay_mesh_list.end(), game_object );
-	if( it != overlay_mesh_list.end() ) overlay_mesh_list.erase( it );
+	mesh_list->removeObject(game_object);
+	skinned_mesh_list->removeObject(game_object);
+	overlay_mesh_list->removeObject(game_object);
 }
 
 void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {
@@ -749,4 +776,14 @@ void RenderSystem::renderOverlay() {
 
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 	glUseProgram(0);
+}
+
+
+void RenderSystem::registerCamera( Camera *to_register ) { 
+	camera = to_register; 
+	if(camera != nullptr) {
+		camera_loc = glm::vec3(camera->getEyePos());
+		mesh_list->setCameraLoc(camera_loc);
+		skinned_mesh_list->setCameraLoc(camera_loc);
+	}
 }
