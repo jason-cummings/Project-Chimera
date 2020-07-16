@@ -3,6 +3,7 @@
 class FrontToBackMeshList : public MeshList {
 public:
     FrontToBackMeshList();
+    ~FrontToBackMeshList();
 
     void sort() override;
 

@@ -33,8 +33,9 @@ protected:
     float dist( GameObject * obj ); // get distance from gameObject a to the camera
 
 public:
-
     MeshList();
+    virtual ~MeshList();
+
 
     // setter for camera location
     inline void setCameraLoc( glm::vec3 camera_loc_in ) { camera_loc = camera_loc_in; }
