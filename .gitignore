@@ -6,3 +6,8 @@ build/
 out/
 CMakeCache.txt
 settings.txt
+
+# FbxParser stuff
+FbxConverter/**
+!FbxConverter/**.h
+!FbxConverter/**.cpp
