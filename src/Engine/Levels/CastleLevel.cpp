@@ -2,7 +2,7 @@
 
 #include "../GameObjects/DynamicCube.hpp"
 
-CastleLevel::CastleLevel(): Level("TowersOld") {}
+CastleLevel::CastleLevel(): Level("Castle") {}
 
 void CastleLevel::populateLevel() {
     skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
