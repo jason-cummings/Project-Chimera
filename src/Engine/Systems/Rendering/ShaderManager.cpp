@@ -158,6 +158,13 @@ void ShaderManager::loadShaders() {
     text_shader->addUniform( "textColor" );
     text_shader->addUniform( "textTexture" );
     shaders["text"] = text_shader;
+
+    Shader *hdr_gamma_shader = new Shader( "hdr-gamma", "DrawQuad.vert", "HDRandGamma.frag" );
+    hdr_gamma_shader->addUniform( "colorTexture" );
+    hdr_gamma_shader->addUniform( "gamma" );
+    hdr_gamma_shader->addUniform( "exposure" );
+    hdr_gamma_shader->addUniform( "useExposure" );
+    shaders["hdr-gamma"] = hdr_gamma_shader;
 }
 
 Shader * ShaderManager::getShader( std::string shader_name ) {

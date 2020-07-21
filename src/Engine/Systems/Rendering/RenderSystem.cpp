@@ -15,7 +15,7 @@
 #include "MeshList/FrontToBackMeshList.hpp"
 #include "MeshList/BackToFrontMeshList.hpp"
 
-#define SHADOW_MAP_DIMENSION 2048
+#define SHADOW_MAP_DIMENSION 1024
 #define VARIANCE_SHADOW_MAP_DIMENSION 1024
 
 const float sun_distances[4] = { 5.f, 15.f, 40.f, 100.f };
@@ -26,6 +26,8 @@ RenderSystem::RenderSystem() {
 	skybox = nullptr;
 
 	RenderUtils::init();
+	RenderUtils::setTextureHeight( UserSettings::resolution_height );
+	RenderUtils::setTextureWidth( UserSettings::resolution_width );
 
 	// Get the shader manager
 	// Create the basic VAO
@@ -34,34 +36,14 @@ RenderSystem::RenderSystem() {
 	sm = ShaderManager::getShaderManager();
 	glBindVertexArray( 0 );
 
-	// Assign values based on user settings
-	RenderUtils::setTextureHeight( UserSettings::resolution_height );
-	RenderUtils::setTextureWidth( UserSettings::resolution_width );
-
 	// create post process objects
-	FXAA_process = new FXAA( nullptr );
-
-	vls_post_process = new VolumetricLightScattering( nullptr );
-
-	bloom_post_process = new Bloom( nullptr );
-	//bloom_post_process->createFrameBuffers();
-
-
+	FXAA_process = new FXAA( &composite_buffer );
+	vls_post_process = new VolumetricLightScattering( &composite_buffer );
+	bloom_post_process = new Bloom( &composite_buffer );
+	
 	// Setup the necessary framebuffers for rendering
 	addFramebufferTextures();
 
-	// And in the last step, Jason said "Let there be light"
-	sun.location = glm::vec3(.707f,.3f,-.707f);
-	sun.diffuse = glm::vec3(0.5f,0.3f,0.2f);
-	sun.specular = glm::vec3(0.5f,0.3f,0.2f);
-	sun.linear_attenuation = 0.08f;
-	sun.quadratic_attenuation = 0.0f;
-	sun.directional = 1.0f;
-	sun_proj_mats[0] = glm::ortho( -sun_distances[0], sun_distances[0], -sun_distances[0], sun_distances[0], -100.f, 100.f );
-	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
-	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
-	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
-	
 	// Add intermediate bloom processes
 	variance_blur_process = new Blur( variance_depth_shadow_buffer.getTexture( "depth" )->getID(), &variance_blurred_depth_out );
 	variance_blur_process->setOutSize( VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
@@ -74,6 +56,21 @@ RenderSystem::RenderSystem() {
 	mesh_list = (MeshList *) new FrontToBackMeshList();
 	skinned_mesh_list = (MeshList *) new FrontToBackMeshList();
 	overlay_mesh_list = (MeshList *) new NoSortMeshList();
+
+	// And in the last step, Jason said "Let there be light"
+	sun = new Light("sun");
+	sun->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(.707f,.3f,-.707f) );
+	// sun->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(1.0f,.2f,-1.0f) );
+	sun->setDiffuse( glm::vec3(0.5f,0.3f,0.2f) );
+	sun->setSpecular( glm::vec3(0.5f,0.3f,0.2f) );
+	sun->setLinearAttenuation( 0.08f );
+	sun->setQuadraticAttenuation( 0.0f );
+	sun->setDirectional( true );
+	sun_proj_mats[0] = glm::ortho( -sun_distances[0], sun_distances[0], -sun_distances[0], sun_distances[0], -100.f, 100.f );
+	sun_proj_mats[1] = glm::ortho( -sun_distances[1], sun_distances[1], -sun_distances[1], sun_distances[1], -100.f, 100.f );
+	sun_proj_mats[2] = glm::ortho( -sun_distances[2], sun_distances[2], -sun_distances[2], sun_distances[2], -100.f, 100.f );
+	sun_proj_mats[3] = glm::ortho( -sun_distances[3], sun_distances[3], -sun_distances[3], sun_distances[3], -100.f, 100.f );
+	
 }
 
 // Create and return the singleton instance of RenderSystem
@@ -85,6 +82,14 @@ RenderSystem & RenderSystem::getRenderSystem() {
 void RenderSystem::reshape( int x_size, int y_size ) {
 	RenderUtils::setViewHeight(y_size);
 	RenderUtils::setViewWidth(x_size);
+
+	// Create the orthographic matrices to render the overlay
+	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
+	float left_edge = (aspect_ratio - 1.f) / -2.f;
+	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
+	sm->getShader("overlay")->bind();
+	sm->getShader("overlay")->setUniformMat4( "Projection", overlay_proj_mat );
+	glUseProgram(0);
 }
 
 // To call on a change in render resolution
@@ -112,8 +117,8 @@ void RenderSystem::addFramebufferTextures() {
 	// Add the color textures to render to in the deffered rendering step
 	deferred_buffer.addColorTextureHighPrecision( "position", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	deferred_buffer.addColorTexture( "normal", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
-	deferred_buffer.addColorTexture( "diffuse", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
-	deferred_buffer.addColorTexture( "emissive", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTextureHighPrecision( "diffuse", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	deferred_buffer.addColorTextureHighPrecision( "emissive", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	deferred_buffer.addColorTexture( "occlusion", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	deferred_buffer.addDepthBuffer( RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
@@ -133,8 +138,10 @@ void RenderSystem::addFramebufferTextures() {
 	variance_blurred_depth_out.addColorTexture( "blurred_depth", VARIANCE_SHADOW_MAP_DIMENSION, VARIANCE_SHADOW_MAP_DIMENSION );
 
 	// Set up the shading framebuffer
-	shading_buffer.addColorTexture( "FragColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
-	shading_buffer.addColorTexture( "BrightColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	shading_buffer.addColorTextureHighPrecision( "FragColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	shading_buffer.addColorTextureHighPrecision( "BrightColor", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
+	
+	composite_buffer.addColorTextureHighPrecision( "composite_texture", RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	bloom_post_process->setBrightTexture(shading_buffer.getTexture("BrightColor")->getID());
 	bloom_post_process->createFrameBuffers();
@@ -307,12 +314,12 @@ void RenderSystem::render( double dt ) {
 	if( UserSettings::shadow_mode != ShadowMode::NONE ) {
 		// Render shadow maps
 		if( UserSettings::shadow_mode == ShadowMode::VARIANCE ) {
-			renderVarianceDirectionalDepthTexture( &sun );
-			createDirectionalVarianceShadowMap( &sun );
+			renderVarianceDirectionalDepthTexture( sun );
+			createDirectionalVarianceShadowMap( sun );
 		}
 		else {
-			renderDirectionalDepthTexture( &sun );
-			createDirectionalShadowMap( &sun );
+			renderDirectionalDepthTexture( sun );
+			createDirectionalShadowMap( sun );
 		}
 	}
 
@@ -320,8 +327,10 @@ void RenderSystem::render( double dt ) {
 	shadingStep();
 
 	// Draw the resulting texture from the shading step
-	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
+	// glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	// glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
+	composite_buffer.bind();
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 	glClear( GL_COLOR_BUFFER_BIT );
 
 	if( UserSettings::use_FXAA )
@@ -332,7 +341,7 @@ void RenderSystem::render( double dt ) {
 
 		// calculate and set sun screen space location
 		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
-		glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize(sun.location) * 1.0f),1.0);
+		glm::vec4 light_screen_space_vec4 = proj_mat * view_rot_and_scale * glm::vec4((glm::normalize( sun->getLocation() ) * 1.0f),1.0);
 
 		light_screen_space_vec4 = light_screen_space_vec4 / light_screen_space_vec4[3];
 		light_screen_space_vec4 += glm::vec4(1.0,1.0,0.0,0.0);
@@ -350,6 +359,9 @@ void RenderSystem::render( double dt ) {
 	
 	// Render overlays
 	renderOverlay();
+
+	// Render the final result
+	correctAndRenderFinal();
 
 	glFinish();
 }
@@ -501,7 +513,7 @@ void RenderSystem::renderDirectionalDepthTexture( Light *light ) {
 	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
 
 	// Create the view matrix for the light's view
-	glm::mat4 light_view_mat = glm::lookAt( shadow_focal_point + light->location, shadow_focal_point, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_view_mat = glm::lookAt( shadow_focal_point + light->getLocation(), shadow_focal_point, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the depth only framebuffer
 	depth_shadow_buffer.bind();
@@ -555,7 +567,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 	Shader *mapping_shader = sm->getShader("directional-shadows");
 
 	// Create the view and projection matrices for the light's view
-	glm::mat4 light_view_mat = glm::lookAt( shadow_focal_point + light->location, shadow_focal_point, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_view_mat = glm::lookAt( shadow_focal_point + light->getLocation(), shadow_focal_point, glm::vec3(0.f,1.f,0.f) );
 
 	// Bind and clear the mapping buffer
 	shadow_mapping_buffer.bind();
@@ -583,7 +595,7 @@ void RenderSystem::createDirectionalShadowMap( Light *light ) {
 		mapping_shader->setUniformMat4( "lightProjections[" + std::to_string(i) + "]", sun_proj_mats[i] );
 		mapping_shader->setUniformFloat( "lightDistanceThresholds[" + std::to_string(i) + "]", sun_distances[i] );
 	}
-	mapping_shader->setUniformVec3( "lightLocation", light->location );
+	mapping_shader->setUniformVec3( "lightLocation", light->getLocation() );
 
 	mapping_shader->setUniformVec3( "cameraLocation", shadow_focal_point );
 
@@ -610,7 +622,7 @@ void RenderSystem::renderVarianceDirectionalDepthTexture( Light *light ) {
 	Shader *skinned_depth_shader = sm->getShader("skinned-depth");
 
 	// Create the view matricx for the light's view
-	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->getLocation(), camera_loc, glm::vec3(0.f,1.f,0.f) );
 	glm::mat4 variance_sun_proj_mat = glm::ortho( -variance_sun_distances[2], variance_sun_distances[2], -variance_sun_distances[2], variance_sun_distances[2], -100.f, 100.f );
 
 	// Bind and clear the depth only framebuffer
@@ -653,7 +665,7 @@ void RenderSystem::createDirectionalVarianceShadowMap( Light *light ) {
 	Shader *mapping_shader = sm->getShader("variance-shadows");
 
 	// Create the view and projection matrices for the light's view
-	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->location, camera_loc, glm::vec3(0.f,1.f,0.f) );
+	glm::mat4 light_view_mat = glm::lookAt( camera_loc + light->getLocation(), camera_loc, glm::vec3(0.f,1.f,0.f) );
 	glm::mat4 variance_sun_proj_mat = glm::ortho( -variance_sun_distances[2], variance_sun_distances[2], -variance_sun_distances[2], variance_sun_distances[2], -100.f, 100.f );
 
 	// Bind and clear the mapping buffer
@@ -679,7 +691,7 @@ void RenderSystem::createDirectionalVarianceShadowMap( Light *light ) {
 	// Load the lightspace transform matrices
 	mapping_shader->setUniformMat4( "lightView", light_view_mat );
 	mapping_shader->setUniformMat4( "lightProjection", variance_sun_proj_mat );
-	mapping_shader->setUniformVec3( "lightLocation", light->location );
+	mapping_shader->setUniformVec3( "lightLocation", light->getLocation() );
 
 	// Render the shadow map
 	RenderUtils::drawQuad();
@@ -729,20 +741,12 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformFloat( "applyShadows", UserSettings::shadow_mode == ShadowMode::NONE ? 0.f : 1.f );
 
-	// OLD LIGHT
-	// cartoon_shading->setUniformVec3("light.location",glm::vec3(50.0f,100.0f,200.0f));
-	// cartoon_shading->setUniformVec3("light.diffuse",glm::vec3(1.0f,1.0f,1.0f));
-	// cartoon_shading->setUniformVec3("light.specular",glm::vec3(1.0f,1.0f,1.0f));
-	// cartoon_shading->setUniformFloat("light.linearAttenuation",0.08f);
-	// cartoon_shading->setUniformFloat("light.quadraticAttenuation",0.0f);
-	// cartoon_shading->setUniformFloat("light.directional",0.0f);
-
-	cartoon_shading->setUniformVec3( "light.location", sun.location );
-	cartoon_shading->setUniformVec3( "light.diffuse", sun.diffuse );
-	cartoon_shading->setUniformVec3( "light.specular", sun.specular );
-	cartoon_shading->setUniformFloat( "light.linearAttenuation", sun.linear_attenuation );
-	cartoon_shading->setUniformFloat( "light.quadraticAttenuation", sun.quadratic_attenuation );
-	cartoon_shading->setUniformFloat( "light.directional", sun.directional );
+	cartoon_shading->setUniformVec3( "light.location", sun->getLocation() );
+	cartoon_shading->setUniformVec3( "light.diffuse", sun->getDiffuse() );
+	cartoon_shading->setUniformVec3( "light.specular", sun->getSpecular() );
+	cartoon_shading->setUniformFloat( "light.linearAttenuation", sun->getLinearAttenuation() );
+	cartoon_shading->setUniformFloat( "light.quadraticAttenuation", sun->getQuadraticAttenuation() );
+	cartoon_shading->setUniformFloat( "light.directional", float(sun->getDirectional()) );
 
 	RenderUtils::drawQuad();
 
@@ -755,16 +759,9 @@ void RenderSystem::shadingStep() {
 void RenderSystem::renderOverlay() {
 	// shading_buffer.bind();
 	// glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
-	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
+	// glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
-
-	// Create the orthographic matrices to render the overlay
-	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
-	float left_edge = (aspect_ratio - 1.f) / -2.f;
-	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
-
-	overlay_shader->setUniformMat4( "Projection", overlay_proj_mat );
 
 	glEnable( GL_BLEND );
 	glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -775,8 +772,28 @@ void RenderSystem::renderOverlay() {
 
 	RenderUtils::testGLError("Overlay");
 
+	// glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+	// glUseProgram(0);
+}
+
+void RenderSystem::correctAndRenderFinal() {
+	Shader *correction_shader = sm->getShader("hdr-gamma");
+	correction_shader->bind();
+
 	glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-	glUseProgram(0);
+	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
+	correction_shader->setUniformFloat( "gamma", 2.2 );
+	correction_shader->setUniformFloat( "exposure", 1.0 );
+	correction_shader->setUniformFloat( "useExposure", float(UserSettings::use_exposure) );
+	correction_shader->setUniformInt( "colorTexture", 0 );
+
+	glActiveTexture( GL_TEXTURE0 );
+	glBindTexture( GL_TEXTURE_2D, composite_buffer.getTexture( "composite_texture" )->getID() );
+	RenderUtils::drawQuad();
+
+	// drawTexture( composite_buffer.getTexture( "composite_texture" )->getID() );
+
+	RenderUtils::testGLError("HDR/Gamma");
 }
 
 

@@ -18,6 +18,7 @@
 #include "Skybox.hpp"
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
+#include "../../GameObjects/Light.hpp"
 #include "../../SettingsManager.hpp"
 #include "PostProcessing/FXAA.hpp"
 #include "PostProcessing/VolumetricLightScattering.hpp"
@@ -26,22 +27,12 @@
 
 #include "MeshList/MeshList.hpp"
 
-
-struct Light {
-    glm::vec3 location;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    float linear_attenuation;
-    float quadratic_attenuation;
-    float directional;
-};
-
 class RenderSystem {
 private:
     Camera *camera;
 
     // A hard coded light to act as the sun
-    Light sun;
+    Light *sun;
     glm::mat4 sun_proj_mats[4];
 
     // Temporary VAO to render everything for now
@@ -64,6 +55,9 @@ private:
     // Framebuffer and process for creating the final shadow map, regardless of technique used
     Framebuffer shadow_mapping_buffer;
     Blur * shadow_map_blur_process;
+
+    // Framebuffer for the final output before gamma correction and HDR
+    Framebuffer composite_buffer;
 
     // The shader manager for the render system
     ShaderManager *sm;
@@ -146,6 +140,9 @@ private:
 
     // 2D overlay elements
     void renderOverlay();
+
+    // Perform gamma and HDR corrections and render to the screen
+    void correctAndRenderFinal();
 
     // Singleton constructor
     RenderSystem();

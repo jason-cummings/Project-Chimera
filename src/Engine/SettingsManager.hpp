@@ -34,6 +34,7 @@ public:
     static BloomMode bloom_mode;
     static bool use_volumetric_light_scattering;
     static bool use_FXAA;
+    static bool use_exposure;
 };
 
 #endif

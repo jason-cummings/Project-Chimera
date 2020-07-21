@@ -17,6 +17,7 @@ bool UserSettings::blur_shadow_map = false;
 BloomMode UserSettings::bloom_mode = BloomMode::LINEAR_GAUSSIAN;
 bool UserSettings::use_volumetric_light_scattering = true;
 bool UserSettings::use_FXAA = true;
+bool UserSettings::use_exposure = true;
 
 // Return the path to the settings file
 std::string UserSettings::settingsPath() {
@@ -57,6 +58,8 @@ void UserSettings::writeToFile() {
     settings_file << "blur_shadow_map=" << blur_shadow_map << std::endl;
     settings_file << "bloom_mode=" << static_cast<int>(bloom_mode) << std::endl;
     settings_file << "use_volumetric_light_scattering=" << use_volumetric_light_scattering << std::endl;
+    settings_file << "use_FXAA=" << use_FXAA << std::endl;
+    settings_file << "use_exposure=" << use_exposure << std::endl;
 
     settings_file.close();
 }
@@ -75,13 +78,19 @@ void UserSettings::assignSetting( std::string setting, std::string value ) {
     else if( setting == "blur_shadow_map" ) {
         blur_shadow_map = (bool)std::stoi(value);
     }
-    else if( setting == "use_bloom" ) {
+    else if( setting == "bloom_mode" ) {
         bloom_mode = (BloomMode)std::stoi(value);
     }
     else if( setting == "use_volumetric_light_scattering" ) {
         use_volumetric_light_scattering = (bool)std::stoi(value);
     }
-    else if ( setting == "use_FXAA" ) {
+    else if( setting == "use_FXAA" ) {
         use_FXAA = (bool)std::stoi(value);
+    }
+    else if( setting == "use_exposure" ) {
+        use_exposure = (bool)std::stoi(value);
+    }
+    else {
+        std::cerr << "Unknown setting - " << setting << "=" << value << std::endl;
     }
 }

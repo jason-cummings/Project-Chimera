@@ -96,8 +96,8 @@ Material* MaterialFactory::createMaterial(fs::path input_directory, fs::path tex
 
     std::string texture_path_string = new_to_texture.string();
     std::string emissive_path_string = new_to_emissive.string();
-    texture = TextureLoader::loadTexture( texture_path_string, false, clamp_textures );
-    emissive = TextureLoader::loadTexture( emissive_path_string, false, clamp_textures );
+    texture = TextureLoader::loadTexture( texture_path_string, true, clamp_textures );
+    emissive = TextureLoader::loadTexture( emissive_path_string, true, clamp_textures );
     shininess = (float)strtod(shininess_asset->getBuffer(),NULL);
     
     Material *material = new Material( texture, emissive, shininess );

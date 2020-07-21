@@ -41,7 +41,7 @@ void Bloom::apply() {
 		current_blur_buffer = !current_blur_buffer;
 	}
 
-	glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
+	glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
 
 	RenderUtils::testGLError("Blur");
 

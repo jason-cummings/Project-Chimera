@@ -64,6 +64,9 @@ void GameState::handleKeyDown( SDL_Event e ) {
     else if( key == SDLK_F5 ) {
         UserSettings::use_volumetric_light_scattering = !UserSettings::use_volumetric_light_scattering;
     }
+    else if( key == SDLK_F6 ) {
+        UserSettings::use_exposure = !UserSettings::use_exposure;
+    }
     
     handleKeyDownStateSpecific(e);
 }

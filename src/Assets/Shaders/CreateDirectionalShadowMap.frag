@@ -54,7 +54,7 @@ void main() {
         float fragDepth = projLoc.z;
     
         // Test if the fragment minus a bias is closer than the current depth
-        float bias = 0.0002*(mapIndex+1);
+        float bias = 0.0003*(mapIndex+1);
         if( fragDepth - bias > closestDepth ) {
             // Fragment should be lit
             outCol = vec3(0.0);

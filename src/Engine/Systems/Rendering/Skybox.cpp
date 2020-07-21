@@ -69,7 +69,7 @@ GLuint SkyboxFactory::createCubeMap(std::vector<fs::path> texture_names) {
 
     for(int i = 0; i < 6; i++) {
     	std::string temp = texture_names[i].string();
-    	TextureLoader::loadTextureForCubeMap(temp, false, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+    	TextureLoader::loadTextureForCubeMap(temp, true, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
     }
 
     // glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

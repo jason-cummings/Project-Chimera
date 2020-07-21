@@ -2,7 +2,8 @@
 
 #include <iostream>
 
-#define TICK_TIME_WARNING_THRESHOLD .033
+#define DEBUG
+#define TICK_TIME_WARNING_THRESHOLD .2
 #define PRINT_FPS true
 
 void PerformanceLogger::startTick() {
@@ -33,9 +34,9 @@ void PerformanceLogger::stopTick() {
 
 
 	if(time_since_FPS > 5.0) {
-// #if PRINT_FPS
+	// #ifdef PRINT_FPS
 		std::cout << "FPS: " << frames / time_since_FPS << std::endl;
-// #endif
+	// #endif
 		time_since_FPS = 0.0;
 		frames = 0;
 	}
