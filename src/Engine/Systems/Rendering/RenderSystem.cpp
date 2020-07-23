@@ -61,14 +61,23 @@ RenderSystem::RenderSystem() {
 	sun->setSpecular( glm::vec3(0.5f,0.3f,0.2f) );
 	addDirectionalLight( sun );
 
-	// And in the last step, Jason said "Let there be light"
+	// And in the other last step, Jason said "Let there be more light"
 	DirectionalLight *moon = new DirectionalLight("moon");
 	moon->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-1.f,2.f,-.707f) );
-	// moon->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(1.0f,.2f,-1.0f) );
 	moon->setAmbient( glm::vec3(0.1f,0.1f,0.2f) );
 	moon->setDiffuse( glm::vec3(0.1f,0.2f,0.3f) );
 	moon->setSpecular( glm::vec3(0.f,0.f,0.f) );
-	addDirectionalLight( moon );
+	// addDirectionalLight( moon );
+
+	// And in the other other last step, Jason said "Let there be yet another light"
+	PointLight *point = new PointLight("point");
+	point->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-1.f,2.f,-.707f) );
+	point->setAmbient( glm::vec3(0.0f,0.0f,0.0f) );
+	point->setDiffuse( glm::vec3(1.f,0.2f,0.8f)*2.f );
+	point->setSpecular( glm::vec3(0.f,0.f,0.f) );
+	point->setLinearAttenuation( 0.03f );
+	point->setQuadraticAttenuation( 0.02f );
+	addPointLight( point );
 
 	setupShaders();
 }
@@ -189,6 +198,14 @@ void RenderSystem::setupShaders() {
 	dir_light_shader->setUniformInt( "diffuseTexture", 2 );	
 	dir_light_shader->setUniformInt( "shadowTexture", 3 );
 	dir_light_shader->setUniformFloat( "shadeCartoon", 0.f );
+
+	Shader *point_light_shader = sm->getShader("point-light");
+	point_light_shader->bind();
+	point_light_shader->setUniformInt( "positionTexture", 0 );
+	point_light_shader->setUniformInt( "normalTexture", 1 );	
+	point_light_shader->setUniformInt( "diffuseTexture", 2 );	
+	point_light_shader->setUniformInt( "shadowTexture", 3 );
+	point_light_shader->setUniformFloat( "shadeCartoon", 0.f );
 
 	Shader *quad_shader = sm->getShader( "quad" );
 	quad_shader->bind();
@@ -863,6 +880,27 @@ void RenderSystem::applyDirectionalLight( DirectionalLight *light ) {
 //	   The correct render target (shading_buffer) is already bound
 //	   Additive blending is already enabled
 void RenderSystem::applyPointLight( PointLight *light ) {
+	Shader *point_light_shader = sm->getShader("point-light");
+	point_light_shader->bind();
+	point_light_shader->setUniformVec3( "cameraLoc", camera_loc );
+
+	// Bind appropriate textures
+	// Uniform locations already set in setupShaders()
+	deferred_buffer.getTexture( "position" )->bind( GL_TEXTURE0 );
+	deferred_buffer.getTexture( "normal" )->bind( GL_TEXTURE1 );
+	deferred_buffer.getTexture( "diffuse" )->bind( GL_TEXTURE2 );
+	// ((Framebuffer *)light->getShadowFramebuffer())->getTexture( "shadow_map" )->bind( GL_TEXTURE3 );
+
+	// Set uniform light information
+	point_light_shader->setUniformVec3( "light.location", light->getLocation() );
+	point_light_shader->setUniformVec3( "light.ambient", light->getAmbient() );
+	point_light_shader->setUniformVec3( "light.diffuse", light->getDiffuse() );
+	point_light_shader->setUniformVec3( "light.specular", light->getSpecular() );
+	point_light_shader->setUniformFloat( "light.linearAttenuation", light->getLinearAttenuation() );
+	point_light_shader->setUniformFloat( "light.quadraticAttenuation", light->getQuadraticAttenuation() );
+
+	// Render
+	RenderUtils::drawQuad();
 
 	RenderUtils::testGLError( ("Applying point light " + light->getID()).c_str() );
 }

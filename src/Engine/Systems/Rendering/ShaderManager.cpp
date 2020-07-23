@@ -87,6 +87,21 @@ void ShaderManager::loadShaders() {
     directional_light_shader->addUniform("shadeCartoon");
     shaders["directional-light"] = directional_light_shader;
 
+    Shader *point_light_shader = new Shader("point-light", "DrawQuad.vert", "ApplyPointLight.frag");
+    point_light_shader->addUniform("positionTexture");
+    point_light_shader->addUniform("normalTexture");
+    point_light_shader->addUniform("diffuseTexture");
+    // point_light_shader->addUniform("shadowTexture");
+    point_light_shader->addUniform("cameraLoc");
+    point_light_shader->addUniform("light.ambient");
+    point_light_shader->addUniform("light.location");
+    point_light_shader->addUniform("light.diffuse");
+    point_light_shader->addUniform("light.specular");
+    point_light_shader->addUniform("light.linearAttenuation");
+    point_light_shader->addUniform("light.quadraticAttenuation");
+    point_light_shader->addUniform("shadeCartoon");
+    shaders["point-light"] = point_light_shader;
+
     Shader *overlay_shader = new Shader( "overlay", "OverlayShading.vert", "OverlayShading.frag" );
     overlay_shader->addUniform( "Model" );
     overlay_shader->addUniform( "Projection" );
