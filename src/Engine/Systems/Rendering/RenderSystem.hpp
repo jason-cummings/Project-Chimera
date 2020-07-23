@@ -18,7 +18,8 @@
 #include "Skybox.hpp"
 #include "../../GameObject.hpp"
 #include "../../GameObjects/Camera.hpp"
-#include "../../GameObjects/Light.hpp"
+#include "../../GameObjects/PointLight.hpp"
+#include "../../GameObjects/DirectionalLight.hpp"
 #include "../../SettingsManager.hpp"
 #include "PostProcessing/FXAA.hpp"
 #include "PostProcessing/VolumetricLightScattering.hpp"
@@ -30,10 +31,6 @@
 class RenderSystem {
 private:
     Camera *camera;
-
-    // A hard coded light to act as the sun
-    Light *sun;
-    glm::mat4 sun_proj_mats[4];
 
     // Temporary VAO to render everything for now
     GLuint BASE_VAO;
@@ -54,7 +51,6 @@ private:
 
     // Framebuffer and process for creating the final shadow map, regardless of technique used
     Framebuffer shadow_mapping_buffer;
-    Blur * shadow_map_blur_process;
 
     // Framebuffer for the final output before gamma correction and HDR
     Framebuffer composite_buffer;
@@ -69,6 +65,10 @@ private:
 
     // skybox data
     Skybox * skybox;
+
+    // The active lights in the scene
+    std::vector<DirectionalLight*> directional_lights;
+    std::vector<PointLight*> point_lights;
 
     // vectors for lists of different types of geometry. This will be used to optimize the rendering pipeline by reducing 
     // how often the shader is switched during rendering
@@ -120,6 +120,9 @@ private:
         Rendering pipeline
     **/
 
+    // Call in the constructor to set uniforms in shaders which will not change (texture units)
+    void setupShaders();
+
     // Create the necessary matrices for rendering
     void createOrthoMatrices();
 
@@ -127,16 +130,31 @@ private:
     void deferredRenderStep();
 
     // shadows
-    void renderDirectionalDepthTexture( Light *light );
-    void createDirectionalShadowMap( Light *light );
+    void renderDirectionalDepthTexture( DirectionalLight *light );
+    void createDirectionalShadowMap( DirectionalLight *light );
 
-    void renderVarianceDirectionalDepthTexture( Light *light );
-    void createDirectionalVarianceShadowMap( Light *light );
+    void renderDirectionalVarianceDepthTexture( DirectionalLight *light );
+    void createDirectionalVarianceShadowMap( DirectionalLight *light );
 
     void drawDepthTexture( GLuint tex );
 
+    // NEW
+    // Create shadow maps for all active lights
+    void createShadowMaps();
+
+    void renderPointDepthTextures( PointLight * light );
+    void createPointShadowMap( PointLight *light );
+
     // shading step
     void shadingStep();
+
+    // NEW shading step
+    void performShading();
+
+    // Sub methods of performShading()
+    void applyEmissive();
+    void applyDirectionalLight( DirectionalLight *light );
+    void applyPointLight( PointLight *light );
 
     // 2D overlay elements
     void renderOverlay();
@@ -151,6 +169,8 @@ private:
     ~RenderSystem();
 
 public:
+    // Get the singleton instance
+    static RenderSystem & getRenderSystem();
 
     // Set up render lists - iterate through the scenegraph and identify what needs to be drawn
     void populateRenderLists(GameObject * scenegraph);
@@ -161,20 +181,33 @@ public:
     void removeGameObjectFromRenderLists( GameObject * game_object );
     void removeGameObjectFromRenderListsRecursive( GameObject * game_object );
 
-    // Get the singleton instance
-    static RenderSystem & getRenderSystem();
-
-    // RENDER
+    // Primary render function
+    // Encapsulates all rendering done into a single function to call from a state
     void render( double dt );
 
+    // To be called if the display resolution changes
+    // May be moved in the future, but currently sets RenderUtils::view_width/view_height
+    //  and modifies the overlay projection matrix accordingly
     void reshape( int x_size, int y_size );
 
+    // To be called if rendering resolution changes
+    // Recreates framebuffers and textures with newly specified UserSettings::texture_width/texture_height
     void recreateFramebuffers();
 
     // Set the camera for the rendersystem
     void registerCamera( Camera *to_register );
     inline Camera * getRegisteredCamera() { return camera; }
     
+    // Light management
+    // Any added lights are assumed currently active
+    void addDirectionalLight( DirectionalLight *new_light );
+    void removeDirectionalLight( DirectionalLight *to_remove );
+    void clearDirectionalLights();
+
+    void addPointLight( PointLight *new_light );
+    void removePointLight( PointLight *to_remove );
+    void clearPointLights();
+
     inline void setSkybox(Skybox * skybox_in) { skybox = skybox_in; }
 };
 

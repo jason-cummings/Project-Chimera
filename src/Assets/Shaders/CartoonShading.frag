@@ -71,8 +71,8 @@ void main()
 	float specularAmount = pow(max(dot(normal,halfwaydir),0.0),shininess);
 	
 	vec3 specular = vec3(0.0);
-	// if(diffuseAmount > 0.0)
-	// 	specular = specularAmount * light.specular * diffuseColor;
+	if(diffuseAmount > 0.0)
+		specular = specularAmount * light.specular * diffuseColor;
 
 	// calculate attenuation of the light
 

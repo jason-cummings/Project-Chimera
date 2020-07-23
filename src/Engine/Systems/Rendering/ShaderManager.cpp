@@ -53,7 +53,7 @@ void ShaderManager::loadShaders() {
     quad_shader->addUniform( "colorTexture" );
     shaders["quad"] = quad_shader;
 
-    Shader *cartoon_shading = new Shader("cartoon", "CartoonShading.vert", "CartoonShading.frag");
+    Shader *cartoon_shading = new Shader("cartoon", "DrawQuad.vert", "CartoonShading.frag");
     cartoon_shading->addUniform("positionTexture");
     cartoon_shading->addUniform("normalTexture");
     cartoon_shading->addUniform("diffuseTexture");
@@ -69,6 +69,23 @@ void ShaderManager::loadShaders() {
     cartoon_shading->addUniform("ambientAmount");
     cartoon_shading->addUniform("applyShadows");
     shaders["cartoon"] = cartoon_shading;
+
+    Shader *emissive_shader = new Shader("emissive", "DrawQuad.vert", "ApplyEmissiveShading.frag");
+    emissive_shader->addUniform("emissiveTexture");
+    shaders["emissive"] = emissive_shader;
+
+    Shader *directional_light_shader = new Shader("directional-light", "DrawQuad.vert", "ApplyDirectionalLightWithShadows.frag");
+    directional_light_shader->addUniform("positionTexture");
+    directional_light_shader->addUniform("normalTexture");
+    directional_light_shader->addUniform("diffuseTexture");
+    directional_light_shader->addUniform("shadowTexture");
+    directional_light_shader->addUniform("cameraLoc");
+    directional_light_shader->addUniform("light.ambient");
+    directional_light_shader->addUniform("light.location");
+    directional_light_shader->addUniform("light.diffuse");
+    directional_light_shader->addUniform("light.specular");
+    directional_light_shader->addUniform("shadeCartoon");
+    shaders["directional-light"] = directional_light_shader;
 
     Shader *overlay_shader = new Shader( "overlay", "OverlayShading.vert", "OverlayShading.frag" );
     overlay_shader->addUniform( "Model" );

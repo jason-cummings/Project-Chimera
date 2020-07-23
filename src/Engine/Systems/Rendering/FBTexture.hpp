@@ -16,6 +16,7 @@ public:
     void bind( GLenum texture_unit );
 
     inline GLuint getID() { return id; }
+    inline std::string getName() { return name; }
 };
 
 #endif
