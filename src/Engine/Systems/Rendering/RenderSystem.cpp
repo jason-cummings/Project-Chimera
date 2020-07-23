@@ -376,8 +376,12 @@ void RenderSystem::render( double dt ) {
 	createShadowMaps();
 
 	// Perform shading
-	// shadingStep();
-	performShading();
+	if( UserSettings::new_shading ) {
+		performShading();
+	}
+	else {
+		shadingStep();
+	}
 
 	// Draw the resulting texture from the shading step
 	composite_buffer.bind();

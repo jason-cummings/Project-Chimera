@@ -67,6 +67,9 @@ void GameState::handleKeyDown( SDL_Event e ) {
     else if( key == SDLK_F6 ) {
         UserSettings::use_exposure = !UserSettings::use_exposure;
     }
+    else if( key == SDLK_F7 ) {
+        UserSettings::new_shading = !UserSettings::new_shading;
+    }
     
     handleKeyDownStateSpecific(e);
 }
