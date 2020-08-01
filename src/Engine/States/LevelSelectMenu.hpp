@@ -26,6 +26,8 @@ public:
     LevelSelectMenu( GameObject *scene_in, Camera *camera_in, AnimationSystem *anim_in );
     ~LevelSelectMenu();
     
+    bool init() override;
+
     void gameLoop() override;
 };
 

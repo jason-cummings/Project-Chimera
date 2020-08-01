@@ -52,33 +52,6 @@ RenderSystem::RenderSystem() {
 	skinned_mesh_list = (MeshList *) new FrontToBackMeshList();
 	overlay_mesh_list = (MeshList *) new NoSortMeshList();
 
-	// And in the last step, Jason said "Let there be light"
-	DirectionalLight *sun = new DirectionalLight("sun");
-	sun->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(.707f,.3f,-.707f) );
-	// sun->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(1.0f,.2f,-1.0f) );
-	sun->setAmbient( glm::vec3(0.3f,0.3f,0.3f) );
-	sun->setDiffuse( glm::vec3(0.5f,0.3f,0.2f) );
-	sun->setSpecular( glm::vec3(0.5f,0.3f,0.2f) );
-	addDirectionalLight( sun );
-
-	// And in the other last step, Jason said "Let there be more light"
-	DirectionalLight *moon = new DirectionalLight("moon");
-	moon->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-1.f,2.f,-.707f) );
-	moon->setAmbient( glm::vec3(0.1f,0.1f,0.2f) );
-	moon->setDiffuse( glm::vec3(0.1f,0.2f,0.3f) );
-	moon->setSpecular( glm::vec3(0.f,0.f,0.f) );
-	// addDirectionalLight( moon );
-
-	// And in the other other last step, Jason said "Let there be yet another light"
-	PointLight *point = new PointLight("point");
-	point->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-1.f,2.f,-.707f) );
-	point->setAmbient( glm::vec3(0.0f,0.0f,0.0f) );
-	point->setDiffuse( glm::vec3(1.f,0.2f,0.8f)*2.f );
-	point->setSpecular( glm::vec3(0.f,0.f,0.f) );
-	point->setLinearAttenuation( 0.03f );
-	point->setQuadraticAttenuation( 0.02f );
-	addPointLight( point );
-
 	setupShaders();
 }
 
@@ -93,7 +66,7 @@ void RenderSystem::reshape( int x_size, int y_size ) {
 	RenderUtils::setViewWidth(x_size);
 
 	// Create the orthographic matrices to render the overlay
-	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
+	float aspect_ratio = RenderUtils::getTextureWidth() / (float)RenderUtils::getTextureHeight();
 	float left_edge = (aspect_ratio - 1.f) / -2.f;
 	glm::mat4 overlay_proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
 	sm->getShader("overlay")->bind();
@@ -349,10 +322,89 @@ void RenderSystem::drawSkinnedMeshListVerticesOnly( Shader * shader ) {
 	}
 }
 
+void RenderSystem::populateRenderLists( GameObject * game_object ) {
+	addToRenderLists(game_object);
 
-/**
-	Rendering Pipeline
-**/
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		populateRenderLists(game_object->getChild(i));
+	}
+}
+
+// non recursive
+void RenderSystem::addToRenderLists( GameObject * game_object ) {
+	if(game_object->hasRenderable()) {
+		Renderable * game_object_renderable = game_object->getRenderable();
+		RenderableType type = game_object_renderable->getType();
+
+		switch(type) {
+			case RenderableType::MESH:
+				mesh_list->addGameObject(game_object);
+				break;
+			case RenderableType::SKINNED_MESH:
+				skinned_mesh_list->addGameObject(game_object);
+				break;
+			case RenderableType::OVERLAY:
+			{
+				// Insert overlay meshes acording to z level to ensure in order rendering
+				int insert_z = ((OverlayMesh*)game_object_renderable)->getZLevel(); 
+
+				int i = 0;
+				bool inserted = false;
+				while(!inserted && i < overlay_mesh_list->size()) {
+					int current_z = ((OverlayMesh *)(overlay_mesh_list->quickGet(i)->getRenderable()))->getZLevel();
+					if( insert_z > current_z ) {
+						((NoSortMeshList*)overlay_mesh_list)->addGameObject(game_object,i);
+						inserted = true;
+					}
+					i++;
+				}
+				if( !inserted ) {
+					overlay_mesh_list->addGameObject( game_object );
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
+}
+
+void RenderSystem::clearRenderLists() {
+	mesh_list->clearList();
+	skinned_mesh_list->clearList();
+	overlay_mesh_list->clearList();
+}
+
+void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
+	mesh_list->removeObject(game_object);
+	skinned_mesh_list->removeObject(game_object);
+	overlay_mesh_list->removeObject(game_object);
+}
+
+void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {
+	removeGameObjectFromRenderLists(game_object);
+
+	for(int i = 0; i < game_object->getNumChildren(); i++) {
+		removeGameObjectFromRenderListsRecursive(game_object->getChild(i));
+	}
+}
+
+// Function to create default view and projection matrices only if the camera seg faults
+void RenderSystem::createOrthoMatrices() {
+	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
+	float left_edge = (aspect_ratio - 1.f) / -2.f;
+	proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
+	view_mat = glm::mat4(1.f);
+	camera_loc = glm::vec3(0.f);
+}
+
+
+
+
+
+/**************************************
+ *    RENDERING PIPELINE FUNCTIONS    *
+ **************************************/
 
 void RenderSystem::render( double dt ) {
 	
@@ -439,85 +491,13 @@ void RenderSystem::render( double dt ) {
 	// Render the final result
 	correctAndRenderFinal();
 
+	if( point_lights.size() > 0 ) {
+		// drawDepthTexture( ((Framebuffer*)directional_lights[0]->getDepthFramebuffer())->getDepthTexture()->getID() );
+		// drawTexture( ((Framebuffer*)directional_lights[0]->getShadowFramebuffer())->getTexture("shadow_map")->getID() );
+	}
+
 	glFinish();
 }
-
-void RenderSystem::populateRenderLists( GameObject * game_object ) {
-	addToRenderLists(game_object);
-
-	for(int i = 0; i < game_object->getNumChildren(); i++) {
-		populateRenderLists(game_object->getChild(i));
-	}
-}
-
-// non recursive
-void RenderSystem::addToRenderLists( GameObject * game_object ) {
-	if(game_object->hasRenderable()) {
-		Renderable * game_object_renderable = game_object->getRenderable();
-		RenderableType type = game_object_renderable->getType();
-
-		switch(type) {
-			case RenderableType::MESH:
-				mesh_list->addGameObject(game_object);
-				break;
-			case RenderableType::SKINNED_MESH:
-				skinned_mesh_list->addGameObject(game_object);
-				break;
-			case RenderableType::OVERLAY:
-			{
-				// Insert overlay meshes acording to z level to ensure in order rendering
-				int insert_z = ((OverlayMesh*)game_object_renderable)->getZLevel(); 
-
-				int i = 0;
-				bool inserted = false;
-				while(!inserted && i < overlay_mesh_list->size()) {
-					int current_z = ((OverlayMesh *)(overlay_mesh_list->quickGet(i)->getRenderable()))->getZLevel();
-					if( insert_z > current_z ) {
-						((NoSortMeshList*)overlay_mesh_list)->addGameObject(game_object,i);
-						inserted = true;
-					}
-					i++;
-				}
-				if( !inserted ) {
-					overlay_mesh_list->addGameObject( game_object );
-				}
-				break;
-			}
-			default:
-				break;
-		}
-	}
-}
-
-void RenderSystem::clearRenderLists() {
-	mesh_list->clearList();
-	skinned_mesh_list->clearList();
-	overlay_mesh_list->clearList();
-}
-
-void RenderSystem::removeGameObjectFromRenderLists(GameObject * game_object) {
-	mesh_list->removeObject(game_object);
-	skinned_mesh_list->removeObject(game_object);
-	overlay_mesh_list->removeObject(game_object);
-}
-
-void RenderSystem::removeGameObjectFromRenderListsRecursive(GameObject * game_object) {
-	removeGameObjectFromRenderLists(game_object);
-
-	for(int i = 0; i < game_object->getNumChildren(); i++) {
-		removeGameObjectFromRenderListsRecursive(game_object->getChild(i));
-	}
-}
-
-// Function to create default view and projection matrices only if the camera seg faults
-void RenderSystem::createOrthoMatrices() {
-	float aspect_ratio = RenderUtils::getViewWidth() / (float)RenderUtils::getViewHeight();
-	float left_edge = (aspect_ratio - 1.f) / -2.f;
-	proj_mat = glm::ortho( left_edge, left_edge + aspect_ratio, 0.f, 1.f, -1.f, 1.f );
-	view_mat = glm::mat4(1.f);
-	camera_loc = glm::vec3(0.f);
-}
-
 
 void RenderSystem::deferredRenderStep() {
 	// bind framebuffer
@@ -783,7 +763,8 @@ void RenderSystem::shadingStep() {
 	deferred_buffer.getTexture( "normal" )->bind( GL_TEXTURE1 );
 	deferred_buffer.getTexture( "diffuse" )->bind( GL_TEXTURE2 );
 	deferred_buffer.getTexture( "emissive" )->bind( GL_TEXTURE3 );
-	((Framebuffer *)directional_lights[0]->getShadowFramebuffer())->getTexture( "shadow_map" )->bind( GL_TEXTURE4 );
+	if( directional_lights.size() > 0 )
+		((Framebuffer *)directional_lights[0]->getShadowFramebuffer())->getTexture( "shadow_map" )->bind( GL_TEXTURE4 );
 	
 	cartoon_shading->setUniformVec3( "cameraLoc", camera_loc );
 
@@ -791,9 +772,11 @@ void RenderSystem::shadingStep() {
 
 	cartoon_shading->setUniformFloat( "applyShadows", UserSettings::shadow_mode == ShadowMode::NONE ? 0.f : 1.f );
 
-	cartoon_shading->setUniformVec3( "light.location", directional_lights[0]->getLocation() );
-	cartoon_shading->setUniformVec3( "light.diffuse", directional_lights[0]->getDiffuse() );
-	cartoon_shading->setUniformVec3( "light.specular", directional_lights[0]->getSpecular() );
+	if( directional_lights.size() > 0 ) {
+		cartoon_shading->setUniformVec3( "light.location", directional_lights[0]->getLocation() );
+		cartoon_shading->setUniformVec3( "light.diffuse", directional_lights[0]->getDiffuse() );
+		cartoon_shading->setUniformVec3( "light.specular", directional_lights[0]->getSpecular() );
+	}
 	cartoon_shading->setUniformFloat( "light.linearAttenuation", 0.f );
 	cartoon_shading->setUniformFloat( "light.quadraticAttenuation", 0.f );
 	cartoon_shading->setUniformFloat( "light.directional", 1.f );
@@ -835,10 +818,12 @@ void RenderSystem::performShading() {
 	RenderUtils::testGLError( "performShading()" );
 }
 
-// Simply applies the emissive texture from the deferred rendering step to the BrightColor target of the shading buffer
-// ASSUMPTIONS:
-//	   The correct render target (shading_buffer) is already bound
-//	   Additive blending is already enabled
+/**
+ * Simply applies the emissive texture from the deferred rendering step to the BrightColor target of the shading buffer
+ * ASSUMPTIONS:
+ * 	   The correct render target (shading_buffer) is already bound
+ * 	   Additive blending is already enabled
+ */
 void RenderSystem::applyEmissive() {
 	Shader *emissive_shader = sm->getShader("emissive");
 	emissive_shader->bind();
@@ -847,10 +832,12 @@ void RenderSystem::applyEmissive() {
 	RenderUtils::testGLError( "applyEmissive()" );
 }
 
-// Applies the supplied light's contribution to the output texture
-// ASSUMPTIONS:
-//	   The correct render target (shading_buffer) is already bound
-//	   Additive blending is already enabled
+/**
+ *  Applies the supplied light's contribution to the output texture
+ *  ASSUMPTIONS:
+ * 	   The correct render target (shading_buffer) is already bound
+ * 	   Additive blending is already enabled
+ */
 void RenderSystem::applyDirectionalLight( DirectionalLight *light ) {
 	Shader *dir_light_shader = sm->getShader("directional-light");
 	dir_light_shader->bind();
@@ -875,10 +862,12 @@ void RenderSystem::applyDirectionalLight( DirectionalLight *light ) {
 	RenderUtils::testGLError( ("Applying directional light " + light->getID()).c_str() );
 }
 
-// Applies the supplied light's contribution to the output texture
-// ASSUMPTIONS:
-//	   The correct render target (shading_buffer) is already bound
-//	   Additive blending is already enabled
+/**
+ * Applies the supplied light's contribution to the output texture
+ *  ASSUMPTIONS:
+ * 	   The correct render target (shading_buffer) is already bound
+ * 	   Additive blending is already enabled
+ */
 void RenderSystem::applyPointLight( PointLight *light ) {
 	Shader *point_light_shader = sm->getShader("point-light");
 	point_light_shader->bind();
@@ -905,10 +894,13 @@ void RenderSystem::applyPointLight( PointLight *light ) {
 	RenderUtils::testGLError( ("Applying point light " + light->getID()).c_str() );
 }
 
+/**
+ * Renders all overlay elements at the final stage
+ * CURRENT ASSUMPTIONS (may change)
+ * 	  The desired framebuffer and viewport size are already bound and set
+ * 		(currently, this is the composite framebuffer as this is done after the shading step)
+ */
 void RenderSystem::renderOverlay() {
-	// shading_buffer.bind();
-	// glViewport( 0, 0, RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight() );
-	// glViewport( 0, 0, RenderUtils::getViewWidth(), RenderUtils::getViewHeight() );
 	Shader * overlay_shader = sm->getShader("overlay");
 	overlay_shader->bind();
 
@@ -925,6 +917,9 @@ void RenderSystem::renderOverlay() {
 	// glUseProgram(0);
 }
 
+/**
+ * Performs any final corrections, (currently HDR and gamma) and renders to the screen
+ */
 void RenderSystem::correctAndRenderFinal() {
 	Shader *correction_shader = sm->getShader("hdr-gamma");
 	correction_shader->bind();
@@ -944,6 +939,15 @@ void RenderSystem::correctAndRenderFinal() {
 }
 
 
+
+/***************************************
+ *    RENDERSYSTEM CONFIG FUCNTIONS    *
+ ***************************************/
+
+
+/**
+ * Sets the camera to be used for rendering 3D meshes and updates any relevant variables
+ */
 void RenderSystem::registerCamera( Camera *to_register ) { 
 	camera = to_register; 
 	if(camera != nullptr) {
@@ -953,8 +957,10 @@ void RenderSystem::registerCamera( Camera *to_register ) {
 	}
 }
 
-// Add a directional light to the RenderSystem
-// Creates framebuffers and necessary textures for creating a shadow map for the light
+/**
+ * Add a directional light to the RenderSystem
+ * Creates framebuffers and necessary textures for creating a shadow map for the light
+ */
 void RenderSystem::addDirectionalLight( DirectionalLight *new_light ) {
 	directional_lights.push_back( new_light );
 
@@ -968,25 +974,32 @@ void RenderSystem::addDirectionalLight( DirectionalLight *new_light ) {
 	new_light->setShadowFramebuffer( (void *)new_shadow_fb );
 }
 
-// Removes the indicated directional light and deletes the framebuffers created when the light was registered
+/**
+ * Removes the indicated directional light and deletes the framebuffers created when the light was registered
+ */
 void RenderSystem::removeDirectionalLight( DirectionalLight *to_remove ) {
 	// Make sure the light is registered before trying to remove it and delete its buffers
 	auto it = std::remove( directional_lights.begin(), directional_lights.end(), to_remove );
 	if( it != directional_lights.end() ) {
-		directional_lights.erase( it );
 		delete ((Framebuffer*) to_remove->getDepthFramebuffer());
 		delete ((Framebuffer*) to_remove->getShadowFramebuffer());
+		directional_lights.erase( it );
 	}
 }
 
+/**
+ * Remove all directional lights from the render system
+ */
 void RenderSystem::clearDirectionalLights() {
 	for( DirectionalLight *light : directional_lights ) {
 		removeDirectionalLight( light );
 	}
 }
 
-// Add a point light to the RenderSystem
-// Creates framebuffers and necessary textures for creating a shadow map for the light
+/**
+ * Add a point light to the RenderSystem
+ * Creates framebuffers and necessary textures for creating a shadow map for the light
+ */
 void RenderSystem::addPointLight( PointLight *new_light ) {
 	point_lights.push_back( new_light );
 
@@ -1001,7 +1014,9 @@ void RenderSystem::addPointLight( PointLight *new_light ) {
 	// new_light->setShadowFramebuffer( (void *)new_shadow_fb );
 }
 
-// Removes the indicated point light and deletes the framebuffers created when the light was registered
+/**
+ * Removes the indicated point light and deletes the framebuffers created when the light was registered
+ */
 void RenderSystem::removePointLight( PointLight *to_remove ) {
 	// Make sure the light is registered before trying to remove it and delete its buffers
 	auto it = std::remove( point_lights.begin(), point_lights.end(), to_remove );
@@ -1012,6 +1027,9 @@ void RenderSystem::removePointLight( PointLight *to_remove ) {
 	}
 }
 
+/**
+ * Removes all point lights from the render system
+ */
 void RenderSystem::clearPointLights() {
 	for( PointLight *light : point_lights ) {
 		removePointLight( light );

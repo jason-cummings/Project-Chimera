@@ -24,6 +24,8 @@ public:
     MainMenu();
     ~MainMenu();
 
+    bool init() override;
+
     void gameLoop() override;
 };
 

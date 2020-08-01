@@ -30,6 +30,9 @@
 
 class RenderSystem {
 private:
+    // Keeping for now for the old shading step
+    DirectionalLight *old_sun;
+
     Camera *camera;
 
     // Temporary VAO to render everything for now

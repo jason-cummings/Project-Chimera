@@ -40,7 +40,8 @@ bool Engine::init() {
 
     // Create a new state
     state = new MainMenu();
-    if( !state->getInitSuccess() ) {
+    bool init_success = state->init();
+    if( !init_success ) {
         return false;
     }
     window.setMouseLock( state->shouldLockMouse() );
@@ -77,6 +78,7 @@ void Engine::testAndHandleStateChange() {
 
         // Swap in the new state and perform necessary config
         state = next;
+        bool init_success = state->init();
         state->transitionTo();
         glm::vec2 draw_size = window.getDrawableSize();
         state->reshape( (int)draw_size.x, (int)draw_size.y );

@@ -35,6 +35,8 @@ private:
     StandardTimer timer;
     PerformanceLogger performance_logger;
 
+    Level *level_used;
+
     // These override default methods in GameState and do not have to be implemented if necessary
     void handleKeyDownStateSpecific( SDL_Event e ) override;
     void handleKeyUpStateSpecific( SDL_Event e ) override;
@@ -59,6 +61,8 @@ private:
 public:
     InGameState( Level *level );
     ~InGameState();
+
+    bool init() override;
 
     void gameLoop() override;
 };

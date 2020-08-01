@@ -2,7 +2,6 @@
 
 GameState::GameState():
     render_system( RenderSystem::getRenderSystem() ),
-    init_success( true ),
     quit_game( false ),
     should_destroy_on_state_change( false ),
     mouse_lock( false ),

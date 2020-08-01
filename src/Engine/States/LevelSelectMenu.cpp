@@ -16,12 +16,15 @@ const std::string level_options[] = {
 const int n_levels = sizeof(level_options) / sizeof(std::string);
 
 LevelSelectMenu::LevelSelectMenu( GameObject *scene_in, Camera *camera_in, AnimationSystem *anim_in ) {
-    selected_level = 0;
-
     // Set the scene to what was passed in (camera is already childed to scene by MainMenu)
     scene = scene_in;
     camera = camera_in;
     animation_system = anim_in;
+}
+
+bool LevelSelectMenu::init() {
+    selected_level = 0;
+    
     render_system.registerCamera( camera );
 
     // Buttons to start or go back
@@ -57,10 +60,14 @@ LevelSelectMenu::LevelSelectMenu( GameObject *scene_in, Camera *camera_in, Anima
 		scene->addChild(b);
 	}
 
+    return true;
 }
 
 LevelSelectMenu::~LevelSelectMenu() {
     if( render_system.getRegisteredCamera() == camera ) render_system.registerCamera( nullptr );
+    render_system.clearDirectionalLights();
+    render_system.clearPointLights();
+    
     scene->removeChild( level_images[0] );
     scene->setDestroyAll( true );
     delete scene;

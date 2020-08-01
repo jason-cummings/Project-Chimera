@@ -18,9 +18,6 @@ protected:
     // Variable to determine whether or not this state should lock the mouse
     bool mouse_lock;
 
-    // Control variable to ensure the state was successfully initialized
-    bool init_success;
-    
     // Variables to be accessed by Engine for transitioning between states
     bool quit_game;
     bool should_destroy_on_state_change;
@@ -49,18 +46,28 @@ public:
     GameState();
     virtual ~GameState();
 
-    inline bool getInitSuccess() { return init_success; }
     inline bool shouldDestroy() { return should_destroy_on_state_change; }
     inline bool getQuitGame() { return quit_game; }
     inline bool shouldLockMouse() { return mouse_lock; }
     inline GameObject* getScene() { return scene; }
 
-    // Tick function called by Engine
-    // Responsible for updating all state systems, including rendering
+    /**
+     * Perform any necessary state initialization
+     * This will be called after any previous state has been completely cleaned up,
+     *  guaranteeing no problems with order of operations in render_system
+     */
+    virtual bool init() = 0;
+
+    /**
+     * Tick function called by Engine
+     * Responsible for updating all state systems, including rendering
+     */
     virtual void gameLoop() = 0;
 
-    // Call the appropriate event handler for an SDL_Event
-    // This can be overwritten if additional event handling is necessary in a subclass
+    /**
+     * Call the appropriate event handler for an SDL_Event
+     * This can be overwritten if additional event handling is necessary in a subclass
+     */
     virtual void handleSDLEvent( SDL_Event e );
 
     /**

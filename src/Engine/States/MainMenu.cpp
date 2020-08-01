@@ -1,14 +1,17 @@
 #include "MainMenu.hpp"
 
 #include "LevelSelectMenu.hpp"
-#include "../LevelLoader.hpp"
+#include "../Levels/TowersLevel.hpp"
+#include "../Levels/CastleLevel.hpp"
+
+#include "../Systems/Rendering/TextManager.hpp"
 
 #define PLAY_GAME_BUTTON_ID "Play Game"
 #define EXIT_GAME_BUTTON_ID "Exit"
 
-#include "../Systems/Rendering/TextManager.hpp"
+MainMenu::MainMenu() {}
 
-MainMenu::MainMenu() {
+bool MainMenu::init() {
     animation_system = new AnimationSystem();
 
     MenuElement *title = new MenuElement( "logo", .5f, .75f, 1.4f, .35f, "MainMenuChimeraLogo" );
@@ -19,7 +22,7 @@ MainMenu::MainMenu() {
     // tm.createTextTexture("Project Chimera", glm::vec4(1.f, 0.f, 1.f, 1.f), mat, t_w, t_h);
     // Material *toUse = new Material( mat, mat, 0 );
     // MenuElement *title = new MenuElement( "logo", .5f, .75f, .25f * t_w/(float)t_h, .25f, toUse );
-    
+
     buttons.push_back( new MenuButton( PLAY_GAME_BUTTON_ID, .5f, .42f, .6f, .15f, "MainMenuPlay" ) );
     buttons.push_back( new MenuButton( EXIT_GAME_BUTTON_ID, .5f, .25f, .6f, .15f, "MainMenuExit" ) );
 
@@ -30,15 +33,21 @@ MainMenu::MainMenu() {
     }
 
     // Load the level to show in the background
-    LevelLoader * level_loader = LevelLoader::loadLevelFile( "Towers" );
-    background_scene = level_loader->getScene();
+    Level *bg_level = new TowersLevel();
+    bg_level->populateLevel();
+    background_scene = bg_level->getScene();
+    bg_level->populateAnimationSystem( animation_system );
+    render_system.setSkybox( bg_level->getSkybox() );
 
-    for(int i = 0; i < level_loader->getNumAnimationStacks(); i++) {
-        animation_system->addAnimationStack(level_loader->getAnimationStack(i));
-        level_loader->getAnimationStack(i)->startAllAnimations();
+    std::vector<DirectionalLight*> d_lights = bg_level->getDirectionalLights();
+    for( DirectionalLight *dl : d_lights ) {
+        render_system.addDirectionalLight( dl );
+        background_scene->addChild( dl );
     }
-    if(level_loader->getJointList() != nullptr) {
-        animation_system->addJointList(level_loader->getJointList());
+    std::vector<PointLight*> p_lights = bg_level->getPointLights();
+    for( PointLight *pl : p_lights ) {
+        render_system.addPointLight( pl );
+        background_scene->addChild( pl );
     }
 
     // Create a camera to display the background scene
@@ -51,9 +60,9 @@ MainMenu::MainMenu() {
 
     scene->addChild( background_scene );
 
-    // Add the skybox to the background
-    Skybox * skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
-    render_system.setSkybox(skybox);
+    delete bg_level;
+
+    return true;
 }
 
 MainMenu::~MainMenu() {

@@ -5,7 +5,7 @@
 CastleLevel::CastleLevel(): Level("Castle") {}
 
 void CastleLevel::populateLevel() {
-    skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
+    skybox = SkyboxFactory::getSkybox("Skyboxes/NightSky");
     // goal = glm::vec3( 20.f, 40.f, -1.f );
 
     // // Physics things
@@ -30,4 +30,21 @@ void CastleLevel::populateLevel() {
     // scene->addChild(o1);
     // scene->addChild(o2);
     // scene->addChild(o3);
+
+	DirectionalLight *moon = new DirectionalLight("moon");
+	moon->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-.72f,3.f,1.f) );
+	moon->setAmbient( glm::vec3(0.1f,0.1f,0.15f)*.1f );
+	moon->setDiffuse( glm::vec3(0.2f,0.25f,0.3f) );
+	moon->setSpecular( glm::vec3(0.f,0.f,0.f) );
+    directional_lights.push_back( moon );
+
+	// And in the other other last step, Jason said "Let there be yet another light"
+	PointLight *point = new PointLight("point");
+	point->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-1.f,2.f,-.707f) );
+	point->setAmbient( glm::vec3(0.0f,0.0f,0.0f) );
+	point->setDiffuse( glm::vec3(1.f,0.2f,0.8f) );
+	point->setSpecular( glm::vec3(0.f,0.f,0.f) );
+	point->setLinearAttenuation( 0.03f );
+	point->setQuadraticAttenuation( 0.02f );
+    point_lights.push_back( point );
 }

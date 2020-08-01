@@ -13,6 +13,8 @@ private:
 public:
     WinMenu( InGameState* input );
     ~WinMenu();
+
+    inline bool init() override { return true; }
 };
 
 #endif

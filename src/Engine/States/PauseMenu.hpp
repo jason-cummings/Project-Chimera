@@ -13,6 +13,8 @@ private:
 public:
     PauseMenu( GameState* input );
     ~PauseMenu();
+
+    inline bool init() override { return true; }
 };
 
 #endif

@@ -2,6 +2,8 @@
 
 #include "../GameObjects/DynamicCube.hpp"
 
+#include <iostream>
+
 TowersLevel::TowersLevel(): Level("Towers") {}
 
 void TowersLevel::populateLevel() {
@@ -30,4 +32,11 @@ void TowersLevel::populateLevel() {
     scene->addChild(o1);
     scene->addChild(o2);
     scene->addChild(o3);
+
+	DirectionalLight *sun = new DirectionalLight("sun");
+	sun->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(.707f,.3f,-.707f) );
+	sun->setAmbient( glm::vec3(0.3f,0.3f,0.3f) );
+	sun->setDiffuse( glm::vec3(0.5f,0.3f,0.2f) );
+	sun->setSpecular( glm::vec3(0.5f,0.3f,0.2f) );
+    directional_lights.push_back( sun );
 }

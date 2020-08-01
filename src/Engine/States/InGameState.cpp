@@ -14,20 +14,33 @@
 #include <glm/gtx/string_cast.hpp>
 
 InGameState::InGameState( Level *level ) {
+    level_used = level;
+}
+
+bool InGameState::init() {
     physics_system = new PhysicsSystem();
     animation_system = new AnimationSystem();
+
+    scene = level_used->getScene();
+    level_used->populateAnimationSystem( animation_system );
+    end_coords = level_used->getGoalCoordinates();
+    render_system.setSkybox( level_used->getSkybox() );
+
+    std::vector<DirectionalLight*> d_lights = level_used->getDirectionalLights();
+    for( DirectionalLight *dl : d_lights ) {
+        render_system.addDirectionalLight( dl );
+        scene->addChild( dl );
+    }
+    std::vector<PointLight*> p_lights = level_used->getPointLights();
+    for( PointLight *pl : p_lights ) {
+        render_system.addPointLight( pl );
+        scene->addChild( pl );
+    }
 
     camera = new Camera();
     camera->setOffset( 3.f );
     camera->setResolution( UserSettings::resolution_width, UserSettings::resolution_height );
     render_system.registerCamera( camera );
-
-    mouse_lock = true;
-    player_visible = true;
-
-    scene = level->getScene();
-    level->populateAnimationSystem( animation_system );
-    end_coords = level->getGoalCoordinates();
 
     // load the player file and put it into the scene
     LevelLoader * player_loader = LevelLoader::loadCharacterModel();
@@ -57,6 +70,8 @@ InGameState::InGameState( Level *level ) {
     scene->setBulletTransforms();
 
     // Initialize keyboard controls variables
+    mouse_lock = true;
+    player_visible = true;
     w = false;
     a = false;
     s = false;
@@ -66,10 +81,10 @@ InGameState::InGameState( Level *level ) {
 
     first_tick = true;
 
+    delete level_used;
     delete player_loader;
 
-    Skybox * skybox = SkyboxFactory::getSkybox("Skyboxes/5Degrees");
-    render_system.setSkybox(skybox);
+    return true;
 }
 
 InGameState::~InGameState() {
@@ -77,6 +92,9 @@ InGameState::~InGameState() {
     delete animation_system;
 
     if( camera == render_system.getRegisteredCamera() ) render_system.registerCamera( nullptr );
+    render_system.clearDirectionalLights();
+    render_system.clearPointLights();
+
     scene->setDestroyAll(true);
     delete scene;
 }
