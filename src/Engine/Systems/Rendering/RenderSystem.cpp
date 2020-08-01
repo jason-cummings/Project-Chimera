@@ -177,7 +177,7 @@ void RenderSystem::setupShaders() {
 	point_light_shader->setUniformInt( "positionTexture", 0 );
 	point_light_shader->setUniformInt( "normalTexture", 1 );	
 	point_light_shader->setUniformInt( "diffuseTexture", 2 );	
-	point_light_shader->setUniformInt( "shadowTexture", 3 );
+	// point_light_shader->setUniformInt( "shadowTexture", 3 );
 	point_light_shader->setUniformFloat( "shadeCartoon", 0.f );
 
 	Shader *quad_shader = sm->getShader( "quad" );
@@ -191,6 +191,8 @@ void RenderSystem::setupShaders() {
 	Shader *correction_shader = sm->getShader( "hdr-gamma" );
 	correction_shader->bind();
 	correction_shader->setUniformInt( "colorTexture", 0 );
+
+	RenderUtils::testGLError("Shader setup");
 
 	glUseProgram(0);
 }
@@ -464,8 +466,8 @@ void RenderSystem::render( double dt ) {
 	if( UserSettings::use_FXAA )
 		FXAA_process->apply();
 	else drawTexture( shading_buffer.getTexture( "FragColor" )->getID() );
-	
-	if( UserSettings::use_volumetric_light_scattering ) {
+
+	if( UserSettings::use_volumetric_light_scattering && directional_lights.size() > 0 ) {
 
 		// calculate and set sun screen space location
 		glm::mat4 view_rot_and_scale = glm::mat4(glm::mat3(view_mat));
@@ -490,11 +492,6 @@ void RenderSystem::render( double dt ) {
 
 	// Render the final result
 	correctAndRenderFinal();
-
-	if( point_lights.size() > 0 ) {
-		// drawDepthTexture( ((Framebuffer*)directional_lights[0]->getDepthFramebuffer())->getDepthTexture()->getID() );
-		// drawTexture( ((Framebuffer*)directional_lights[0]->getShadowFramebuffer())->getTexture("shadow_map")->getID() );
-	}
 
 	glFinish();
 }
