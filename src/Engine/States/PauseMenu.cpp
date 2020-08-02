@@ -27,9 +27,7 @@ PauseMenu::~PauseMenu() {
 
 void PauseMenu::handleButtonEvent( MenuButton *clicked ) {
     if( clicked->getID() == RESUME_GAME_BUTTON_ID ) {
-        // Change state back into game
-        scene->removeChild( last_state->getScene() );
-        setNextState( last_state, false );
+        unpause();
     }
     else if( clicked->getID() == MAIN_MENU_BUTTON_ID ) {
         // Change state to Main Menu 
@@ -42,8 +40,12 @@ void PauseMenu::handleButtonEvent( MenuButton *clicked ) {
 
 void PauseMenu::handleKeyDownStateSpecific( SDL_Event e ) {
     if( e.key.keysym.sym == SDLK_ESCAPE ) {
-        // Change state back into game on escape
-        scene->removeChild( last_state->getScene() );
-        setNextState( last_state, false );
+        unpause();
     }
+}
+
+void PauseMenu::unpause() {
+    // Change state back into game
+    scene->removeChild( last_state->getScene() );
+    setNextState( last_state, true );
 }

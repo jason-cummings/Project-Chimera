@@ -60,6 +60,7 @@ bool LevelSelectMenu::init() {
 		scene->addChild(b);
 	}
 
+    is_initialized = true;
     return true;
 }
 

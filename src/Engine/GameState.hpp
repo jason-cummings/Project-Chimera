@@ -15,6 +15,9 @@ protected:
     // Subsystems for all game states
     RenderSystem & render_system;
 
+    // Is the state already initialized?
+    bool is_initialized = false;
+
     // Variable to determine whether or not this state should lock the mouse
     bool mouse_lock;
 
@@ -46,6 +49,7 @@ public:
     GameState();
     virtual ~GameState();
 
+    inline bool isInitialized() { return is_initialized; }
     inline bool shouldDestroy() { return should_destroy_on_state_change; }
     inline bool getQuitGame() { return quit_game; }
     inline bool shouldLockMouse() { return mouse_lock; }

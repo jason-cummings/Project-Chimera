@@ -62,6 +62,7 @@ bool MainMenu::init() {
 
     delete bg_level;
 
+    is_initialized = true;
     return true;
 }
 

@@ -84,6 +84,7 @@ bool InGameState::init() {
     delete level_used;
     delete player_loader;
 
+    is_initialized = true;
     return true;
 }
 

@@ -78,7 +78,10 @@ void Engine::testAndHandleStateChange() {
 
         // Swap in the new state and perform necessary config
         state = next;
-        bool init_success = state->init();
+        if( !state->isInitialized() ) {
+            bool init_success = state->init();
+        }
+
         state->transitionTo();
         glm::vec2 draw_size = window.getDrawableSize();
         state->reshape( (int)draw_size.x, (int)draw_size.y );

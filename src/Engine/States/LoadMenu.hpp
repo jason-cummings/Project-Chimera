@@ -14,7 +14,7 @@ public:
     LoadMenu( std::string to_load );
     ~LoadMenu();
     
-    inline bool init() override { return true; }
+    inline bool init() override { is_initialized = true; return true; }
 
     void gameLoop() override;
 };

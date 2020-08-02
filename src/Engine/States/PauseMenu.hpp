@@ -10,11 +10,13 @@ private:
     void handleKeyDownStateSpecific( SDL_Event e ) override;
     GameState* last_state;
 
+    void unpause();
+
 public:
     PauseMenu( GameState* input );
     ~PauseMenu();
 
-    inline bool init() override { return true; }
+    inline bool init() override {  is_initialized = true; return true; }
 };
 
 #endif
