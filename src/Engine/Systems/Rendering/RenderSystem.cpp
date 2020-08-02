@@ -514,12 +514,12 @@ void RenderSystem::deferredRenderStep() {
 		skybox_shader->setUniformMat4( "Projection", proj_mat );
 		skybox_shader->setUniformFloat( "threshold", .93f );
 		// Proper usage of the shader:
-		// skybox_shader->setUniformVec3( "toLight", glm::normalize(sun.location) );
+		if( directional_lights.size() > 0 )
+			skybox_shader->setUniformVec3( "toLight", glm::normalize(directional_lights[0]->getLocation()) );
 
 		// currently using hardcoded value to match low angle of skybox's sun, which does not match
 		// the actual light of the scene
-		skybox_shader->setUniformVec3( "toLight", glm::normalize(glm::vec3(1.0f,.2f,-1.0f)) );
-
+		// skybox_shader->setUniformVec3( "toLight", glm::normalize(glm::vec3(1.0f,.2f,-1.0f)) );
 
 		skybox->draw(skybox_shader);
 	}

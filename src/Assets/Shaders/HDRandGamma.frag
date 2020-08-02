@@ -14,9 +14,7 @@ void main() {
     vec3 hdrColor = texture(colorTexture, texCoords).rgb;
 
     // exposure tone mapping
-    vec3 mapped = useExposure ? vec3(1.0) - exp(-hdrColor * exposure) : hdrColor;
-
-    // vec3 mapped = hdrColor / (1.0 + hdrColor);
+    vec3 mapped = useExposure ? vec3(1.0) - exp(-hdrColor * exposure) : hdrColor; // hdrColor / (1.0 + hdrColor)
         
     // gamma correction 
     mapped = pow(mapped, vec3(1.0 / gamma));

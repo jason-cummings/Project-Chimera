@@ -32,7 +32,7 @@ void CastleLevel::populateLevel() {
     // scene->addChild(o3);
 
 	DirectionalLight *moon = new DirectionalLight("moon");
-	moon->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-.72f,3.f,1.f) );
+	moon->setTransform( glm::vec3(1.f), glm::vec3(0.f), glm::vec3(-.8f,3.f,1.f) );
 	moon->setAmbient( glm::vec3(0.1f,0.1f,0.15f)*.1f );
 	moon->setDiffuse( glm::vec3(0.2f,0.25f,0.3f) );
 	moon->setSpecular( glm::vec3(0.f,0.f,0.f) );

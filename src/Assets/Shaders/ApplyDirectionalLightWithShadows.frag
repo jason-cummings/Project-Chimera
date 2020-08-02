@@ -33,7 +33,7 @@ void main() {
     vec3 fragDiffuse = fDifShin.rgb;
     float fragShininess = fDifShin.a;
     vec3 fragShadow = texture( shadowTexture, texCoords ).rgb;
-    vec3 lightDir = light.location;
+    vec3 lightDir = normalize(light.location);
 
     // Calculate luminosity
     float luminosity = 0.02;
@@ -45,9 +45,9 @@ void main() {
     }
 
     // Calculate specular weight
-    vec3 viewDir = fragPos - cameraLoc;
+    vec3 viewDir = normalize( cameraLoc - fragPos );
     vec3 halfDir = normalize( lightDir + viewDir );
-    float specAngle = max( dot(halfDir, fragNorm), 0.0 );
+    float specAngle = max( dot(halfDir, fragNorm), 0.00001 ); // Don't allow specular angle to be 0 to prevent undefined behavior
     float specularWeight = diffuseWeight > 0.0 ? pow( specAngle, fragShininess ) : 0.0;
 
     // Calculate total light weight and multiply it by the diffuse color
@@ -56,6 +56,4 @@ void main() {
 
     // Add the specular highlights to the bright texture
     BrightColor = vec4(fragShadow * specularWeight * fragDiffuse, 0.0);
-
-    // FragColor = vec4(vec3(specAngle),1.0);
 }
