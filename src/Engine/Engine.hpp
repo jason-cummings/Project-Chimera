@@ -10,6 +10,8 @@ private:
     bool quit;
     Window window;
 
+    bool start_in_level;
+
     // Engine state
     GameState *state;
 
@@ -35,11 +37,18 @@ public:
     // Initialize the engine and return success
     bool init();
 
+    // Engine flag management
+    void handleStartInLevelFlag( char *level_arg );
+    
+    // Initialize the state if necessary (wasn't set by a flag)
+    bool initState();
+
     // Step the Engine based on time
     void tick();
 
     // Test if the engine should quit
-    bool getQuit() { return quit; }
+    inline bool getQuit() { return quit; }
+
 };
 
 #endif

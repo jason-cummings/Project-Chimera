@@ -5,7 +5,10 @@ Level::Level( std::string level_name ) {
 
     scene = level_loader->getScene();
     skybox = nullptr;
-    goal = glm::vec3( 100000.f, 100000.f, 100000.f );
+    goal = glm::vec3( 100000.f );
+
+    spawn_translation = glm::vec3( 0.f );
+    spawn_rotation = glm::quat();
 }
 
 Level::~Level() {

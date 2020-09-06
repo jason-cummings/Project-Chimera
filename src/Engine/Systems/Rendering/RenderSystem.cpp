@@ -861,13 +861,19 @@ void RenderSystem::applyDirectionalLight( DirectionalLight *light ) {
 
 /**
  * Applies the supplied light's contribution to the output texture
- *  ASSUMPTIONS:
+ * A sphere with a radius of the light's effective radius is rendered to only apply lighting where necessary on the texture
+ * The light's effective radius is stored in the light's transform as the scale
+ * ASSUMPTIONS:
  * 	   The correct render target (shading_buffer) is already bound
  * 	   Additive blending is already enabled
  */
 void RenderSystem::applyPointLight( PointLight *light ) {
 	Shader *point_light_shader = sm->getShader("point-light");
 	point_light_shader->bind();
+	point_light_shader->setUniformMat4( "Model", light->getWorldTransform() );
+	point_light_shader->setUniformMat4( "View", view_mat );
+	point_light_shader->setUniformMat4( "Projection", proj_mat );
+	point_light_shader->setUniformVec2( "viewportSize", glm::vec2(RenderUtils::getTextureWidth(), RenderUtils::getTextureHeight()) );
 	point_light_shader->setUniformVec3( "cameraLoc", camera_loc );
 
 	// Bind appropriate textures
@@ -886,7 +892,11 @@ void RenderSystem::applyPointLight( PointLight *light ) {
 	point_light_shader->setUniformFloat( "light.quadraticAttenuation", light->getQuadraticAttenuation() );
 
 	// Render
-	RenderUtils::drawQuad();
+	glEnable( GL_CULL_FACE );
+	glCullFace( GL_FRONT );
+	RenderUtils::drawSphere();
+	glCullFace( GL_BACK );
+	glDisable( GL_CULL_FACE );
 
 	RenderUtils::testGLError( ("Applying point light " + light->getID()).c_str() );
 }

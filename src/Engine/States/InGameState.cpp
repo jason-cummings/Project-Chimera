@@ -56,6 +56,7 @@ bool InGameState::init() {
 
     player = (Player *)(character_scene->getGameObject("chimera"));
     player->addChild(camera);
+    player->setTransform( glm::vec3(1.f), level_used->getSpawnRotation(), level_used->getSpawnTranslation() );
 
     //add character scene to the level
     for(int i = 0; i < character_scene->getNumChildren(); i++) {

@@ -51,9 +51,10 @@ void main() {
     float specularWeight = diffuseWeight > 0.0 ? pow( specAngle, fragShininess ) : 0.0;
 
     // Calculate total light weight and multiply it by the diffuse color
-    vec3 lightWeight = light.ambient + fragShadow * (light.diffuse * diffuseWeight + light.specular * specularWeight);
-    FragColor = vec4(lightWeight * fragDiffuse, 1.0);
+    vec3 lightValue = light.ambient + fragShadow * (light.diffuse * diffuseWeight + light.specular * specularWeight);
+    FragColor = vec4(lightValue * fragDiffuse, 1.0);
 
     // Add the specular highlights to the bright texture
     BrightColor = vec4(fragShadow * specularWeight * fragDiffuse, 0.0);
+    // BrightColor = vec4(0.0,0.0,0.0,0.0);
 }

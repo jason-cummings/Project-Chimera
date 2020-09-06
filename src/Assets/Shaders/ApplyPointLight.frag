@@ -3,7 +3,7 @@
 layout (location = 0) out vec4 FragColor;
 layout (location = 1) out vec4 BrightColor;
 
-in vec2 texCoords;
+in float effectiveRadius;
 
 struct PointLight {
     vec3 location;
@@ -16,6 +16,7 @@ struct PointLight {
 
 uniform vec3 cameraLoc;
 uniform PointLight light;
+uniform vec2 viewportSize;
 
 uniform sampler2D positionTexture;
 uniform sampler2D normalTexture;
@@ -28,6 +29,8 @@ const int cartoonLevels = 6;
 float scaleFactor = 1.0 / cartoonLevels;
 
 void main() {
+    vec2 texCoords = gl_FragCoord.xy / viewportSize;
+
     // Get all configuration
     vec3 fragPos = texture( positionTexture, texCoords ).rgb;
     vec3 fragNorm = normalize( texture( normalTexture, texCoords ).rgb );
@@ -41,6 +44,7 @@ void main() {
     float luminosity = 0.02;
     
     float lightDist = length(light.location - fragPos);
+    float linearFalloff = 1.0 - 1.0 / effectiveRadius * lightDist;
     float attenuation = 1.0 / (1.0 + light.linearAttenuation * lightDist + light.quadraticAttenuation * (lightDist * lightDist)); 
 
     // Calculate diffuse weight
@@ -56,9 +60,22 @@ void main() {
     float specularWeight = diffuseWeight > 0.0 ? pow( specAngle, fragShininess ) : 0.0;
 
     // Calculate total attenuated light weight and multiply it by the diffuse color
-    vec3 lightWeight = attenuation * (light.ambient + (light.diffuse * diffuseWeight + light.specular * specularWeight));
-    FragColor = vec4(lightWeight * fragDiffuse, 1.0);
+    float lightWeight = max(0.0, min(linearFalloff, attenuation));
+    vec3 lightValue = lightWeight * (light.ambient + (light.diffuse * diffuseWeight + light.specular * specularWeight));
+    FragColor = vec4(lightValue * fragDiffuse, 1.0);
 
     // Add the specular highlights to the bright texture
     BrightColor = vec4(specularWeight * attenuation * fragDiffuse, 0.0);
+
+    // A debug shader for seeing where attenuation vs. linear falloff is applied
+    // BrightColor = vec4(0.0,0.0,0.0,0.0);
+    // if( linearFalloff < 0.0 ) {
+	// 	BrightColor = vec4(0.0,0.0,1.0,0.0);
+	// }
+	// else if( linearFalloff < attenuation ) {
+	// 	BrightColor = vec4(1.0,0.0,0.0,0.0);
+	// }
+	// else {
+	// 	BrightColor = vec4(0.0,1.0,0.0,0.0);
+	// }
 }

@@ -1,7 +1,12 @@
 #include "Engine.hpp"
 
+#include <iostream>
+
 #include "SettingsManager.hpp"
 #include "States/MainMenu.hpp"
+#include "States/InGameState.hpp"
+#include "Levels/CastleLevel.hpp"
+#include "Levels/TowersLevel.hpp"
 
 Engine::Engine() {
     quit = false;
@@ -38,8 +43,33 @@ bool Engine::init() {
     // Load the default material now that all GL stuff is initialized
     Material::loadDefaultMaterial();
 
+    return true;
+}
+
+void Engine::handleStartInLevelFlag(char *level_arg) {
+    if (strcmp(level_arg, "Towers") == 0) {
+        Level *towers = new TowersLevel();
+        towers->populateLevel();
+        state = new InGameState(towers);
+    }
+    else if (strcmp(level_arg, "Castle") == 0) {
+        Level *castle = new CastleLevel();
+        castle->populateLevel();
+        state = new InGameState(castle);
+    }
+    else {
+        std::cerr << "Invalid level name: " << level_arg << std::endl;
+        std::cerr << "Valid level names are: Towers, Castle" << std::endl;
+    }
+}
+
+// Perform any initialization necessary for the state
+bool Engine::initState() {
     // Create a new state
-    state = new MainMenu();
+    if (state == nullptr) {
+        state = new MainMenu();
+    }
+
     bool init_success = state->init();
     if( !init_success ) {
         return false;

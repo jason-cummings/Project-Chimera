@@ -11,5 +11,5 @@ void main() {
     vec4 emission = texture( emissiveTexture, texCoords );
 
     FragColor = vec4( emission.xyz, 0.0 );
-    BrightColor = emission * emission.a;
+    BrightColor = vec4( emission.xyz * emission.a, 0.0 );
 }
