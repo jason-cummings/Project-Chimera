@@ -2,24 +2,23 @@
 
 #include <iostream>
 
+#include "Levels/LevelManager.hpp"
 #include "SettingsManager.hpp"
-#include "States/MainMenu.hpp"
 #include "States/InGameState.hpp"
-#include "Levels/CastleLevel.hpp"
-#include "Levels/TowersLevel.hpp"
+#include "States/MainMenu.hpp"
 
 Engine::Engine() {
     quit = false;
 }
 
 Engine::~Engine() {
-    if( state ) {
+    if (state) {
         quitEngine();
     }
 }
 
 // Returns the singleton instance of the Engine
-Engine & Engine::getEngine() {
+Engine &Engine::getEngine() {
     // Initialize the singleton instance if necessary
     static Engine engine;
     return engine;
@@ -32,7 +31,7 @@ bool Engine::init() {
     UserSettings::loadFromFile();
 
     // Attempt to initialize the window
-    if( !window.init( UserSettings::resolution_width, UserSettings::resolution_height ) ) {
+    if (!window.init(UserSettings::resolution_width, UserSettings::resolution_height)) {
         std::cout << "Error in window initialization" << std::endl;
         return false;
     }
@@ -40,26 +39,14 @@ bool Engine::init() {
     // Call to initialize RenderSystem singleton
     RenderSystem &rs = RenderSystem::getRenderSystem();
 
-    // Load the default material now that all GL stuff is initialized
-    Material::loadDefaultMaterial();
-
     return true;
 }
 
-void Engine::handleStartInLevelFlag(char *level_arg) {
-    if (strcmp(level_arg, "Towers") == 0) {
-        Level *towers = new TowersLevel();
-        towers->populateLevel();
-        state = new InGameState(towers);
-    }
-    else if (strcmp(level_arg, "Castle") == 0) {
-        Level *castle = new CastleLevel();
-        castle->populateLevel();
-        state = new InGameState(castle);
-    }
-    else {
-        std::cerr << "Invalid level name: " << level_arg << std::endl;
-        std::cerr << "Valid level names are: Towers, Castle" << std::endl;
+void Engine::handleStartInLevelFlag(const char *level_arg) {
+    Level *level = LevelManager::getLevel(level_arg);
+    if (level != nullptr) {
+        level->populateLevel();
+        state = new InGameState(level);
     }
 }
 
@@ -71,14 +58,14 @@ bool Engine::initState() {
     }
 
     bool init_success = state->init();
-    if( !init_success ) {
+    if (!init_success) {
         return false;
     }
-    window.setMouseLock( state->shouldLockMouse() );
+    window.setMouseLock(state->shouldLockMouse());
 
     // Reshape the state with the window size
     glm::vec2 window_size = window.getDrawableSize();
-    state->reshape( (int)window_size.x, (int)window_size.y );
+    state->reshape((int)window_size.x, (int)window_size.y);
 
     state->transitionTo();
 
@@ -97,48 +84,45 @@ void Engine::quitEngine() {
 // If so, swaps the state and tests whether it should destroy the current state
 void Engine::testAndHandleStateChange() {
     GameState *next = state->getNextState();
-    if( next != nullptr ) {
+    if (next != nullptr) {
         RenderSystem &rs = RenderSystem::getRenderSystem();
         rs.clearRenderLists();
-        
+
         // Test if the current state should be destroyed
-        if( state->shouldDestroy() ) {
+        if (state->shouldDestroy()) {
             delete state;
         }
 
         // Swap in the new state and perform necessary config
         state = next;
-        if( !state->isInitialized() ) {
+        if (!state->isInitialized()) {
             bool init_success = state->init();
         }
 
         state->transitionTo();
         glm::vec2 draw_size = window.getDrawableSize();
-        state->reshape( (int)draw_size.x, (int)draw_size.y );
-        window.setMouseLock( state->shouldLockMouse() );
+        state->reshape((int)draw_size.x, (int)draw_size.y);
+        window.setMouseLock(state->shouldLockMouse());
     }
 }
 
 // Handles any SDL events retrieved from Window
 void Engine::handleSDLEvents() {
     std::vector<SDL_Event> events = window.getSDLEvents();
-    for( SDL_Event e : events ) {
-        if( e.type == SDL_QUIT ) {
+    for (SDL_Event e : events) {
+        if (e.type == SDL_QUIT) {
             // Quit the engine
             quit = true;
             return;
-        }
-        else if( e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q ) {
+        } else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q) {
             // Temporary quit button
             quit = true;
             return;
-        }
-        else if( e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED ) {
+        } else if (e.type == SDL_WINDOWEVENT && e.window.event == SDL_WINDOWEVENT_RESIZED) {
             // Resize everything
             glm::vec2 draw_size = window.getDrawableSize();
-            state->reshape( (int)draw_size.x, (int)draw_size.y );
-        }
-        else {
+            state->reshape((int)draw_size.x, (int)draw_size.y);
+        } else {
             // Delegate all other even handling to the state
             state->handleSDLEvent(e);
         }
@@ -151,10 +135,9 @@ void Engine::tick() {
     // Test for input events
     handleSDLEvents();
 
-    if( quit || state->getQuitGame() ){
+    if (quit || state->getQuitGame()) {
         quitEngine();
-    }
-    else {
+    } else {
         // Determine if the state needs to be changed
         testAndHandleStateChange();
 

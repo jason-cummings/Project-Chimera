@@ -3,17 +3,17 @@
 #ifndef STANDARDTIMER_H
 #define STANDARDTIMER_H
 
-#include <SDL.h>
-
 #include "Timer.hpp"
+#include "Utilities/SDLWrapper.hpp"
 
-class StandardTimer: public Timer {
-private:
+class StandardTimer : public Timer {
+  private:
     Uint64 last_time, current_time, frequency;
 
     // variables for timing performance
     Uint64 last_perf;
-public:
+
+  public:
     StandardTimer();
     double getLastTickTime();
     double timePerformance();

@@ -8,15 +8,15 @@ void NoSortMeshList::sort() {
     return;
 }
 
-void NoSortMeshList::addGameObject( GameObject * obj ) {
+void NoSortMeshList::addGameObject(GameObject *obj) {
     list.push_back(obj);
 }
 
-void NoSortMeshList::addGameObject( GameObject * obj, int i ) {
+void NoSortMeshList::addGameObject(GameObject *obj, int i) {
     auto pos = list.begin() + i;
-    list.insert(pos,obj);
+    list.insert(pos, obj);
 }
 
-GameObject * NoSortMeshList::longGet( int i ) { 
+GameObject *NoSortMeshList::longGet(int i) {
     return list[i];
 }

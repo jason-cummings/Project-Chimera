@@ -3,12 +3,12 @@
 
 #include "Level.hpp"
 
-class TowersLevel: public Level {
-private:
+#define TOWERS_LEVEL_NAME "Towers"
 
-public:
+class TowersLevel : public Level {
+  public:
     TowersLevel();
-    
+
     void populateLevel() override;
 };
 

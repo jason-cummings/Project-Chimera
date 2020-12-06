@@ -6,30 +6,30 @@
 
 #include <string>
 
-#include "WAIWrapper.hpp"
 #include "FilesystemWrapper.hpp"
+#include "WAIWrapper.hpp"
 
 class Asset {
-private:
+  private:
     char *buffer;
     int n_bytes;
     bool read_success;
-    
-    bool readInAsset( std::string fpath );
 
-public:
+    bool readInAsset(std::string fpath);
+
+  public:
     // Use to read in from the Assets folder
-    Asset( std::string fname );
+    Asset(std::string fname);
 
     // Use to read in from an absolute path
-    Asset( fs::path fpath );
-    
+    Asset(fs::path fpath);
+
     ~Asset();
-    inline char * getBuffer() const { return buffer; }
+    inline char *getBuffer() const { return buffer; }
     inline int getBytes() const { return n_bytes; }
 
     // Use if you need to maintain the buffer data after the Asset instance has been destroyed
-    char * copyBuffer();
+    char *copyBuffer();
 
     inline bool success() const { return read_success; }
 

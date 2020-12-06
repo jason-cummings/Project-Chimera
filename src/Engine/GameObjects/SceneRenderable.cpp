@@ -4,7 +4,7 @@
 
 #include "../Systems/Rendering/MeshFactory.hpp"
 
-SceneRenderable::SceneRenderable( std::string id, Mesh *mesh_in ): GameObject(id) {
+SceneRenderable::SceneRenderable(std::string id, Mesh *mesh_in) : GameObject(id) {
     mesh = mesh_in;
 }
 

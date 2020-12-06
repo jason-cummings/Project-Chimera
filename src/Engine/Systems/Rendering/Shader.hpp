@@ -1,15 +1,14 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include <map>
-#include <string>
 #include <GL/glew.h>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
+#include <map>
+#include <string>
 
 enum ShaderAttrib {
     Vertex = 0,
@@ -45,7 +44,7 @@ enum ShaderAttribOverlay {
 };
 
 class Shader {
-private:
+  private:
     GLuint program;
     GLuint vert_prog;
     GLuint geom_prog;
@@ -57,20 +56,20 @@ private:
     std::map<std::string, GLuint> uniform_locations;
 
     // Add a shader to the program
-    void addShader( const char *fname, GLuint shader_type ); 
-    
-    // Link the program
-    void link(); 
+    void addShader(const char *fname, GLuint shader_type);
 
-public:
+    // Link the program
+    void link();
+
+  public:
     // Default - shouldn't be needed
     Shader();
 
     // Create vertex/fragment shader program
-    Shader( const char *s_name, const char *vs, const char *fs );
+    Shader(const char *s_name, const char *vs, const char *fs);
 
     // Create vertex/geometry/fragment shader program
-    Shader( const char *s_name, const char *vs, const char *gs, const char *fs );
+    Shader(const char *s_name, const char *vs, const char *gs, const char *fs);
 
     ~Shader();
 
@@ -82,20 +81,20 @@ public:
     void bind() const;
 
     // Get and store a uniform location
-    void addUniform( const std::string &uniform_name );
+    void addUniform(const std::string &uniform_name);
 
     // Return a uniform location
-    GLuint getUniformLocation( const std::string &uniform_name );
+    GLuint getUniformLocation(const std::string &uniform_name);
 
     // Functions to set uniform values
     // <shader>.bind() must be called before any of these are called
-    void setUniformMat4( const std::string &uniform_name, const glm::mat4 &mat );
-    void setUniformMat3( const std::string &uniform_name, const glm::mat3 &mat );
-    void setUniformInt( const std::string &uniform_name, const int &val );
-    void setUniformFloat( const std::string &uniform_name, const float &val );
-    void setUniformVec2( const std::string &uniform_name, const glm::vec2 &vec );
-    void setUniformVec3( const std::string &uniform_name, const glm::vec3 &vec );
-    void setUniformVec4( const std::string &uniform_name, const glm::vec4 &vec );
+    void setUniformMat4(const std::string &uniform_name, const glm::mat4 &mat);
+    void setUniformMat3(const std::string &uniform_name, const glm::mat3 &mat);
+    void setUniformInt(const std::string &uniform_name, const int &val);
+    void setUniformFloat(const std::string &uniform_name, const float &val);
+    void setUniformVec2(const std::string &uniform_name, const glm::vec2 &vec);
+    void setUniformVec3(const std::string &uniform_name, const glm::vec3 &vec);
+    void setUniformVec4(const std::string &uniform_name, const glm::vec4 &vec);
 };
 
 #endif

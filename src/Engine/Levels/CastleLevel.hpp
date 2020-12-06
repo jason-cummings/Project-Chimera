@@ -3,12 +3,13 @@
 
 #include "Level.hpp"
 
-class CastleLevel: public Level {
-private:
+#define CASTLE_LEVEL_NAME "Castle"
 
-public:
+class CastleLevel : public Level {
+  private:
+  public:
     CastleLevel();
-    
+
     void populateLevel() override;
 };
 

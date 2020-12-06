@@ -5,15 +5,15 @@
 #include <string>
 
 class FBTexture {
-private:
+  private:
     GLuint id;
     std::string name;
 
-public:
-    FBTexture( GLuint id_, std::string name_ );
+  public:
+    FBTexture(GLuint id_, std::string name_);
 
     // Bind this texture to the specified texture unit
-    void bind( GLenum texture_unit );
+    void bind(GLenum texture_unit);
 
     inline GLuint getID() { return id; }
     inline std::string getName() { return name; }
