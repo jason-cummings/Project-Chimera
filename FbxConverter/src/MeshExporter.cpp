@@ -1,10 +1,6 @@
 #include "MeshExporter.h"
 
-
-// tell compiler to create versions of MeshExporter for the different types of Vertex
-template class MeshExporter<Vertex>;
-template class MeshExporter<MinimalVertex>;
-template class MeshExporter<SkinnedVertex>;
+// #include "FilesystemWrapper.hpp"
 
 // operators needed for the Vertex types
 bool operator==(const Vertex& v1, const Vertex& v2) {
@@ -99,3 +95,8 @@ std::ostream &operator<<( std::ostream &output, const MeshExporter<Vertex> &me )
 
 // 	return 0;
 // }
+
+// tell compiler to create versions of MeshExporter for the different types of Vertex
+template class MeshExporter<Vertex>;
+template class MeshExporter<MinimalVertex>;
+template class MeshExporter<SkinnedVertex>;

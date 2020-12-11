@@ -1,11 +1,12 @@
 #ifndef FOLDER_CREATOR_H
 #define FOLDER_CREATOR_H
 
-#include <stdio.h>
 #include <iostream>
-#include <unistd.h>
-#include <sys/types.h>
+#include <stdio.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
+#include "FilesystemWrapper.hpp"
 
 void createFolder(std::string directory);
 

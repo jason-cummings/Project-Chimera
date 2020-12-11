@@ -3,6 +3,9 @@
 
 #include "FolderCreator.h"
 
+#include <string>
+#include <map>
+
 // Purpose: 
 // This class is used to optimize object processing and usage. While interacting with the FBX SDK, a pointer to an object can be recieved
 // several times during processing. for example, multiple nodes may use the same mesh object. in this case, the DataOptimizer class keeps

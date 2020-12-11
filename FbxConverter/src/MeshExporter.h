@@ -1,13 +1,14 @@
 #ifndef MESH_EXPORTER_H
 #define MESH_EXPORTER_H
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <glm/glm.hpp>
 #include <vector>
 #include <unordered_map>
 #include <iostream>
 #include <glm/gtx/string_cast.hpp>
 #include <fstream>
-#include <boost/filesystem.hpp>
 #include <exception>
 
 // Vertex with minimal data, used for hitboxes

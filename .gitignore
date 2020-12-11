@@ -1,6 +1,6 @@
 **/.DS_Store
-.vs/
-.vscode/
+**/.vs/
+**/.vscode/
 bin/
 build/
 out/
@@ -8,6 +8,7 @@ CMakeCache.txt
 settings.txt
 
 # FbxParser stuff
-FbxConverter/**
-!FbxConverter/**.h
-!FbxConverter/**.cpp
+FbxConverter/bin
+FbxConverter/output
+FbxConverter/**.fbm
+FbxConverter/**.fbx
