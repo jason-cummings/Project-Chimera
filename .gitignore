@@ -10,5 +10,5 @@ settings.txt
 # FbxParser stuff
 FbxConverter/bin
 FbxConverter/output
-FbxConverter/**.fbm
-FbxConverter/**.fbx
+FbxConverter/*.fbx
+FbxConverter/*.fbm
