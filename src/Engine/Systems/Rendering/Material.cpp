@@ -51,9 +51,10 @@ GLuint MaterialFactory::loadMaterialTexture(fs::path definition_path, fs::path t
         return -1;
     }
 
-    fs::path diffuse_texture_path = textures_folder;
-    diffuse_texture_path.append(std::string(asset_buffer));
-    return TextureLoader::loadTexture(diffuse_texture_path.string(), true, clamp);
+    fs::path texture_path = textures_folder;
+    texture_path.append(std::string(asset_buffer));
+    std::string texture_path_string = std::string(texture_path.c_str());
+    return TextureLoader::loadTexture(texture_path_string, true, clamp);
 }
 
 float MaterialFactory::loadMaterialValue(fs::path definition_path) {

@@ -31,5 +31,3 @@ rm -r $HITTEXDIR 2>/dev/null
 
 mv $TEXDIR ./output/Textures/
 rm -r $HITTEXDIR 2>/dev/null
-
-
