@@ -18,7 +18,7 @@ struct Keyframe {
 };
 
 class FbxParser {
-  private:
+private:
     std::string fbx_filename;
     fbxsdk::FbxManager *manager;
     fbxsdk::FbxScene *scene;
@@ -59,7 +59,7 @@ class FbxParser {
     void processNodeForAnimation(fbxsdk::FbxNode *node);
     void saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_curve, fbxsdk::FbxAnimCurve *y_curve, fbxsdk::FbxAnimCurve *z_curve, int animation_index, std::string filename);
 
-  public:
+public:
     FbxParser(std::string filename);
     void init(bool for_hitbox);
 };

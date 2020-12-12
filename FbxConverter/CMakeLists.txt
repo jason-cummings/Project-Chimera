@@ -30,27 +30,33 @@ else()
 	set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g ${CXX_WARNING_FLAG} -std=c++17" )
 endif()
 
-if( APPLE )
-	set( EXTERNAL_LIBRARY_DIR ${EXTERNAL_LIBRARY_DIR} "/Applications/" )
+if( WIN32 )
+	set( EXTERNAL_LIBRARY_DIR ${EXTERNAL_LIBRARY_DIR} "C:/Program Files" )
+elseif( APPLE )
+	set( EXTERNAL_LIBRARY_DIR ${EXTERNAL_LIBRARY_DIR} "/Applications" )
 endif()
 
-set( FBX_HINTS 
-	${EXTERNAL_LIBRARY_DIR}/Autodesk/FBX\ SDK/*/ 
-	${EXTERNAL_LIBRARY_DIR}/Autodesk/FBX/FBX\ SDK/*/ 
+file(GLOB FBX_HINTS
+	${EXTERNAL_LIBRARY_DIR}/Autodesk/FBX/FBX\ SDK/*
+	${EXTERNAL_LIBRARY_DIR}/Autodesk/FBX\ SDK/*
 )
 
 find_path(FBXSDK_ROOT_DIR
           NAMES include/fbxsdk.h
-          HINTS ${FBX_HINTS}
+		  HINTS ${FBX_HINTS}
 		  REQUIRED
 )
 set(FBXSDK_INCLUDE_DIR "${FBXSDK_ROOT_DIR}/include")
 message("-- Found FbxSdk includes at ${FBXSDK_INCLUDE_DIR}")
 
+# file(GLOB_RECURSE FBX_LIB_SEARCH_PATH
+# 	${FBXSDK_ROOT_DIR}/lib/*
+# )
+
 if( APPLE ) 
 	find_library(FBXSDK_LIBRARY_PATH fbxsdk HINTS ${FBXSDK_ROOT_DIR}/lib/clang/debug REQUIRED)
 else()
-	find_library(FBXSDK_LIBRARY_PATH libfbxsdk HINTS $ENV{PATH} REQUIRED)
+	find_library(FBXSDK_LIBRARY_PATH libfbxsdk HINTS ${FBXSDK_ROOT_DIR}/lib/vs2017/x64/debug REQUIRED)
 endif()
 
 message("-- Found FbxSdk library at ${FBXSDK_LIBRARY_PATH}")
@@ -95,6 +101,6 @@ add_executable(FbxParser ${TARGET_SRC})
 target_link_libraries(FbxParser ${CONVERTER_LIBS})
 
 add_custom_command(TARGET FbxParser POST_BUILD        # Adds a post-build event to MyTest
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
-        ${FBXSDK_LIBRARY_PATH}      				# <--this is in-file
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different     # which executes "cmake - E copy_if_different..."
+        ${FBXSDK_LIBRARY_PATH}      				  # <--this is in-file
         $<TARGET_FILE_DIR:FbxParser>)                 # <--this is out-file path
