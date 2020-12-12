@@ -1,13 +1,13 @@
 #include "MeshList.hpp"
 
 class BackToFrontMeshList : public MeshList {
-public:
+  public:
     BackToFrontMeshList();
     ~BackToFrontMeshList();
 
     void sort() override;
 
-    void addGameObject( GameObject * obj ) override;
+    void addGameObject(GameObject *obj) override;
 
-    GameObject * longGet( int i ) override;
+    GameObject *longGet(int i) override;
 };

@@ -5,15 +5,15 @@
 
 #include "./../GameObject.hpp"
 
-class Camera : public GameObject{
-public:
+class Camera : public GameObject {
+  public:
     Camera();
     ~Camera();
 
-    void modifyAngles( float d_th, float d_ph );
-    void setAngles( float new_th, float new_ph );
+    void modifyAngles(float d_th, float d_ph);
+    void setAngles(float new_th, float new_ph);
 
-    void setResolution( int new_width, int new_height ); 
+    void setResolution(int new_width, int new_height);
     void createMatrices();
 
     // Getters to be used by render system
@@ -25,13 +25,13 @@ public:
     inline float getPh() { return ph; }
 
     inline float getOffset() { return offset; }
-    inline void setOffset( float input ) { offset = input; }
+    inline void setOffset(float input) { offset = input; }
 
-private:
+  private:
     float th, ph;
     float aspect_ratio, fov = 55.f;
     float offset;
-    
+
     glm::mat4 view_mat;
     glm::mat4 proj_mat;
 };

@@ -17,23 +17,25 @@ enum class BloomMode {
 };
 
 class UserSettings {
-private:
+  private:
     static std::string settingsPath();
-    static void assignSetting( std::string setting, std::string value );
+    static void assignSetting(std::string setting, std::string value);
 
-public:
+  public:
     static void loadFromFile();
     static void writeToFile();
 
     // Assign default settings values
     static int resolution_width;
     static int resolution_height;
-    
+
     static ShadowMode shadow_mode;
     static bool blur_shadow_map;
     static BloomMode bloom_mode;
     static bool use_volumetric_light_scattering;
     static bool use_FXAA;
+    static bool use_exposure;
+    static bool new_shading;
 };
 
 #endif

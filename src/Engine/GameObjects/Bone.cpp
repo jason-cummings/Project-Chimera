@@ -1,9 +1,9 @@
 #include "Bone.hpp"
 
 glm::mat4 Bone::getAnimatedTransformMatrix() {
-	return getWorldTransform() * inverseBindPose;
+    return getWorldTransform() * inverseBindPose;
 }
 
 void Bone::calculateInverseBindPose() {
-	inverseBindPose = glm::inverse(getWorldTransform());
+    inverseBindPose = glm::inverse(getWorldTransform());
 }

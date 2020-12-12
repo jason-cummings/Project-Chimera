@@ -5,17 +5,20 @@
 
 #include "Menu.hpp"
 
-class LoadMenu: public Menu {
-private:
+class LoadMenu : public Menu {
+  private:
     bool will_load = false;
     std::string level_name;
 
-	virtual void init() override {}
-
-public:
-    LoadMenu( std::string to_load );
+  public:
+    LoadMenu(std::string to_load);
     ~LoadMenu();
-    
+
+    inline bool init() override {
+        is_initialized = true;
+        return true;
+    }
+
     void gameLoop() override;
 };
 

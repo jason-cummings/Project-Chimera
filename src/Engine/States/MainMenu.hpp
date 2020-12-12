@@ -1,14 +1,14 @@
 #ifndef MAINMENU_H
 #define MAINMENU_H
 
-#include "Menu.hpp"
-#include "../Systems/Animation/AnimationSystem.hpp"
 #include "../StandardTimer.hpp"
+#include "../Systems/Animation/AnimationSystem.hpp"
+#include "Menu.hpp"
 
 class MainMenu : public Menu {
-private:
+  private:
     // Systems for main menu
-    AnimationSystem * animation_system;
+    AnimationSystem *animation_system;
     StandardTimer timer;
 
     // The 3D world in the background
@@ -18,13 +18,13 @@ private:
     // Camera to be used for 3D objects in the world (not overlay/HUD meshes)
     Camera *camera;
 
-    void handleButtonEvent( MenuButton *clicked ) override;
+    void handleButtonEvent(MenuButton *clicked) override;
 
-    void init() override {}
-
-public:
+  public:
     MainMenu();
     ~MainMenu();
+
+    bool init() override;
 
     void gameLoop() override;
 };

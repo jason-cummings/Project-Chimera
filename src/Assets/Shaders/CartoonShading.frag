@@ -61,7 +61,7 @@ void main()
 	float diffuseAmount = max(dot(normalize(normal), lightDirection),0.0);
 
 	// give the diffuse lighting a cartoon effect by clamping the color values at different levels
-	diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
+	// diffuseAmount = floor(diffuseAmount * levels) * scaleFactor;
 	
 	
 	// Specular

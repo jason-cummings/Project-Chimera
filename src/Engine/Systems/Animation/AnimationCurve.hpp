@@ -3,49 +3,44 @@
 
 #include <vector>
 
-#include "Keyframe.hpp"
 #include "../../GameObject.hpp"
+#include "Keyframe.hpp"
 
 class AnimationCurve {
-protected:
-	GameObject * target;
-	float max_time = 0;
+  protected:
+    GameObject *target;
+    float max_time = 0;
 
-public:
-	virtual ~AnimationCurve(){}
+  public:
+    virtual ~AnimationCurve() {}
 
+    void setTarget(GameObject *t) { target = t; }
+    GameObject *getTarget() { return target; }
+    float getMaxTime() { return max_time; }
 
-	void setTarget(GameObject * t) {target = t;}
-	GameObject * getTarget() {return target;}
-	float getMaxTime() {return max_time;}
+    virtual void evaluate(float time) = 0;
 
+    virtual void evaluateWithBlend(float time, float blend_amount) = 0;
 
-	virtual void evaluate(float time) = 0;
-
-	virtual void evaluateWithBlend(float time, float blend_amount) = 0;
-
-	// use friend for factory?
-
+    // use friend for factory?
 };
 
 class TranslationAnimationCurve : public AnimationCurve {
-	std::vector<VecKeyframe> keyframes;
-public:
-	void evaluate(float time);
-	void evaluateWithBlend(float time, float blend_amount);
-	void addKeyframe(VecKeyframe keyframe);
+    std::vector<VecKeyframe> keyframes;
+
+  public:
+    void evaluate(float time);
+    void evaluateWithBlend(float time, float blend_amount);
+    void addKeyframe(VecKeyframe keyframe);
 };
 
 class RotationAnimationCurve : public AnimationCurve {
-	std::vector<QuatKeyframe> keyframes;
-public:
-	void evaluate(float time);
-	void evaluateWithBlend(float time, float blend_amount);
-	void addKeyframe(QuatKeyframe keyframe);
+    std::vector<QuatKeyframe> keyframes;
+
+  public:
+    void evaluate(float time);
+    void evaluateWithBlend(float time, float blend_amount);
+    void addKeyframe(QuatKeyframe keyframe);
 };
-
-
-
-
 
 #endif

@@ -2,21 +2,21 @@
 #define INGAMESTATE_H
 
 #include "../GameState.hpp"
+#include "../Levels/Level.hpp"
 
-#include "../Systems/PlayerMovement/PlayerMovementSystem.hpp"
 #include "../Systems/Animation/AnimationSystem.hpp"
 #include "../Systems/Physics/PhysicsSystem.hpp"
+#include "../Systems/PlayerMovement/PlayerMovementSystem.hpp"
 
 #include "../GameObject.hpp"
 
-#include "../Utilities/PerformanceLogger.hpp"
 #include "../StandardTimer.hpp"
+#include "../Utilities/PerformanceLogger.hpp"
 
-class InGameState: public GameState {
-private:
+class InGameState : public GameState {
+  private:
     bool w, a, s, d, shift, space;
-    Player* player;
-    std::string current_level;
+    Player *player;
     glm::vec3 end_coords;
 
     // Camera to be used for 3D objects in the world (not overlay/HUD meshes)
@@ -28,20 +28,19 @@ private:
     bool first_tick;
 
     // Subsystems for this state
-    PlayerMovementSystem* player_movement;
+    PlayerMovementSystem *player_movement;
     PhysicsSystem *physics_system;
-    AnimationSystem * animation_system;
-    
+    AnimationSystem *animation_system;
+
     StandardTimer timer;
     PerformanceLogger performance_logger;
 
-    // Initialize the state
-    void init() override;
+    Level *level_used;
 
     // These override default methods in GameState and do not have to be implemented if necessary
-    void handleKeyDownStateSpecific( SDL_Event e ) override;
-    void handleKeyUpStateSpecific( SDL_Event e ) override;
-    void handleMouseMotionStateSpecific( SDL_Event e ) override;
+    void handleKeyDownStateSpecific(SDL_Event e) override;
+    void handleKeyUpStateSpecific(SDL_Event e) override;
+    void handleMouseMotionStateSpecific(SDL_Event e) override;
     // void handleMouseButtonDownStateSpecific( SDL_Event e ) override;
     // void handleMouseButtonUpStateSpecific( SDL_Event e ) override;
     // void handleMouseWheelStateSpecific( SDL_Event e ) override;
@@ -52,19 +51,18 @@ private:
     // Perform any necessary updates after the physics step
     void postPhysics();
 
-    //Check if player is in endgame location 
+    // Check if player is in endgame location
     bool endGame();
     bool isNear(float input, float goal);
     bool fell();
 
     void togglePlayerVisibility();
 
-    // TEMP
-    void addPhysicsThings();
-
-public:
-    InGameState( std::string level_to_load );
+  public:
+    InGameState(Level *level);
     ~InGameState();
+
+    bool init() override;
 
     void gameLoop() override;
 };

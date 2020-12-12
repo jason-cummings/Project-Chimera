@@ -6,15 +6,14 @@ class Bone;
 #include "./../GameObject.hpp"
 
 class Bone : public GameObject {
-	glm::mat4 inverseBindPose;
+    glm::mat4 inverseBindPose;
 
-public:
-	Bone(std::string id) : GameObject(id) {}
+  public:
+    Bone(std::string id) : GameObject(id) {}
 
-	glm::mat4 getAnimatedTransformMatrix();
+    glm::mat4 getAnimatedTransformMatrix();
 
-	void calculateInverseBindPose();
-
+    void calculateInverseBindPose();
 };
 
 #endif

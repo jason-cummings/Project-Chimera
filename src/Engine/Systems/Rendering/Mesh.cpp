@@ -1,61 +1,61 @@
 #include "Mesh.hpp"
 
 Mesh::Mesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
-	
-	vbo = vbo_in;
-	ibo = ibo_in;
-	num_vertices = num_vertices_in;
-	material = Material::getDefaultMaterial();
 
-	glGenVertexArrays( 1, &vao );
-	glBindVertexArray( vao );
+    vbo = vbo_in;
+    ibo = ibo_in;
+    num_vertices = num_vertices_in;
+    material = MaterialFactory::getDefaultMaterial();
 
-	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
 
-	glEnableVertexAttribArray( ShaderAttrib::Vertex );
-    glEnableVertexAttribArray( ShaderAttrib::Color );
-    glEnableVertexAttribArray( ShaderAttrib::Normal );
-    glEnableVertexAttribArray( ShaderAttrib::Tangent );
-    glEnableVertexAttribArray( ShaderAttrib::Bitangent );
-    glEnableVertexAttribArray( ShaderAttrib::Texture );
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
-    glVertexAttribPointer( ShaderAttrib::Vertex,    4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(0) );
-    glVertexAttribPointer( ShaderAttrib::Color,     4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(4*sizeof(GLfloat)) );
-    glVertexAttribPointer( ShaderAttrib::Normal,    3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(8*sizeof(GLfloat)) );
-    glVertexAttribPointer( ShaderAttrib::Tangent,   3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(11*sizeof(GLfloat)) );
-    glVertexAttribPointer( ShaderAttrib::Bitangent, 3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(14*sizeof(GLfloat)) );
-    glVertexAttribPointer( ShaderAttrib::Texture,   2, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(17*sizeof(GLfloat)) );
+    glEnableVertexAttribArray(ShaderAttrib::Vertex);
+    glEnableVertexAttribArray(ShaderAttrib::Color);
+    glEnableVertexAttribArray(ShaderAttrib::Normal);
+    glEnableVertexAttribArray(ShaderAttrib::Tangent);
+    glEnableVertexAttribArray(ShaderAttrib::Bitangent);
+    glEnableVertexAttribArray(ShaderAttrib::Texture);
 
-	// Create a vertex only vao
-    glBindVertexArray( 0 );
-	glGenVertexArrays( 1, &vertex_vao );
-	glBindVertexArray( vertex_vao );
-	glBindBuffer( GL_ARRAY_BUFFER, vbo );
-	glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ibo );
-	glEnableVertexAttribArray( ShaderAttrib::Vertex );
-    glVertexAttribPointer( ShaderAttrib::Vertex,    4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid*)(0) );
-    glBindVertexArray( 0 );
+    glVertexAttribPointer(ShaderAttrib::Vertex, 4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(0));
+    glVertexAttribPointer(ShaderAttrib::Color, 4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(4 * sizeof(GLfloat)));
+    glVertexAttribPointer(ShaderAttrib::Normal, 3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(8 * sizeof(GLfloat)));
+    glVertexAttribPointer(ShaderAttrib::Tangent, 3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(11 * sizeof(GLfloat)));
+    glVertexAttribPointer(ShaderAttrib::Bitangent, 3, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(14 * sizeof(GLfloat)));
+    glVertexAttribPointer(ShaderAttrib::Texture, 2, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(17 * sizeof(GLfloat)));
+
+    // Create a vertex only vao
+    glBindVertexArray(0);
+    glGenVertexArrays(1, &vertex_vao);
+    glBindVertexArray(vertex_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+    glEnableVertexAttribArray(ShaderAttrib::Vertex);
+    glVertexAttribPointer(ShaderAttrib::Vertex, 4, GL_FLOAT, GL_FALSE, N_VERTEX_VALUES * sizeof(GLfloat), (GLvoid *)(0));
+    glBindVertexArray(0);
 }
 
 Mesh::~Mesh() {
-	glDeleteVertexArrays( 1, &vao );
+    glDeleteVertexArrays(1, &vao);
 }
 
 void Mesh::draw() {
-	glBindVertexArray( vao );
+    glBindVertexArray(vao);
 
-	glDrawElements( GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0 );
+    glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
 
-	glBindVertexArray( 0 );
+    glBindVertexArray(0);
 }
 
 void Mesh::drawVerticesOnly() {
-	glBindVertexArray( vertex_vao );
-	glDrawElements( GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0 );
-	glBindVertexArray( 0 );
+    glBindVertexArray(vertex_vao);
+    glDrawElements(GL_TRIANGLES, num_vertices, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
 
-void Mesh::setMaterial( Material* input ){
-	material = input;
+void Mesh::setMaterial(Material *input) {
+    material = input;
 }

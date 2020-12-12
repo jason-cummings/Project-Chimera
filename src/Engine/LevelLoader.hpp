@@ -1,13 +1,13 @@
 #ifndef LEVELLOADER_H
 #define LEVELLOADER_H
 
-#include <string>
-#include <map>
-#include <vector>
 #include <glm/vec3.hpp>
+#include <map>
+#include <string>
+#include <vector>
 
-#include "Utilities/FilesystemWrapper.hpp"
 #include "Systems/Animation/Joint.hpp"
+#include "Utilities/FilesystemWrapper.hpp"
 
 class Mesh;
 class SkinnedMesh;
@@ -24,6 +24,7 @@ struct LoadedObjectProperties {
     std::string mesh_id = "";
     std::string skinned_mesh_id = "";
     std::string collision_shape_id = "";
+    std::string material_id = "";
 
     // corresponds to a bone file in the directory. the value of the file does not matter,
     // just its existence
@@ -41,74 +42,68 @@ struct LoadedObjectProperties {
 };
 
 class LevelLoader {
-private:
+  private:
     // The root scene object to be created
     GameObject *scene;
 
-    std::vector<AnimationStack*> animation_stacks;
-    JointList * joint_list;
+    std::vector<AnimationStack *> animation_stacks;
+    JointList *joint_list;
 
     // The objects loaded for the scene
-    std::map<std::string, Mesh*> loaded_meshes;
-    std::map<std::string, SkinnedMesh*> loaded_skinned_meshes;
-    std::map<std::string, btBvhTriangleMeshShape*> loaded_collision_shapes;
-    std::map<std::string, Material*> loaded_materials;
-    
+    std::map<std::string, Mesh *> loaded_meshes;
+    std::map<std::string, SkinnedMesh *> loaded_skinned_meshes;
+    std::map<std::string, btBvhTriangleMeshShape *> loaded_collision_shapes;
+    std::map<std::string, Material *> loaded_materials;
+
     //End Game Coordinates
     glm::vec3 endGameCoordVec;
 
     // Convenience functions
-    fs::path levelPath( std::string level_name ) const;
-    fs::path pathAppend( fs::path in, std::string to_append ) const;
-    std::string getPropertyContents( fs::path property_path ) const;
+    fs::path levelPath(std::string level_name) const;
+    fs::path pathAppend(fs::path in, std::string to_append) const;
+    std::string getPropertyContents(fs::path property_path) const;
 
     // Load a level from the name and populate the scene object
-    void createLevel( std::string level_name );
+    void createLevel(std::string level_name);
 
     // Load information for a single object, then call recursively on object's children
-    LoadedObjectProperties * parseObjectDirectory( std::string object_name, fs::path object_path ) const;
-    
-    // Create meshes, collision objects, materirals, and animations for the level from their directories
-    void loadMeshes( fs::path dir );
-    void loadSkinnedMeshes( fs::path dir );
-    void loadCollisionShapes( fs::path dir );
+    LoadedObjectProperties *parseObjectDirectory(std::string object_name, fs::path object_path) const;
 
-    void loadMaterials( fs::path dir, fs::path textures_dir );
-    void loadAnimations( fs::path dir );
-    void loadEndGame( fs::path dir );
-    void loadJointList( fs::path dir );
-    Joint loadJoint( fs::path dir );
+    // Create meshes, collision objects, materirals, and animations for the level from their directories
+    void loadMeshes(fs::path dir);
+    void loadSkinnedMeshes(fs::path dir);
+    void loadCollisionShapes(fs::path dir);
+
+    void loadMaterials(fs::path dir, fs::path textures_dir);
+    void loadAnimations(fs::path dir);
+    void loadJointList(fs::path dir);
+    Joint loadJoint(fs::path dir);
 
     // Create the scene GameObject and all of its children
-    void createScene( LoadedObjectProperties * scene_root_props );
+    void createScene(LoadedObjectProperties *scene_root_props);
 
     // Determine what GameObject should be created based on the Properties and create it
-    GameObject * createGameObject( LoadedObjectProperties * obj_props, bool is_root );
+    GameObject *createGameObject(LoadedObjectProperties *obj_props, bool is_root);
 
-public:
-
+  public:
     // Calls loadLevel with the passed in level name
-    LevelLoader( std::string level_name );
+    LevelLoader(std::string level_name);
 
     // Delete any stored info
     ~LevelLoader();
 
     // Return the loaded scene
-    GameObject * getScene() { return scene; }
+    GameObject *getScene() { return scene; }
 
     // inline getters for animations
     int getNumAnimationStacks() { return (int)animation_stacks.size(); };
-    AnimationStack* getAnimationStack(int i) { return animation_stacks[i]; };
+    AnimationStack *getAnimationStack(int i) { return animation_stacks[i]; };
 
     // return the joint list, null if no joints in this file
-    JointList * getJointList() {return joint_list;}
+    JointList *getJointList() { return joint_list; }
 
-    //return end game coordinates
-    glm::vec3 getEndGameCoords(){ return endGameCoordVec; }
-
-
-    static LevelLoader * loadCharacterModel();
-    static LevelLoader * loadLevelFile(std::string name);
-}; 
+    static LevelLoader *loadCharacterModel();
+    static LevelLoader *loadLevelFile(std::string name);
+};
 
 #endif

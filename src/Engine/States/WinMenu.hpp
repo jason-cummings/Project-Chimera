@@ -6,15 +6,18 @@
 class InGameState;
 
 class WinMenu : public Menu {
-private:
-    void handleButtonEvent( MenuButton* clicked ) override;
-    GameState* last_state;
+  private:
+    void handleButtonEvent(MenuButton *clicked) override;
+    GameState *last_state;
 
-	virtual void init() override {}
-
-public:
-    WinMenu( InGameState* input );
+  public:
+    WinMenu(InGameState *input);
     ~WinMenu();
+
+    inline bool init() override {
+        is_initialized = true;
+        return true;
+    }
 };
 
 #endif

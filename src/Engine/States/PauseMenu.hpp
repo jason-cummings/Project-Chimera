@@ -5,16 +5,21 @@
 
 class PauseMenu : public Menu {
 
-private:
-    void handleButtonEvent( MenuButton* clicked ) override;
-    void handleKeyDownStateSpecific( SDL_Event e ) override;
-    GameState* last_state;
+  private:
+    void handleButtonEvent(MenuButton *clicked) override;
+    void handleKeyDownStateSpecific(SDL_Event e) override;
+    GameState *last_state;
 
-	virtual void init() override {}
+    void unpause();
 
-public:
-    PauseMenu( GameState* input );
+  public:
+    PauseMenu(GameState *input);
     ~PauseMenu();
+
+    inline bool init() override {
+        is_initialized = true;
+        return true;
+    }
 };
 
 #endif

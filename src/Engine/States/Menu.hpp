@@ -3,30 +3,30 @@
 
 #include <vector>
 
-#include "../GameState.hpp"
 #include "../GameObjects/MenuButton.hpp"
+#include "../GameState.hpp"
 
-class Menu: public GameState{
-protected:
-	//Stores vector of buttons and last clicked button
-	MenuButton* lastpressed;
-	std::vector<MenuButton*> buttons;
-	
-	// Convert pixels to menu coordinates
-	glm::vec2 getMenuCoords( int screen_x, int screen_y );
+class Menu : public GameState {
+  protected:
+    //Stores vector of buttons and last clicked button
+    MenuButton *lastpressed;
+    std::vector<MenuButton *> buttons;
 
-	// Performs actions of clicked buttons
-	virtual void handleButtonEvent( MenuButton* clicked ) {};
+    // Convert pixels to menu coordinates
+    glm::vec2 getMenuCoords(int screen_x, int screen_y);
 
-public:
-	Menu();
-	virtual ~Menu();
+    // Performs actions of clicked buttons
+    virtual void handleButtonEvent(MenuButton *clicked){};
 
-	// Checks if any button is clicked
-    void handleMouseButtonDownStateSpecific( SDL_Event e ) override;
-    void handleMouseButtonUpStateSpecific( SDL_Event e ) override;
+  public:
+    Menu();
+    virtual ~Menu();
 
-	virtual void gameLoop() override;
+    // Checks if any button is clicked
+    void handleMouseButtonDownStateSpecific(SDL_Event e) override;
+    void handleMouseButtonUpStateSpecific(SDL_Event e) override;
+
+    virtual void gameLoop() override;
 };
 
 #endif
