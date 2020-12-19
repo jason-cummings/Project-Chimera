@@ -1,5 +1,7 @@
 #include "OverlayMesh.hpp"
 
+#include "MaterialFactory.hpp"
+
 OverlayMesh::OverlayMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
     num_vertices = num_vertices_in;
     material = MaterialFactory::getDefaultMaterial2D();

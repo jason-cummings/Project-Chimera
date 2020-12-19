@@ -8,10 +8,11 @@
 #include "GameObjects/Obstacle.hpp"
 #include "GameObjects/Player.hpp"
 #include "GameObjects/SceneRenderable.hpp"
+#include "Systems/Rendering/Material.hpp"
 
 #include "Systems/Animation/AnimationFactory.hpp"
 #include "Systems/Physics/RigidBodyFactory.hpp"
-#include "Systems/Rendering/Material.hpp"
+#include "Systems/Rendering/MaterialFactory.hpp"
 #include "Systems/Rendering/MeshFactory.hpp"
 
 #include "Utilities/Asset.hpp"
