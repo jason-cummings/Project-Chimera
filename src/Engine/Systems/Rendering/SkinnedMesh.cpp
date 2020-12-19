@@ -1,5 +1,7 @@
 #include "SkinnedMesh.hpp"
 
+#include "MaterialFactory.hpp"
+
 SkinnedMesh::SkinnedMesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in, JointList *joints_in) {
 
     vbo = vbo_in;

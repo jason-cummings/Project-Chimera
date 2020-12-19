@@ -42,7 +42,7 @@ struct LoadedObjectProperties {
 };
 
 class LevelLoader {
-  private:
+private:
     // The root scene object to be created
     GameObject *scene;
 
@@ -85,7 +85,7 @@ class LevelLoader {
     // Determine what GameObject should be created based on the Properties and create it
     GameObject *createGameObject(LoadedObjectProperties *obj_props, bool is_root);
 
-  public:
+public:
     // Calls loadLevel with the passed in level name
     LevelLoader(std::string level_name);
 

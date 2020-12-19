@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include "../Systems/Physics/RigidBodyFactory.hpp"
-#include "../Systems/Rendering/Material.hpp"
+#include "../Systems/Rendering/MaterialFactory.hpp"
 #include "../Systems/Rendering/MeshFactory.hpp"
 
 int DynamicCube::num_cubes = 0;

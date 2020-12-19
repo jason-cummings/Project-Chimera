@@ -4,6 +4,7 @@
 
 #include "../../SettingsManager.hpp"
 #include "../../Utilities/Asset.hpp"
+#include "MaterialFactory.hpp"
 #include "TextureLoader.hpp"
 
 #include "Material.hpp"

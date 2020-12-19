@@ -1,6 +1,7 @@
 #include "MenuElement.hpp"
 
 #include "../Systems/Rendering/Material.hpp"
+#include "../Systems/Rendering/MaterialFactory.hpp"
 #include "../Utilities/Asset.hpp"
 
 // The VBO for a rectangular button

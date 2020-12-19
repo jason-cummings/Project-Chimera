@@ -1,5 +1,7 @@
 #include "Mesh.hpp"
 
+#include "MaterialFactory.hpp"
+
 Mesh::Mesh(GLuint vbo_in, GLuint ibo_in, int num_vertices_in) {
 
     vbo = vbo_in;
