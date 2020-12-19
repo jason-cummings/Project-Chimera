@@ -49,6 +49,7 @@ private:
     glm::vec3 getNormal(fbxsdk::FbxMesh *mesh, int control_point_index, int vertex_index);
     glm::vec2 getUV(fbxsdk::FbxMesh *mesh, int control_point_index, int vertex_index);
     void getMaterial(fbxsdk::FbxSurfaceMaterial *material);
+    void writeNodeTranslationInformtion(fbxsdk::FbxNode *node, std::string node_directory);
 
     // if -h option is used when running program, these functions will be used to process only meshes and export them as hitboxes
     void processNodesForHitbox(fbxsdk::FbxNode *node, std::string depth, std::string parent_directory);

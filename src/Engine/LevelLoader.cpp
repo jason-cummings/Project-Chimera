@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "GameObject.hpp"
+#include "GameObjects/CollisionOnlyObj.hpp"
 #include "GameObjects/Obstacle.hpp"
 #include "GameObjects/Player.hpp"
 #include "GameObjects/SceneRenderable.hpp"
@@ -368,6 +369,11 @@ GameObject *LevelLoader::createGameObject(LoadedObjectProperties *obj_props, boo
         // std::cout << "Creating a scene renderable: " << obj_props->identifier << std::endl;
         Mesh *use_mesh = loaded_meshes[obj_props->mesh_id];
         obj = new SceneRenderable(obj_props->identifier, use_mesh);
+    } else if (has_collision_shape && !has_mesh) {
+        // std::cout << "Creating a collision-only object: " << obj_props->identifier << std::endl;
+        btBvhTriangleMeshShape *use_shape = loaded_collision_shapes[obj_props->collision_shape_id];
+        RigidBodyPhysicsComponent *use_physics = RigidBodyFactory::createBvhTriangleMeshComponent(obj_props->identifier, use_shape, obj_props->scaling);
+        obj = new CollisionOnlyObj(obj_props->identifier, use_physics);
     } else if (has_skinned_mesh) {
 #ifdef DEBUG_LOADER
         std::cout << "Creating a Player: " << obj_props->identifier << std::endl;
@@ -387,9 +393,6 @@ GameObject *LevelLoader::createGameObject(LoadedObjectProperties *obj_props, boo
     }
 
     // Set the transformation data for the newly created object
-    // std::cout << "Scaling by " << obj_props->scaling.x << ", " << obj_props->scaling.y << ", " << obj_props->scaling.z << std::endl;
-    // std::cout << "Rotating by " << obj_props->rotation.x << ", " << obj_props->rotation.y << ", " << obj_props->rotation.z << std::endl;
-    // std::cout << "Translating by " << obj_props->translation.x << ", " << obj_props->translation.y << ", " << obj_props->translation.z << std::endl;
     glm::vec3 rotation_radians = glm::vec3(glm::radians(obj_props->rotation[0]),
                                            glm::radians(obj_props->rotation[1]),
                                            glm::radians(obj_props->rotation[2]));

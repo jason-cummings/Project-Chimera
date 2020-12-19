@@ -96,39 +96,8 @@ void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string depth, std::stri
 
     const int child_count = node->GetChildCount();
 
-    // get transformation data and convert to glm
-    fbxsdk::FbxDouble3 translation = node->LclTranslation.Get();
-    fbxsdk::FbxDouble3 rotation = node->LclRotation.Get();
-    fbxsdk::FbxDouble3 scaling = node->LclScaling.Get();
-
-    fbxsdk::FbxVector4 postTargetRotation = node->GetTargetUpVector();
-
-    glm::vec3 translationVector = glm::vec3(translation[0], translation[1], translation[2]);
-    glm::vec3 rotationVector = glm::vec3(rotation[0] + postTargetRotation[0],
-                                         rotation[1] + postTargetRotation[1],
-                                         rotation[2] + postTargetRotation[2]);
-    glm::vec3 scalingVector = glm::vec3(scaling[0], scaling[1], scaling[2]);
-
-    // prints node information, useful for debug and verifying that fbx file has expected values
-    DEBUG(depth << "Node: " << node->GetName());
-    DEBUG(depth << " - translation: " << translation[0] << ", " << translation[1] << ", " << translation[2]);
-    DEBUG(depth << " - rotation:    " << rotation[0] << ", " << rotation[1] << ", " << rotation[2]);
-    DEBUG(depth << " - rotation2:   " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2]);
-    DEBUG(depth << " - scaling:     " << scaling[0] << ", " << scaling[1] << ", " << scaling[2]);
-
-    //export transform data
-
-    std::ofstream translationFile(node_directory + "/translation", std::ios::out | std::ios::binary);
-    translationFile.write((const char *)&translationVector[0], sizeof(glm::vec3));
-    translationFile.close();
-
-    std::ofstream rotationFile(node_directory + "/rotation", std::ios::out | std::ios::binary);
-    rotationFile.write((const char *)&rotationVector[0], sizeof(glm::vec3));
-    rotationFile.close();
-
-    std::ofstream scalingFile(node_directory + "/scaling", std::ios::out | std::ios::binary);
-    scalingFile.write((const char *)&scalingVector[0], sizeof(glm::vec3));
-    scalingFile.close();
+    // Write transformation information
+    writeNodeTranslationInformtion(node, node_directory);
 
     // check if any animations affect this node
     processNodeForAnimation(node);
@@ -170,6 +139,42 @@ void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string depth, std::stri
     for (int i = 0; i < child_count; i++) {
         processNodes(node->GetChild(i), depth + "    ", children_directory);
     }
+}
+
+void FbxParser::writeNodeTranslationInformtion(fbxsdk::FbxNode *node, std::string node_directory) {
+    // get transformation data and convert to glm
+    fbxsdk::FbxDouble3 translation = node->LclTranslation.Get();
+    fbxsdk::FbxDouble3 rotation = node->LclRotation.Get();
+    fbxsdk::FbxDouble3 scaling = node->LclScaling.Get();
+
+    fbxsdk::FbxVector4 postTargetRotation = node->GetTargetUpVector();
+
+    glm::vec3 translationVector = glm::vec3(translation[0], translation[1], translation[2]);
+    glm::vec3 rotationVector = glm::vec3(rotation[0] + postTargetRotation[0],
+                                         rotation[1] + postTargetRotation[1],
+                                         rotation[2] + postTargetRotation[2]);
+    glm::vec3 scalingVector = glm::vec3(scaling[0], scaling[1], scaling[2]);
+
+    // prints node information, useful for debug and verifying that fbx file has expected values
+    DEBUG("Node: " << node->GetName());
+    DEBUG(" - translation: " << translation[0] << ", " << translation[1] << ", " << translation[2]);
+    DEBUG(" - rotation:    " << rotation[0] << ", " << rotation[1] << ", " << rotation[2]);
+    DEBUG(" - rotation2:   " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2]);
+    DEBUG(" - scaling:     " << scaling[0] << ", " << scaling[1] << ", " << scaling[2]);
+
+    //export transform data
+
+    std::ofstream translationFile(node_directory + "/translation", std::ios::out | std::ios::binary);
+    translationFile.write((const char *)&translationVector[0], sizeof(glm::vec3));
+    translationFile.close();
+
+    std::ofstream rotationFile(node_directory + "/rotation", std::ios::out | std::ios::binary);
+    rotationFile.write((const char *)&rotationVector[0], sizeof(glm::vec3));
+    rotationFile.close();
+
+    std::ofstream scalingFile(node_directory + "/scaling", std::ios::out | std::ios::binary);
+    scalingFile.write((const char *)&scalingVector[0], sizeof(glm::vec3));
+    scalingFile.close();
 }
 
 //=============================================Read Meshes===========================================
@@ -460,6 +465,13 @@ void FbxParser::processNodesForHitbox(fbxsdk::FbxNode *node, std::string depth, 
 
     DEBUG(depth << "Node: " << node->GetName());
 
+    // Create directory and write translation info if necessary
+    if (!fs::exists(node_directory)) {
+        std::cout << "CREATING NEW DIRECTORY FOR HITBOX: " << node_directory << std::endl;
+        createFolder(node_directory);
+        writeNodeTranslationInformtion(node, node_directory);
+    }
+
     fbxsdk::FbxNodeAttribute *attribute = node->GetNodeAttribute();
     if (attribute) {
         if (attribute->GetAttributeType() == fbxsdk::FbxNodeAttribute::eMesh) {
@@ -477,7 +489,7 @@ void FbxParser::processNodesForHitbox(fbxsdk::FbxNode *node, std::string depth, 
 }
 
 // processes a mesh for hitboxes, which means only exporting vertex position data, and no rendering data.
-void FbxParser::processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string parent_directory) {
+void FbxParser::processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string node_directory) {
 
     int mesh_index = 0;
     if (hitbox_optimizer.checkExists(mesh)) {
@@ -509,7 +521,7 @@ void FbxParser::processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string parent_d
 
     // add file to node folder for mesh_index
     std::ofstream file;
-    file.open(parent_directory + "/Hitbox.txt");
+    file.open(node_directory + "/Hitbox.txt");
     file << mesh_index;
     file.close();
 }
