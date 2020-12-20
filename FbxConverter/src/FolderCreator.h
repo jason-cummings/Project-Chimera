@@ -8,6 +8,7 @@
 
 #include "FilesystemWrapper.hpp"
 
+std::string sanitizeString(std::string directory);
 void createFolder(std::string directory);
 
 #endif

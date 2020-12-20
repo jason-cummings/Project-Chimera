@@ -25,8 +25,9 @@ rm -r ./output/ 2>/dev/null
 rm -r $TEXDIR 2>/dev/null
 rm -r $HITTEXDIR 2>/dev/null
 
-# ./FbxParser FbxTest2.fbx -d
+echo "Beginning primary pass"
 ./bin/bin/FbxParser "$1" "$DEBUG"
+echo "Beginning hitbox pass"
 ./bin/bin/FbxParser "$2" -h "$DEBUG"
 
 mv $TEXDIR ./output/Textures/

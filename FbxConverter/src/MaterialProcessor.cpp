@@ -37,6 +37,7 @@ void MaterialProcessor::getMaterialsFromNode(fbxsdk::FbxNode *node, std::string 
 }
 
 int MaterialProcessor::getMaterial(fbxsdk::FbxSurfaceMaterial *material) {
+
     // Check the optimizer first
     if (optimizer.checkExists(material)) {
         int mat_index = optimizer.getIndex(material);

@@ -71,7 +71,12 @@ void FbxParser::init(bool for_hitbox) {
         for (int i = 0; i < importer->GetAnimStackCount(); i++) {
             fbxsdk::FbxTakeInfo *take_info = importer->GetTakeInfo(i);
             DEBUG("Animation Stack " << i << ": " << take_info->mName.Buffer());
-            processAnimationStack(fbxsdk::FbxCast<FbxAnimStack>(scene->GetSrcObject(fbxsdk::FbxCriteria::ObjectType(fbxsdk::FbxAnimStack::ClassId), i)));
+
+            fbxsdk::FbxAnimStack *toProcess = fbxsdk::FbxCast<fbxsdk::FbxAnimStack>(
+                scene->GetSrcObject(fbxsdk::FbxCriteria::ObjectType(fbxsdk::FbxAnimStack::ClassId), i));
+
+            // fbxsdk::FbxAnimStack *anim = scene->GetSrcObject<fbxsdk::FbxAnimStack>(i);
+            processAnimationStack(toProcess);
         }
 
         // analyse scenegraph and creates a list of joints
@@ -380,9 +385,9 @@ glm::vec2 FbxParser::getUV(fbxsdk::FbxMesh *mesh, int control_point_index, int v
 
 // =============================================Processing Animations===================================
 
-void FbxParser::processAnimationStack(FbxAnimStack *animation_stack) {
-    createFolder(std::string("./output/AnimationStacks/") + animation_stack->GetName());
-    int num_layers = animation_stack->GetMemberCount(FbxCriteria::ObjectType(FbxAnimLayer::ClassId));
+void FbxParser::processAnimationStack(fbxsdk::FbxAnimStack *animation_stack) {
+    createFolder(std::string("./output/AnimationStacks/") + std::string(animation_stack->GetName()));
+    int num_layers = animation_stack->GetMemberCount(FbxCriteria::ObjectType(fbxsdk::FbxAnimLayer::ClassId));
 
     DEBUG("layers: " << num_layers);
 
@@ -390,7 +395,10 @@ void FbxParser::processAnimationStack(FbxAnimStack *animation_stack) {
     // lists to use later when processing nodes
 
     for (int layer_i = 0; layer_i < num_layers; layer_i++) {
-        FbxAnimLayer *layer = FbxCast<FbxAnimLayer>(animation_stack->GetMember(FbxCriteria::ObjectType(FbxAnimLayer::ClassId), layer_i));
+        fbxsdk::FbxAnimLayer *layer = fbxsdk::FbxCast<fbxsdk::FbxAnimLayer>(animation_stack->GetMember(FbxCriteria::ObjectType(fbxsdk::FbxAnimLayer::ClassId), layer_i));
+        // fbxsdk::FbxAnimLayer *layer2 = animation_stack->GetMember<FbxAnimLayer>(layer_i);
+
+        // std::cout << "Layers: " << layer << " " << layer2 << std::endl;
 
         std::string layer_dir = std::string("./output/AnimationStacks/") + animation_stack->GetName() + std::string("/") + layer->GetName();
         createFolder(layer_dir);
@@ -403,6 +411,8 @@ void FbxParser::processAnimationStack(FbxAnimStack *animation_stack) {
 // check if a node is animated, if so, the animation curve is processed and exported
 void FbxParser::processNodeForAnimation(fbxsdk::FbxNode *node) {
     for (int i = 0; i < animations.size(); i++) {
+        DEBUG("Processing animation " << i);
+
         // go through all animations, and check for animation curves that affect this node
         fbxsdk::FbxAnimCurve *pos_x_curve = node->LclTranslation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_X);
         fbxsdk::FbxAnimCurve *pos_y_curve = node->LclTranslation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_Y);
@@ -421,9 +431,11 @@ void FbxParser::processNodeForAnimation(fbxsdk::FbxNode *node) {
 // exports the keyframes for a node and given animation curves
 void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_curve, fbxsdk::FbxAnimCurve *y_curve, fbxsdk::FbxAnimCurve *z_curve, int animation_index, std::string filename) {
     if (x_curve && y_curve && z_curve) {
+        std::cout << "Saving keyframes for " << filename << std::endl;
 
         std::vector<Keyframe> key_list;
         //get values from all keys
+        std::cout << "Keyframe count: " << x_curve->KeyGetCount() << std::endl;
         for (int k = 0; k < x_curve->KeyGetCount(); k++) {
             fbxsdk::FbxAnimCurveKey xkey = x_curve->KeyGet(k);
             fbxsdk::FbxAnimCurveKey ykey = y_curve->KeyGet(k);
@@ -447,9 +459,14 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
 
         std::string animation_curve_dir = animation_directories[animation_index] + "/" + node->GetName();
         createFolder(animation_curve_dir);
-        std::ofstream key_file(animation_curve_dir + "/" + filename, std::ios::out | std::ios::binary);
-        key_file.write((const char *)&key_list[0], key_list.size() * sizeof(Keyframe));
-        key_file.close();
+        std::string curve_fname = sanitizeString(animation_curve_dir + "/" + filename);
+        std::ofstream key_file(curve_fname, std::ios::out | std::ios::binary);
+        if (!key_file) {
+            ERROR("Could not open file " << curve_fname);
+        } else {
+            key_file.write((const char *)&key_list[0], key_list.size() * sizeof(Keyframe));
+            key_file.close();
+        }
     }
 }
 
