@@ -50,13 +50,13 @@ void CastleLevel::populateLevel() {
     // point->setQuadraticAttenuation( 0.02f );
     // point_lights.push_back( point );
 
-    GameObject *coals_object = scene->getGameObject("coals");
-    PointLight *c_point = new PointLight("coal_light");
-    c_point->setTransform(glm::vec3(1.f), glm::vec3(0.f), glm::vec3(coals_object->getWorldTransform()[3]));
-    c_point->setAmbient(glm::vec3(0.0f, 0.0f, 0.0f));
-    c_point->setDiffuse(glm::vec3(1.f, 0.2f, 0.0f));
-    c_point->setSpecular(glm::vec3(0.f, 0.f, 0.f));
-    c_point->setLinearAttenuation(0.0f);
-    c_point->setQuadraticAttenuation(0.7f);
-    point_lights.push_back(c_point);
+    // GameObject *coals_object = scene->getGameObject("coals");
+    // PointLight *c_point = new PointLight("coal_light");
+    // c_point->setTransform(glm::vec3(1.f), glm::vec3(0.f), glm::vec3(coals_object->getWorldTransform()[3]));
+    // c_point->setAmbient(glm::vec3(0.0f, 0.0f, 0.0f));
+    // c_point->setDiffuse(glm::vec3(1.f, 0.2f, 0.0f));
+    // c_point->setSpecular(glm::vec3(0.f, 0.f, 0.f));
+    // c_point->setLinearAttenuation(0.0f);
+    // c_point->setQuadraticAttenuation(0.7f);
+    // point_lights.push_back(c_point);
 }
