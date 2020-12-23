@@ -3,7 +3,7 @@
 
 #include <fbxsdk.h>
 
-#include "DataOptimizer.h"
+#include "DataOptimizer.hpp"
 
 class MaterialProcessor {
 private:
@@ -17,7 +17,7 @@ private:
 
 public:
     MaterialProcessor(std::string base_dir);
-    
+
     /** Processes a material and adds it to the optimizer if it doesn't already exist */
     void getMaterialsFromNode(fbxsdk::FbxNode *node, std::string node_directory);
 };

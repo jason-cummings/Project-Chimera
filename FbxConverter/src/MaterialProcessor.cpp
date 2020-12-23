@@ -1,9 +1,11 @@
 #include "MaterialProcessor.hpp"
 
-#include "Util.hpp"
 #include <fstream>
 #include <iostream>
-// #include "FilesystemWrapper.hpp"
+#include <string>
+
+#include "Logger.hpp"
+#include "Util.hpp"
 
 #define MATERIAL_FNAME "Material.txt"
 #define DIFFUSE_FNAME "diffuse.txt"
@@ -18,14 +20,14 @@ void MaterialProcessor::getMaterialsFromNode(fbxsdk::FbxNode *node, std::string 
         return;
     }
     if (node->GetMaterialCount() > 1) {
-        ERROR("More than one material for node " << node->GetName() << " -- This is not implemented yet");
+        Logger::error("More than one material for node " + std::string(node->GetName()) + " -- This is not implemented yet");
         return;
     }
 
     // Process the material and get its index
     int material_index = getMaterial(node->GetMaterial(0));
     if (material_index == -1) {
-        DEBUG("No material for node " << node->GetName());
+        Logger::log("No material for node " + std::string(node->GetName()));
         return;
     }
 
@@ -41,24 +43,23 @@ int MaterialProcessor::getMaterial(fbxsdk::FbxSurfaceMaterial *material) {
     // Check the optimizer first
     if (optimizer.checkExists(material)) {
         int mat_index = optimizer.getIndex(material);
-        DEBUG("Material already exists - return index " << mat_index);
+        Logger::log("Material already exists - return index " + std::to_string(mat_index));
         return mat_index;
     }
 
     // Only implementing phong for now
     fbxsdk::FbxString material_type = material->ShadingModel.Get();
     if (strcmp(material_type.Buffer(), "Phong") != 0) {
-        ERROR("Unknown material type " << material_type);
+        Logger::error("Unknown material type " + std::string(material_type));
         return -1;
     }
 
     int material_index = optimizer.addData(material);
     fbxsdk::FbxSurfacePhong *phong = (fbxsdk::FbxSurfacePhong *)material;
 
-    DEBUG("Processing phong material " << material->GetName());
-    DEBUG("--pointer:   " << material);
-    DEBUG("--specular:  " << phong->Specular.Get().mData[0] << ", " << phong->Specular.Get().mData[1] << ", " << phong->Specular.Get().mData[2]);
-    DEBUG("--shininess: " << phong->Shininess.Get());
+    Logger::log("Processing phong material " + std::string(material->GetName()));
+    Logger::log("--specular:  " + std::to_string(phong->Specular.Get().mData[0]) + ", " + std::to_string(phong->Specular.Get().mData[1]) + ", " + std::to_string(phong->Specular.Get().mData[2]));
+    Logger::log("--shininess: " + std::to_string(phong->Shininess.Get()));
 
     // Get the texture names and write them to the appropriate files
     fbxsdk::FbxFileTexture *diffuse_source = (fbxsdk::FbxFileTexture *)phong->Diffuse.GetSrcObject();
@@ -68,8 +69,8 @@ int MaterialProcessor::getMaterial(fbxsdk::FbxSurfaceMaterial *material) {
     bool has_diffuse = strlen(diffuse_name) > 0;
     bool has_emissive = strlen(emissive_name) > 0;
 
-    DEBUG("--diffuse:   " << has_diffuse << " " << diffuse_name);
-    DEBUG("--emissive:  " << has_emissive << " " << emissive_name);
+    Logger::log("--diffuse:   " + has_diffuse + std::string(" ") + diffuse_name);
+    Logger::log("--emissive:  " + has_emissive + std::string(" ") + emissive_name);
 
     std::string material_directory = optimizer.getDataDirectory(material_index);
     writeTextureNameToFile(diffuse_name, material_directory + "/" + DIFFUSE_FNAME);
@@ -77,7 +78,7 @@ int MaterialProcessor::getMaterial(fbxsdk::FbxSurfaceMaterial *material) {
 
     // Handle shininess
     float shininess[] = {(float)phong->Shininess.Get()};
-    DEBUG("--shininess: " << shininess[0]);
+    Logger::log("--shininess: " + std::to_string(shininess[0]));
     std::ofstream shininess_fstream(material_directory + "/" + SHININESS_FNAME, std::ios::out | std::ios::binary);
     shininess_fstream.write((char *)shininess, sizeof(float));
     shininess_fstream.close();

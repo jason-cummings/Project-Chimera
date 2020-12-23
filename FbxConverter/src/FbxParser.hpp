@@ -1,11 +1,10 @@
 #ifndef FBX_PARSER_H
 #define FBX_PARSER_H
 
-#include "Animation.h"
-#include "DataOptimizer.h"
-#include "FolderCreator.h"
+#include "Animation.hpp"
+#include "DataOptimizer.hpp"
 #include "MaterialProcessor.hpp"
-#include "MeshExporter.h"
+#include "MeshExporter.hpp"
 #include <exception>
 #include <fbxsdk.h>
 #include <glm/glm.hpp>
@@ -37,7 +36,7 @@ private:
     SkeletonProcessor skeleton_processor;
 
     // iterates through all nodes and exports them
-    void processNodes(fbxsdk::FbxNode *node, std::string depth, std::string parent_directory);
+    void processNodes(fbxsdk::FbxNode *node, std::string parent_directory);
 
     // processes Mesh and exports it
     void processMesh(fbxsdk::FbxMesh *mesh, std::string parent_directory);
@@ -52,7 +51,7 @@ private:
     void writeNodeTranslationInformtion(fbxsdk::FbxNode *node, std::string node_directory);
 
     // if -h option is used when running program, these functions will be used to process only meshes and export them as hitboxes
-    void processNodesForHitbox(fbxsdk::FbxNode *node, std::string depth, std::string parent_directory);
+    void processNodesForHitbox(fbxsdk::FbxNode *node, std::string parent_directory);
     void processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string parent_directory);
 
     // processes animation data

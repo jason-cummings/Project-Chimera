@@ -1,1 +1,1 @@
-terracotta_bowl.png
+terracotta_pot.png

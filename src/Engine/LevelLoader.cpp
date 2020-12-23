@@ -1,6 +1,6 @@
 #include "LevelLoader.hpp"
 
-// #define DEBUG_LOADER
+#define DEBUG_LOADER
 
 #include <iostream>
 

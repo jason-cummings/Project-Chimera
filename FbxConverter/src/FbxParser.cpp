@@ -1,9 +1,11 @@
-#include "FbxParser.h"
+#include "FbxParser.hpp"
 
+#include "Logger.hpp"
 #include "Util.hpp"
 
-// build
-// g++ -I/Applications/Autodesk/FBX\ SDK/2020.0.1/include  -L/Applications/Autodesk/FBX\ SDK/2020.0.1/lib/clang/release/ -lfbxsdk FbxParser.cpp
+#include <sstream>
+
+std::stringstream ss;
 
 FbxParser::FbxParser(std::string filename) : material_processor("output/Materials") {
     fbx_filename = filename;
@@ -11,9 +13,10 @@ FbxParser::FbxParser(std::string filename) : material_processor("output/Material
 
 // initializes FbxManager and starts the data retrievel and export process
 void FbxParser::init(bool for_hitbox) {
+
     manager = fbxsdk::FbxManager::Create();
     if (!manager) {
-        ERROR("Error creating FBX Manager");
+        Logger::error("Error creating FBX Manager");
         exit(1);
     }
 
@@ -23,22 +26,22 @@ void FbxParser::init(bool for_hitbox) {
     const bool status = importer->Initialize(fbx_filename.c_str(), -1, manager->GetIOSettings());
 
     if (!status) {
-        ERROR("Error initializing importer object");
+        Logger::error("Error initializing importer object");
         exit(1);
     }
 
-    if (importer->IsFBX()) {
+    if (!importer->IsFBX()) {
+        Logger::error("Importer did not receive a valid FBX object");
+    }
 
-        bool import_status = importer->Import(scene);
+    bool import_status = importer->Import(scene);
+    if (import_status) {
 
-        if (import_status) {
+        // as we are using Maya, converting the axis system is not needed, but if needed in the future it should be done here
 
-            // as we are using Maya, converting the axis system is not needed, but if needed in the future it should be done here
-
-            //convert all geometry to triangles - OpenGL 3.3 doesn't allow quads
-            fbxsdk::FbxGeometryConverter geometry_converter(manager);
-            geometry_converter.Triangulate(scene, true);
-        }
+        // convert all geometry to triangles - OpenGL 3.3 doesn't allow quads
+        fbxsdk::FbxGeometryConverter geometry_converter(manager);
+        geometry_converter.Triangulate(scene, true);
     }
 
     mesh_optimizer = DataOptimizer("output/Meshes");
@@ -47,35 +50,37 @@ void FbxParser::init(bool for_hitbox) {
 
     if (for_hitbox) {
         // create a folder for hitboxes then process all nodes for hitboxes
-        createFolder("./output/Hitboxes");
-        processNodesForHitbox(scene->GetRootNode(), "", "./output");
+        Util::createFolder("./output/Hitboxes");
+        processNodesForHitbox(scene->GetRootNode(), "./output");
     } else {
         // create output folder
-        createFolder("./output");
+        Util::createFolder("./output");
 
         // create Mesh folder within output folder
-        createFolder("./output/Meshes");
-        createFolder("./output/SkinnedMeshes");
+        Util::createFolder("./output/Meshes");
+        Util::createFolder("./output/SkinnedMeshes");
 
         //create Animation stacks folder within output folder
-        createFolder("./output/AnimationStacks");
+        Util::createFolder("./output/AnimationStacks");
 
         // create Materials folder within output folder
-        createFolder("./output/Materials");
+        Util::createFolder("./output/Materials");
 
         // get all animation layers so that they can be filled in later
-        DEBUG("Animation stack info");
-        DEBUG("Number of animation stacks: " << importer->GetAnimStackCount());
+        Logger::log("Animation stack info");
+        Logger::log("Number of animation stacks: " + std::to_string(importer->GetAnimStackCount()));
 
         // process animation stacks
         for (int i = 0; i < importer->GetAnimStackCount(); i++) {
             fbxsdk::FbxTakeInfo *take_info = importer->GetTakeInfo(i);
-            DEBUG("Animation Stack " << i << ": " << take_info->mName.Buffer());
+            Logger::log("Animation Stack " + std::to_string(i) + ": " + take_info->mName.Buffer());
 
             fbxsdk::FbxAnimStack *toProcess = fbxsdk::FbxCast<fbxsdk::FbxAnimStack>(
                 scene->GetSrcObject(fbxsdk::FbxCriteria::ObjectType(fbxsdk::FbxAnimStack::ClassId), i));
 
             // fbxsdk::FbxAnimStack *anim = scene->GetSrcObject<fbxsdk::FbxAnimStack>(i);
+            // std::string to_process_name = Util::sanitizeString(toProcess->GetName());
+            // toProcess->SetName(to_process_name.c_str());
             processAnimationStack(toProcess);
         }
 
@@ -83,21 +88,26 @@ void FbxParser::init(bool for_hitbox) {
         skeleton_processor.processSkeletonHierarchy(scene->GetRootNode());
 
         // export joints
-        createFolder("./output/JointList");
+        Util::createFolder("./output/JointList");
         skeleton_processor.exportJointList("./output/JointList");
 
         //process all nodes for export - this processes meshes
-        processNodes(scene->GetRootNode(), "", "./output");
+        processNodes(scene->GetRootNode(), "./output");
     }
 
     importer->Destroy();
 }
 
-void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string depth, std::string parent_directory) {
+void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string parent_directory) {
+    Logger::stepIn();
+
+    // Sanitize the node name for the sake of safety
+    // std::string to_process_name = Util::sanitizeString(node->GetName());
+    // node->SetName(to_process_name.c_str());
 
     //create folder for this node
     std::string node_directory = parent_directory + "/" + node->GetName();
-    createFolder(node_directory);
+    Util::createFolder(node_directory);
 
     const int child_count = node->GetChildCount();
 
@@ -111,16 +121,15 @@ void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string depth, std::stri
     fbxsdk::FbxNodeAttribute *attribute = node->GetNodeAttribute();
 
     if (attribute) {
-        DEBUG("Attribute: " << attribute->GetAttributeType());
-
+        Logger::log("- Attribute: " + std::to_string((int)attribute->GetAttributeType()));
         if (attribute->GetAttributeType() == fbxsdk::FbxNodeAttribute::eMesh) {
-            DEBUG(depth << " - Node has mesh");
+            Logger::log("- Node has mesh");
             fbxsdk::FbxMesh *mesh = node->GetMesh();
-            DEBUG(depth << " - Number of Polygons: " << mesh->GetPolygonCount());
+            Logger::log("- Number of Polygons: " + std::to_string(mesh->GetPolygonCount()));
             // check to see if this is a skinned mesh
-            DEBUG(depth << " - Mesh has " << mesh->GetDeformerCount() << " deformers");
+            Logger::log("- Mesh has " + std::to_string(mesh->GetDeformerCount()) + std::string(" deformers"));
             if (mesh->GetDeformerCount() > 0) {
-                DEBUG(depth << " - Processing deformers for this mesh");
+                Logger::log(" - Processing deformers for this mesh");
                 std::vector<ControlPointBoneWeights> temp = skeleton_processor.processDeformers(node);
                 processSkinnedMesh(mesh, node_directory, temp);
             } else
@@ -139,11 +148,13 @@ void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string depth, std::stri
 
     // create folder for children
     std::string children_directory = node_directory + "/children";
-    createFolder(children_directory);
+    Util::createFolder(children_directory);
 
     for (int i = 0; i < child_count; i++) {
-        processNodes(node->GetChild(i), depth + "    ", children_directory);
+        processNodes(node->GetChild(i), children_directory);
     }
+
+    Logger::stepUp();
 }
 
 void FbxParser::writeNodeTranslationInformtion(fbxsdk::FbxNode *node, std::string node_directory) {
@@ -160,12 +171,12 @@ void FbxParser::writeNodeTranslationInformtion(fbxsdk::FbxNode *node, std::strin
                                          rotation[2] + postTargetRotation[2]);
     glm::vec3 scalingVector = glm::vec3(scaling[0], scaling[1], scaling[2]);
 
-    // prints node information, useful for debug and verifying that fbx file has expected values
-    DEBUG("Node: " << node->GetName());
-    DEBUG(" - translation: " << translation[0] << ", " << translation[1] << ", " << translation[2]);
-    DEBUG(" - rotation:    " << rotation[0] << ", " << rotation[1] << ", " << rotation[2]);
-    DEBUG(" - rotation2:   " << rotationVector[0] << ", " << rotationVector[1] << ", " << rotationVector[2]);
-    DEBUG(" - scaling:     " << scaling[0] << ", " << scaling[1] << ", " << scaling[2]);
+    // prints node information, useful for Logger::log and verifying that fbx file has expected values
+    Logger::log("Node: " + std::string(node->GetName()));
+    Logger::log(" - translation: " + std::to_string(translation[0]) + ", " + std::to_string(translation[1]) + ", " + std::to_string(translation[2]));
+    Logger::log(" - rotation:    " + std::to_string(rotation[0]) + ", " + std::to_string(rotation[1]) + ", " + std::to_string(rotation[2]));
+    Logger::log(" - rotation2:   " + std::to_string(rotationVector[0]) + ", " + std::to_string(rotationVector[1]) + ", " + std::to_string(rotationVector[2]));
+    Logger::log(" - scaling:     " + std::to_string(scaling[0]) + ", " + std::to_string(scaling[1]) + ", " + std::to_string(scaling[2]));
 
     //export transform data
 
@@ -189,7 +200,7 @@ void FbxParser::writeNodeTranslationInformtion(fbxsdk::FbxNode *node, std::strin
 void FbxParser::processMesh(fbxsdk::FbxMesh *mesh, std::string parent_directory) {
     int mesh_index = 0;
     if (mesh_optimizer.checkExists(mesh)) {
-        DEBUG("Mesh exists: " << mesh_optimizer.getIndex(mesh));
+        Logger::log("Mesh exists: " + std::to_string(mesh_optimizer.getIndex(mesh)));
         mesh_index = mesh_optimizer.getIndex(mesh);
 
     } else {
@@ -199,7 +210,7 @@ void FbxParser::processMesh(fbxsdk::FbxMesh *mesh, std::string parent_directory)
 
         int num_polygons = mesh->GetPolygonCount();
         const fbxsdk::FbxVector4 *control_points = mesh->GetControlPoints();
-        DEBUG("control point count: " << mesh->GetControlPointsCount());
+        Logger::log("control point count: " + std::to_string(mesh->GetControlPointsCount()));
         for (int i = 0; i < num_polygons; i++) {
             for (int j = 0; j < 3; j++) {
                 int vertex_index = mesh->GetPolygonVertex(i, j);
@@ -231,7 +242,7 @@ void FbxParser::processMesh(fbxsdk::FbxMesh *mesh, std::string parent_directory)
 void FbxParser::processSkinnedMesh(fbxsdk::FbxMesh *mesh, std::string parent_directory, std::vector<ControlPointBoneWeights> &bone_weights) {
     int mesh_index = 0;
     if (skinned_mesh_optimizer.checkExists(mesh)) {
-        DEBUG("Mesh exists: " << skinned_mesh_optimizer.getIndex(mesh));
+        Logger::log("Mesh exists: " + std::to_string(skinned_mesh_optimizer.getIndex(mesh)));
         mesh_index = skinned_mesh_optimizer.getIndex(mesh);
 
     } else {
@@ -241,7 +252,7 @@ void FbxParser::processSkinnedMesh(fbxsdk::FbxMesh *mesh, std::string parent_dir
 
         int num_polygons = mesh->GetPolygonCount();
         const fbxsdk::FbxVector4 *control_points = mesh->GetControlPoints();
-        DEBUG("control point count: " << mesh->GetControlPointsCount());
+        Logger::log("control point count: " + std::to_string(mesh->GetControlPointsCount()));
         for (int i = 0; i < num_polygons; i++) {
             for (int j = 0; j < 3; j++) {
                 int vertex_index = mesh->GetPolygonVertex(i, j);
@@ -386,10 +397,10 @@ glm::vec2 FbxParser::getUV(fbxsdk::FbxMesh *mesh, int control_point_index, int v
 // =============================================Processing Animations===================================
 
 void FbxParser::processAnimationStack(fbxsdk::FbxAnimStack *animation_stack) {
-    createFolder(std::string("./output/AnimationStacks/") + std::string(animation_stack->GetName()));
+    Util::createFolder(std::string("./output/AnimationStacks/") + std::string(animation_stack->GetName()));
     int num_layers = animation_stack->GetMemberCount(FbxCriteria::ObjectType(fbxsdk::FbxAnimLayer::ClassId));
 
-    DEBUG("layers: " << num_layers);
+    Logger::log("layers: " + std::to_string(num_layers));
 
     //create folders for all layers in this animation stack and add them and their directories to
     // lists to use later when processing nodes
@@ -401,7 +412,7 @@ void FbxParser::processAnimationStack(fbxsdk::FbxAnimStack *animation_stack) {
         // std::cout << "Layers: " << layer << " " << layer2 << std::endl;
 
         std::string layer_dir = std::string("./output/AnimationStacks/") + animation_stack->GetName() + std::string("/") + layer->GetName();
-        createFolder(layer_dir);
+        Util::createFolder(layer_dir);
 
         animations.push_back(layer);
         animation_directories.push_back(layer_dir);
@@ -411,7 +422,7 @@ void FbxParser::processAnimationStack(fbxsdk::FbxAnimStack *animation_stack) {
 // check if a node is animated, if so, the animation curve is processed and exported
 void FbxParser::processNodeForAnimation(fbxsdk::FbxNode *node) {
     for (int i = 0; i < animations.size(); i++) {
-        DEBUG("Processing animation " << i);
+        Logger::log("Processing animation " + std::to_string(i));
 
         // go through all animations, and check for animation curves that affect this node
         fbxsdk::FbxAnimCurve *pos_x_curve = node->LclTranslation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_X);
@@ -442,9 +453,8 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
             fbxsdk::FbxAnimCurveKey zkey = z_curve->KeyGet(k);
 
             if (!(xkey.GetTime().GetSecondDouble() == ykey.GetTime().GetSecondDouble() && xkey.GetTime().GetSecondDouble() == zkey.GetTime().GetSecondDouble()))
-                DEBUG("====================================================\n\n\n\n\n"
-                      << "Times not equal for all keyframes. \n"
-                      << "This will cause artifacts in animations due to innacurate values");
+                Logger::log("====================================================\n\n\n\n\n" +
+                            std::string("Times not equal for all keyframes. \n") + std::string("This will cause artifacts in animations due to innacurate values"));
 
             Keyframe key = Keyframe();
             key.time = xkey.GetTime().GetSecondDouble();
@@ -458,11 +468,11 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
         //save keys to file
 
         std::string animation_curve_dir = animation_directories[animation_index] + "/" + node->GetName();
-        createFolder(animation_curve_dir);
-        std::string curve_fname = sanitizeString(animation_curve_dir + "/" + filename);
+        Util::createFolder(animation_curve_dir);
+        std::string curve_fname = Util::sanitizeString(animation_curve_dir + "/" + filename);
         std::ofstream key_file(curve_fname, std::ios::out | std::ios::binary);
         if (!key_file) {
-            ERROR("Could not open file " << curve_fname);
+            Logger::error("Could not open file " + curve_fname);
         } else {
             key_file.write((const char *)&key_list[0], key_list.size() * sizeof(Keyframe));
             key_file.close();
@@ -474,25 +484,28 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
 
 // processes nodes for hitboxes. this means only processing for meshes, and only adds hitboxes to existing node folders.
 // this function will not create folders for the nodes, they must already be existing.
-void FbxParser::processNodesForHitbox(fbxsdk::FbxNode *node, std::string depth, std::string parent_directory) {
+void FbxParser::processNodesForHitbox(fbxsdk::FbxNode *node, std::string parent_directory) {
+
+    // Sanitize the node name for the sake of safety
+    // std::string to_process_name = Util::sanitizeString(node->GetName());
+    // node->SetName(to_process_name.c_str());
 
     std::string node_directory = parent_directory + "/" + node->GetName();
 
     const int child_count = node->GetChildCount();
 
-    DEBUG(depth << "Node: " << node->GetName());
+    Logger::log("Node: " + std::string(node->GetName()));
 
     // Create directory and write translation info if necessary
     if (!fs::exists(node_directory)) {
-        std::cout << "CREATING NEW DIRECTORY FOR HITBOX: " << node_directory << std::endl;
-        createFolder(node_directory);
+        Util::createFolder(node_directory);
         writeNodeTranslationInformtion(node, node_directory);
     }
 
     fbxsdk::FbxNodeAttribute *attribute = node->GetNodeAttribute();
     if (attribute) {
         if (attribute->GetAttributeType() == fbxsdk::FbxNodeAttribute::eMesh) {
-            DEBUG(depth << " - Node has mesh");
+            Logger::log(" - Node has mesh");
             fbxsdk::FbxMesh *mesh = node->GetMesh();
             processMeshForHitbox(mesh, node_directory);
         }
@@ -501,7 +514,7 @@ void FbxParser::processNodesForHitbox(fbxsdk::FbxNode *node, std::string depth, 
     std::string children_directory = node_directory + "/children";
 
     for (int i = 0; i < child_count; i++) {
-        processNodesForHitbox(node->GetChild(i), depth + "    ", children_directory);
+        processNodesForHitbox(node->GetChild(i), children_directory);
     }
 }
 
@@ -510,7 +523,7 @@ void FbxParser::processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string node_dir
 
     int mesh_index = 0;
     if (hitbox_optimizer.checkExists(mesh)) {
-        DEBUG("Mesh exists: " << hitbox_optimizer.getIndex(mesh));
+        Logger::log("Mesh exists: " + std::to_string(hitbox_optimizer.getIndex(mesh)));
         mesh_index = hitbox_optimizer.getIndex(mesh);
 
     } else {
@@ -520,7 +533,7 @@ void FbxParser::processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string node_dir
 
         int num_polygons = mesh->GetPolygonCount();
         const fbxsdk::FbxVector4 *control_points = mesh->GetControlPoints();
-        DEBUG("control point count: " << mesh->GetControlPointsCount());
+        Logger::log("control point count: " + std::to_string(mesh->GetControlPointsCount()));
         for (int i = 0; i < num_polygons; i++) {
             for (int j = 0; j < 3; j++) {
                 int vertex_index = mesh->GetPolygonVertex(i, j);

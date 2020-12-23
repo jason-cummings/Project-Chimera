@@ -1,4 +1,5 @@
-#include "FbxParser.h"
+#include "FbxParser.hpp"
+#include "Logger.hpp"
 #include "Util.hpp"
 #include <string>
 
@@ -15,7 +16,7 @@ int main(int argc, char **argv) {
         if (arg_str.compare("-h") == 0) {
             for_hitbox = true;
         } else if (arg_str.compare("-d") == 0) {
-            Util::enableDebug();
+            Logger::enableLog();
         }
     }
 
