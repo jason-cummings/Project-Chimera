@@ -1,7 +1,5 @@
 #include "Util.hpp"
 
-bool Util::debug_print = false;
-
 const char *str_match = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_./\\";
 
 bool is_special_char(char c) {
@@ -14,7 +12,6 @@ std::string Util::sanitizeString(std::string directory) {
     return directory;
 }
 
-// creates a folder given a directory name
 void Util::createFolder(std::string directory) {
     std::string sanitized_directory = sanitizeString(directory);
     if (!fs::create_directory(fs::path(sanitized_directory))) {

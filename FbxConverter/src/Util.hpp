@@ -22,12 +22,8 @@ inline bool is_dir(fs::directory_entry ent) { return ent.is_directory(); }
 class Util {
 private:
     Util();
-    static bool debug_print;
 
 public:
-    static void enableDebug() { debug_print = true; }
-    static bool isDebugEnabled() { return debug_print; }
-
     // Remove special characters that will cause errors trying to create a file or directory
     static std::string sanitizeString(std::string directory);
 

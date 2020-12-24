@@ -7,7 +7,7 @@ void SkeletonProcessor::processSkeletonHierarchyRecursive(fbxsdk::FbxNode *node,
     if (node->GetNodeAttribute() && node->GetNodeAttribute()->GetAttributeType() && node->GetNodeAttribute()->GetAttributeType() == fbxsdk::FbxNodeAttribute::eSkeleton) {
         Joint j;
         j.parent_index = parentIndex;
-        j.name = node->GetName();
+        j.name = Util::sanitizeString(node->GetName());
         joint_hierarchy.push_back(j);
 
         // debug
@@ -74,7 +74,7 @@ std::vector<ControlPointBoneWeights> SkeletonProcessor::processDeformers(fbxsdk:
             int num_clusters = skin->GetClusterCount();
             for (int cluster_i = 0; cluster_i < num_clusters; cluster_i++) {
                 FbxCluster *cluster = skin->GetCluster(cluster_i);
-                int joint_index = associateNameToJoint(cluster->GetLink()->GetName());
+                int joint_index = associateNameToJoint(Util::sanitizeString(cluster->GetLink()->GetName()));
 
                 associateJointsAndControlPoints(cluster, joint_index, bone_weights);
             }
