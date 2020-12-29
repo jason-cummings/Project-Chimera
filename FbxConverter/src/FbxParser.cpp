@@ -432,23 +432,21 @@ void FbxParser::processNodeForAnimation(fbxsdk::FbxNode *node) {
         fbxsdk::FbxAnimCurve *pos_y_curve = node->LclTranslation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_Y);
         fbxsdk::FbxAnimCurve *pos_z_curve = node->LclTranslation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_Z);
 
-        saveKeyframes(node, pos_x_curve, pos_y_curve, pos_z_curve, i, "translation");
-
         fbxsdk::FbxAnimCurve *rot_x_curve = node->LclRotation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_X);
         fbxsdk::FbxAnimCurve *rot_y_curve = node->LclRotation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_Y);
         fbxsdk::FbxAnimCurve *rot_z_curve = node->LclRotation.GetCurve(animations[i], FBXSDK_CURVENODE_COMPONENT_Z);
 
+        saveKeyframes(node, pos_x_curve, pos_y_curve, pos_z_curve, i, "translation");
         saveKeyframes(node, rot_x_curve, rot_y_curve, rot_z_curve, i, "rotation");
     }
 }
 
 // exports the keyframes for a node and given animation curves
 void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_curve, fbxsdk::FbxAnimCurve *y_curve, fbxsdk::FbxAnimCurve *z_curve, int animation_index, std::string filename) {
-    std::cout << x_curve << " " << y_curve << " " << z_curve << std::endl;
     if (!x_curve && !y_curve && !z_curve) {
         return;
     }
-    std::cout << "Saving keyframes for " << filename << std::endl;
+    std::cout << "Saving keyframes for " << filename << " on node " << node->GetName() << std::endl;
 
     std::vector<Keyframe> key_list;
     int keyframe_count = x_curve ? x_curve->KeyGetCount() : y_curve ? y_curve->KeyGetCount() : z_curve ? z_curve->KeyGetCount() : 0;
@@ -465,7 +463,7 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
             key.value[0] = xkey.GetValue();
             key.time = xkey.GetTime().GetSecondDouble();
         } else {
-            key.value[0] = default_translation[0];
+            key.value[0] = static_cast<double>(default_translation[0]);
         }
 
         if (y_curve) {
@@ -473,7 +471,7 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
             key.value[1] = ykey.GetValue();
             key.time = ykey.GetTime().GetSecondDouble();
         } else {
-            key.value[1] = default_translation[1];
+            key.value[1] = static_cast<double>(default_translation[1]);
         }
 
         if (z_curve) {
@@ -481,7 +479,7 @@ void FbxParser::saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_cur
             key.value[2] = zkey.GetValue();
             key.time = zkey.GetTime().GetSecondDouble();
         } else {
-            key.value[2] = default_translation[2];
+            key.value[2] = static_cast<double>(default_translation[2]);
         }
 
         if (key.time == -1.f) {

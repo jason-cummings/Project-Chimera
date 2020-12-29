@@ -13,7 +13,7 @@
 
 struct Keyframe {
     double time;
-    glm::vec3 value;
+    double value[3];
 };
 
 class FbxParser {
