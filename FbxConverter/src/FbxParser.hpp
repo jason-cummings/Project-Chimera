@@ -1,20 +1,16 @@
 #ifndef FBX_PARSER_H
 #define FBX_PARSER_H
 
-#include "Animation.hpp"
-#include "DataOptimizer.hpp"
-#include "MaterialProcessor.hpp"
-#include "MeshExporter.hpp"
 #include <exception>
 #include <fbxsdk.h>
 #include <glm/glm.hpp>
 #include <iostream>
 #include <string>
 
-struct Keyframe {
-    double time;
-    double value[3];
-};
+#include "DataOptimizer.hpp"
+#include "MeshExporter.hpp"
+#include "processors/MaterialProcessor.hpp"
+#include "processors/SkeletonProcessor.hpp"
 
 class FbxParser {
 private:
@@ -22,18 +18,10 @@ private:
     fbxsdk::FbxManager *manager;
     fbxsdk::FbxScene *scene;
 
-    std::vector<fbxsdk::FbxAnimLayer *> animations;
-    std::vector<std::string> animation_directories;
-
     // data optimizers
     DataOptimizer mesh_optimizer;
     DataOptimizer skinned_mesh_optimizer;
     DataOptimizer hitbox_optimizer;
-
-    MaterialProcessor material_processor;
-
-    // processor for joints
-    SkeletonProcessor skeleton_processor;
 
     // iterates through all nodes and exports them
     void processNodes(fbxsdk::FbxNode *node, std::string parent_directory);
@@ -53,11 +41,6 @@ private:
     // if -h option is used when running program, these functions will be used to process only meshes and export them as hitboxes
     void processNodesForHitbox(fbxsdk::FbxNode *node, std::string parent_directory);
     void processMeshForHitbox(fbxsdk::FbxMesh *mesh, std::string parent_directory);
-
-    // processes animation data
-    void processAnimationStack(fbxsdk::FbxAnimStack *animation_stack);
-    void processNodeForAnimation(fbxsdk::FbxNode *node);
-    void saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_curve, fbxsdk::FbxAnimCurve *y_curve, fbxsdk::FbxAnimCurve *z_curve, int animation_index, std::string filename);
 
 public:
     FbxParser(std::string filename);

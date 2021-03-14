@@ -45,6 +45,7 @@ public:
     // returns index for this data set and creates a directory to store this data
     int addData(void *pointer) {
         most_recently_added_index++;
+        std::cout << base_directory << ": " << most_recently_added_index << std::endl;
         indexes[pointer] = most_recently_added_index;
         Util::createFolder(base_directory + std::string("/") + std::to_string(most_recently_added_index));
         return most_recently_added_index;

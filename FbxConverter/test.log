@@ -1,0 +1,1185 @@
+Beginning primary pass
+Animation stack info
+    Number of animation stacks: 1
+    Animation Stack 0: Scene
+    layers: 1
+     - layer name: Scene
+Processing skeleton hierarchy
+Processing joints
+Processing scene nodes
+    Node: RootNode
+     - translation: 0.000000, 0.000000, 0.000000
+     - rotation:    0.000000, 0.000000, 0.000000
+     - rotation2:   0.000000, 0.000000, 0.000000
+     - scaling:     1.000000, 1.000000, 1.000000
+Initing Materials
+        Node: ground
+         - translation: 0.000000, 0.000000, 0.000000
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 1
+         - control point count: 8
+Got Mat ice: 000001E7659D9D70
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Got index 1
+        Processing phong material ice
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/ice.png
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nbar1
+         - translation: -25.025543, 4.953482, -8.122689
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 2
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nbar2
+         - translation: -25.025543, 4.953482, -8.128464
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 3
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nbar3
+         - translation: -25.025543, 4.953482, -8.237956
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 4
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nbar4
+         - translation: -25.025543, 4.953482, -8.407583
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 5
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nbar5
+         - translation: -25.025543, 4.953482, -8.615319
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 6
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nbar6
+         - translation: -25.025543, 4.953482, -8.839898
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 7
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: sbar1
+         - translation: -25.025543, 4.267988, 8.102967
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 8
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: sbar2
+         - translation: -25.025543, 4.267988, 8.199145
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 9
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: sbar3
+         - translation: -25.025543, 4.267988, 8.341500
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 10
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: sbar4
+         - translation: -25.025543, 4.267988, 8.543990
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 11
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: sbar5
+         - translation: -25.025543, 4.267988, 8.733902
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 12
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: sbar6
+         - translation: -25.025543, 4.267988, 9.008053
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 20
+        - Mesh has 0 deformers
+./output/Meshes: 13
+         - control point count: 13
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: ewall
+         - translation: 23.000000, 0.000000, 0.000000
+         - rotation:    -89.999996, 89.999996, 0.000000
+         - rotation2:   -89.999992, 89.999992, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 14
+         - control point count: 8
+Got Mat bricks: 000001E765A122E0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material bricks
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/bricks.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: wwall2
+         - translation: -25.000000, 0.000000, 17.000000
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 15
+         - control point count: 8
+Got Mat bricks: 000001E765A122E0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material bricks
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/bricks.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: nwall
+         - translation: 0.000000, 0.000000, -25.000000
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 16
+         - control point count: 8
+Got Mat bricks: 000001E765A122E0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material bricks
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/bricks.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: swall
+         - translation: 0.000000, 0.000000, 25.000000
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 17
+         - control point count: 8
+Got Mat bricks: 000001E765A122E0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material bricks
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/bricks.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: wwall1
+         - translation: -25.000000, 0.000000, -17.000000
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 18
+         - control point count: 8
+Got Mat bricks: 000001E765A122E0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material bricks
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/bricks.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: elevator
+         - translation: -20.000000, 0.084532, -20.000000
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 12
+        - Mesh has 0 deformers
+./output/Meshes: 19
+         - control point count: 8
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: horns
+         - translation: -25.000000, 1.200000, -6.672790
+         - rotation:    -90.000009, 0.000000, 0.000000
+         - rotation2:   -90.000008, 0.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 1264
+        - Mesh has 0 deformers
+./output/Meshes: 20
+         - control point count: 690
+Got Mat bricks: 000001E765A122E0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material bricks
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/bricks.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+        Node: pots1
+         - translation: -0.247467, -0.000001, 0.645445
+         - rotation:    -89.999996, 142.321649, -0.000000
+         - rotation2:   -89.999992, 142.321655, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 284
+        - Mesh has 0 deformers
+./output/Meshes: 21
+         - control point count: 144
+Got Mat pot: 000001E765A68020
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material pot
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 0.395102
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_pot.png
+         - emissive:  0 
+         - shininess: 0.395102
+            Node: Bowl
+             - translation: -0.334197, 0.051319, -0.000000
+             - rotation:    0.000000, -0.000000, 64.448156
+             - rotation2:   0.000000, 0.000000, 64.448158
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 476
+            - Mesh has 0 deformers
+./output/Meshes: 22
+             - control point count: 240
+Got Mat bowl: 000001E765A1C9F0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material bowl
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 0.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_bowl.png
+             - emissive:  0 
+             - shininess: 0.000000
+            Node: TallPot
+             - translation: -0.129750, 0.344361, 0.001656
+             - rotation:    0.000000, -0.000000, 141.133865
+             - rotation2:   0.000000, 0.000000, 141.133865
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 620
+            - Mesh has 0 deformers
+./output/Meshes: 23
+             - control point count: 312
+Got Mat bong: 000001E765A6C250
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material bong
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 0.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_bong.png
+             - emissive:  0 
+             - shininess: 0.000000
+            Node: TallPotSide
+             - translation: -0.036307, -0.268150, 0.182416
+             - rotation:    -107.818156, 64.171000, 72.072778
+             - rotation2:   -107.818153, 64.170998, 72.072777
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 620
+            - Mesh has 0 deformers
+./output/Meshes: 24
+             - control point count: 312
+Got Mat bong: 000001E765A6C250
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material bong
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 0.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_bong.png
+             - emissive:  0 
+             - shininess: 0.000000
+        Node: pots2
+         - translation: -0.595545, 0.000000, 0.253704
+         - rotation:    -90.000009, 33.501883, 0.000000
+         - rotation2:   -90.000008, 33.501884, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 284
+        - Mesh has 0 deformers
+./output/Meshes: 25
+         - control point count: 144
+Got Mat pot: 000001E765A68020
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material pot
+         - specular:  0.800000, 0.800000, 0.800000
+         - shininess: 0.395102
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_pot.png
+         - emissive:  0 
+         - shininess: 0.395102
+            Node: Bowl.001
+             - translation: -0.334196, 0.051319, -0.000000
+             - rotation:    0.000000, -0.000000, 64.448156
+             - rotation2:   0.000000, 0.000000, 64.448158
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 476
+            - Mesh has 0 deformers
+./output/Meshes: 26
+             - control point count: 240
+Got Mat bowl: 000001E765A1C9F0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material bowl
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 0.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_bowl.png
+             - emissive:  0 
+             - shininess: 0.000000
+            Node: TallPot.001
+             - translation: -0.129750, 0.344361, 0.001656
+             - rotation:    0.000000, -0.000000, 141.133865
+             - rotation2:   0.000000, 0.000000, 141.133865
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 620
+            - Mesh has 0 deformers
+./output/Meshes: 27
+             - control point count: 312
+Got Mat bong: 000001E765A6C250
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material bong
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 0.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_bong.png
+             - emissive:  0 
+             - shininess: 0.000000
+            Node: TallPotSide.001
+             - translation: -0.036307, -0.268150, 0.182416
+             - rotation:    -107.818136, 64.170966, 72.072778
+             - rotation2:   -107.818138, 64.170967, 72.072777
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 620
+            - Mesh has 0 deformers
+./output/Meshes: 28
+             - control point count: 312
+Got Mat bong: 000001E765A6C250
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material bong
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 0.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/terracotta_bong.png
+             - emissive:  0 
+             - shininess: 0.000000
+        Node: brazier
+         - translation: 0.000000, 0.000000, 0.000000
+         - rotation:    -90.000009, 45.000001, 0.000000
+         - rotation2:   -90.000008, 45.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 184
+        - Mesh has 0 deformers
+./output/Meshes: 29
+         - control point count: 100
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+            Node: base.001
+             - translation: 0.000000, 0.000000, 0.468737
+             - rotation:    0.000000, 0.000000, -45.000001
+             - rotation2:   0.000000, 0.000000, -45.000000
+             - scaling:     0.308180, 0.308180, 0.006296
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 12
+            - Mesh has 0 deformers
+./output/Meshes: 30
+             - control point count: 8
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: coals.001
+             - translation: 0.000000, 0.000000, 0.474374
+             - rotation:    0.000000, 0.000000, -30.000001
+             - rotation2:   0.000000, 0.000000, -30.000000
+             - scaling:     0.301553, 0.301553, 0.301553
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 58
+            - Mesh has 0 deformers
+./output/Meshes: 31
+             - control point count: 36
+Got Mat Coals: 000001E765A6C470
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material Coals
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/coals.jpg
+             - emissive:  1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/coals.jpg
+             - shininess: 25.000000
+            Node: hhold.001
+             - translation: 0.000000, 0.000000, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+./output/Meshes: 32
+             - control point count: 26
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: lhold
+             - translation: 0.000000, 0.000000, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+./output/Meshes: 33
+             - control point count: 26
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: mhold
+             - translation: 0.000000, 0.000000, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+./output/Meshes: 34
+             - control point count: 26
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: sides
+             - translation: 0.000000, 0.000000, 0.000000
+             - rotation:    0.000000, -0.000000, 45.000015
+             - rotation2:   0.000000, 0.000000, 45.000015
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 360
+            - Mesh has 0 deformers
+./output/Meshes: 35
+             - control point count: 204
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+        Node: brazier1
+         - translation: -22.203524, -0.000001, 6.989617
+         - rotation:    -90.000009, 45.000001, 0.000000
+         - rotation2:   -90.000008, 45.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 184
+        - Mesh has 0 deformers
+         - Mesh exists: 29
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+            Node: base.003
+             - translation: 0.000000, -0.000001, 0.468737
+             - rotation:    0.000000, 0.000000, -45.000001
+             - rotation2:   0.000000, 0.000000, -45.000000
+             - scaling:     0.308180, 0.308180, 0.006296
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 12
+            - Mesh has 0 deformers
+             - Mesh exists: 30
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: coals.003
+             - translation: 0.000000, -0.000001, 0.474374
+             - rotation:    0.000000, 0.000000, -30.000001
+             - rotation2:   0.000000, 0.000000, -30.000000
+             - scaling:     0.301553, 0.301553, 0.301553
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 58
+            - Mesh has 0 deformers
+             - Mesh exists: 31
+Got Mat Coals: 000001E765A6C470
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material Coals
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/coals.jpg
+             - emissive:  1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/coals.jpg
+             - shininess: 25.000000
+            Node: hhold.003
+             - translation: 0.000000, -0.000001, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+             - Mesh exists: 32
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: lhold.003
+             - translation: 0.000000, -0.000001, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+             - Mesh exists: 33
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: mhold.003
+             - translation: 0.000000, -0.000001, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+             - Mesh exists: 34
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: sides.003
+             - translation: 0.000000, -0.000001, 0.000000
+             - rotation:    0.000000, -0.000000, 45.000015
+             - rotation2:   0.000000, 0.000000, 45.000015
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 360
+            - Mesh has 0 deformers
+             - Mesh exists: 35
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+        Node: brazier2
+         - translation: -22.000000, 0.000000, -7.000000
+         - rotation:    -90.000009, 45.000001, 0.000000
+         - rotation2:   -90.000008, 45.000000, 0.000000
+         - scaling:     1.000000, 1.000000, 1.000000
+        - Attribute: 4
+        - Node has mesh
+        - Number of Polygons: 184
+        - Mesh has 0 deformers
+         - Mesh exists: 29
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592E620
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+        Processing phong material iron
+         - specular:  1.000000, 1.000000, 1.000000
+         - shininess: 25.000000
+         - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+         - emissive:  0 
+         - shininess: 25.000000
+            Node: base.004
+             - translation: 0.000000, 0.000002, 0.468737
+             - rotation:    0.000000, 0.000000, -45.000001
+             - rotation2:   0.000000, 0.000000, -45.000000
+             - scaling:     0.308180, 0.308180, 0.006296
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 12
+            - Mesh has 0 deformers
+             - Mesh exists: 30
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: coals.002
+             - translation: 0.000000, 0.000002, 0.474374
+             - rotation:    0.000000, 0.000000, -30.000001
+             - rotation2:   0.000000, 0.000000, -30.000000
+             - scaling:     0.301553, 0.301553, 0.301553
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 58
+            - Mesh has 0 deformers
+             - Mesh exists: 31
+Got Mat Coals: 000001E765A6C470
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material Coals
+             - specular:  0.800000, 0.800000, 0.800000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/coals.jpg
+             - emissive:  1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/coals.jpg
+             - shininess: 25.000000
+            Node: hhold.004
+             - translation: 0.000000, 0.000002, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+             - Mesh exists: 32
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: lhold.004
+             - translation: 0.000000, 0.000002, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+             - Mesh exists: 33
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: mhold.004
+             - translation: 0.000000, 0.000002, 0.000000
+             - rotation:    0.000000, -0.000000, 44.999994
+             - rotation2:   0.000000, 0.000000, 44.999996
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 48
+            - Mesh has 0 deformers
+             - Mesh exists: 34
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+            Node: sides.004
+             - translation: 0.000000, 0.000002, 0.000000
+             - rotation:    0.000000, -0.000000, 45.000015
+             - rotation2:   0.000000, 0.000000, 45.000015
+             - scaling:     1.000000, 1.000000, 1.000000
+            - Attribute: 4
+            - Node has mesh
+            - Number of Polygons: 360
+            - Mesh has 0 deformers
+             - Mesh exists: 35
+Got Mat iron: 000001E7659D8BF0
+Checking with optimizer: 0000008FB592DDB0
+./output/Materials: 1
+Error creating directory: ./output/Materials/1
+Got index 1
+            Processing phong material iron
+             - specular:  1.000000, 1.000000, 1.000000
+             - shininess: 25.000000
+             - diffuse:   1 C:\Users\Jason Cummings\Documents\chimera\FbxConverter\shared-fbx\icecastle3.fbm/iron.jpg
+             - emissive:  0 
+             - shininess: 25.000000
+Beginning hitbox pass
+Node: RootNode
+Node: ground
+ - Node has mesh
+./output/Hitboxes: 1
+control point count: 8
+Node: nbar1
+ - Node has mesh
+./output/Hitboxes: 2
+control point count: 13
+Node: nbar2
+ - Node has mesh
+./output/Hitboxes: 3
+control point count: 13
+Node: nbar3
+ - Node has mesh
+./output/Hitboxes: 4
+control point count: 13
+Node: nbar4
+ - Node has mesh
+./output/Hitboxes: 5
+control point count: 13
+Node: nbar5
+ - Node has mesh
+./output/Hitboxes: 6
+control point count: 13
+Node: nbar6
+ - Node has mesh
+./output/Hitboxes: 7
+control point count: 13
+Node: sbar1
+ - Node has mesh
+./output/Hitboxes: 8
+control point count: 13
+Node: sbar2
+ - Node has mesh
+./output/Hitboxes: 9
+control point count: 13
+Node: sbar3
+ - Node has mesh
+./output/Hitboxes: 10
+control point count: 13
+Node: sbar4
+ - Node has mesh
+./output/Hitboxes: 11
+control point count: 13
+Node: sbar5
+ - Node has mesh
+./output/Hitboxes: 12
+control point count: 13
+Node: sbar6
+ - Node has mesh
+./output/Hitboxes: 13
+control point count: 13
+Node: ewall
+ - Node has mesh
+./output/Hitboxes: 14
+control point count: 8
+Node: wwall2
+ - Node has mesh
+./output/Hitboxes: 15
+control point count: 8
+Node: nwall
+ - Node has mesh
+./output/Hitboxes: 16
+control point count: 8
+Node: swall
+ - Node has mesh
+./output/Hitboxes: 17
+control point count: 8
+Node: wwall1
+ - Node has mesh
+./output/Hitboxes: 18
+control point count: 8
+Node: elevator
+ - Node has mesh
+./output/Hitboxes: 19
+control point count: 8
+Node: horns
+ - Node has mesh
+./output/Hitboxes: 20
+control point count: 690
+Node: brazier_hit
+Node: brazier_hit
+ - translation: 0.000000, -0.000000, 0.000000
+ - rotation:    -90.000009, 0.000000, 0.000000
+ - rotation2:   -90.000008, 0.000000, 0.000000
+ - scaling:     0.463847, 0.463847, 0.697162
+ - Node has mesh
+./output/Hitboxes: 21
+control point count: 8
+Node: brazier_hit.001
+Node: brazier_hit.001
+ - translation: -22.181265, 0.000001, 6.991768
+ - rotation:    -90.000009, 0.000000, 0.000000
+ - rotation2:   -90.000008, 0.000000, 0.000000
+ - scaling:     0.463847, 0.463847, 0.697162
+ - Node has mesh
+Mesh exists: 21
+Node: brazier_hit.002
+Node: brazier_hit.002
+ - translation: -21.999998, -0.000000, -7.000000
+ - rotation:    -90.000009, 0.000000, 0.000000
+ - rotation2:   -90.000008, 0.000000, 0.000000
+ - scaling:     0.463847, 0.463847, 0.697162
+ - Node has mesh
+Mesh exists: 21
