@@ -17,11 +17,15 @@ enum class BloomMode {
 };
 
 class UserSettings {
-  private:
+private:
     static std::string settingsPath();
     static void assignSetting(std::string setting, std::string value);
 
-  public:
+    UserSettings() {}
+    UserSettings(const UserSettings &) = delete;
+    UserSettings &operator=(const UserSettings &) = delete;
+
+public:
     static void loadFromFile();
     static void writeToFile();
 

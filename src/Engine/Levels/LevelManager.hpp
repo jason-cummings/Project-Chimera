@@ -6,10 +6,12 @@
 #include "Level.hpp"
 
 class LevelManager {
-  private:
+private:
     LevelManager() {}
+    LevelManager(const LevelManager &) = delete;
+    LevelManager &operator=(const LevelManager &) = delete;
 
-  public:
+public:
     static Level *getLevel(std::string name);
 };
 

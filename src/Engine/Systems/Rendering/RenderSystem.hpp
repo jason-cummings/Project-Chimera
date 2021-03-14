@@ -26,7 +26,7 @@
 #include "Skybox.hpp"
 
 class RenderSystem {
-  private:
+private:
     // Keeping for now for the old shading step
     DirectionalLight *old_sun;
 
@@ -160,11 +160,13 @@ class RenderSystem {
 
     // Singleton constructor
     RenderSystem();
+    RenderSystem(const RenderSystem &) = delete;
+    RenderSystem &operator=(const RenderSystem &) = delete;
 
     // destructor
     ~RenderSystem();
 
-  public:
+public:
     // Get the singleton instance
     static RenderSystem &getRenderSystem();
 

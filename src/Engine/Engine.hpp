@@ -6,7 +6,7 @@
 #include "Window.hpp"
 
 class Engine {
-  private:
+private:
     bool quit;
     Window window;
 
@@ -17,6 +17,8 @@ class Engine {
 
     // Private constructor for singleton instance
     Engine();
+    Engine(const Engine &) = delete;
+    Engine &operator=(const Engine &) = delete;
 
     // Quit the program
     void quitEngine();
@@ -27,7 +29,7 @@ class Engine {
     // Handles inputs given by user.
     void handleSDLEvents();
 
-  public:
+public:
     // Destructor - needs to be updated
     ~Engine();
 
