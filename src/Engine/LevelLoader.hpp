@@ -55,9 +55,6 @@ private:
     std::map<std::string, btBvhTriangleMeshShape *> loaded_collision_shapes;
     std::map<std::string, Material *> loaded_materials;
 
-    //End Game Coordinates
-    glm::vec3 endGameCoordVec;
-
     // Convenience functions
     fs::path levelPath(std::string level_name) const;
     fs::path pathAppend(fs::path in, std::string to_append) const;

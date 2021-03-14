@@ -61,7 +61,6 @@ LevelLoader *LevelLoader::loadLevelFile(std::string name) {
 LevelLoader::LevelLoader(std::string level_name) {
     scene = nullptr;
     joint_list = nullptr;
-    endGameCoordVec = glm::vec3(0.f, 100.f, 0.f);
     createLevel(level_name);
 }
 
