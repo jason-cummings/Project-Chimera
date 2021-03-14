@@ -6,7 +6,9 @@
 
 #include <sstream>
 
-FbxParser::FbxParser(std::string filename) {
+FbxParser::FbxParser(std::string filename) : mesh_optimizer("./output/Meshes"),
+                                             skinned_mesh_optimizer("./output/SkinnedMeshes"),
+                                             hitbox_optimizer("./output/Hitboxes") {
     fbx_filename = filename;
 }
 
@@ -44,10 +46,6 @@ void FbxParser::init(bool for_hitbox) {
     fbxsdk::FbxGeometryConverter geometry_converter(manager);
     geometry_converter.Triangulate(scene, true);
 
-    mesh_optimizer = DataOptimizer("./output/Meshes");
-    skinned_mesh_optimizer = DataOptimizer("./output/SkinnedMeshes");
-    hitbox_optimizer = DataOptimizer("./output/Hitboxes");
-
     if (for_hitbox) {
         // create a folder for hitboxes then process all nodes for hitboxes
         Util::createFolder("./output/Hitboxes");
@@ -78,7 +76,7 @@ void FbxParser::init(bool for_hitbox) {
             //     scene->GetSrcObject(fbxsdk::FbxCriteria::ObjectType(fbxsdk::FbxAnimStack::ClassId), i));
             fbxsdk::FbxAnimStack *toProcess = scene->GetSrcObject<fbxsdk::FbxAnimStack>(i);
 
-            AnimationProcessor anim_processor = AnimationProcessor::getInstance();
+            AnimationProcessor &anim_processor = AnimationProcessor::getInstance();
             anim_processor.processAnimationStack(toProcess);
         }
         Logger::stepUp();
@@ -116,7 +114,7 @@ void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string parent_directory
     writeNodeTranslationInformtion(node, node_directory);
 
     // check if any animations affect this node
-    AnimationProcessor anim_processor = AnimationProcessor::getInstance();
+    AnimationProcessor &anim_processor = AnimationProcessor::getInstance();
     anim_processor.processNodeForAnimation(node);
 
     // check for a mesh and process and export it
@@ -147,7 +145,7 @@ void FbxParser::processNodes(fbxsdk::FbxNode *node, std::string parent_directory
         }
     }
 
-    MaterialProcessor material_processor = MaterialProcessor::getInstance();
+    MaterialProcessor &material_processor = MaterialProcessor::getInstance();
     material_processor.getMaterialsFromNode(node, node_directory);
 
     // create folder for children

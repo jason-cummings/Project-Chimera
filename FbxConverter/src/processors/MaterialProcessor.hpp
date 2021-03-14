@@ -17,6 +17,8 @@ private:
 
     /** Singleton constructor */
     MaterialProcessor(std::string base_dir);
+    MaterialProcessor(const MaterialProcessor &) = delete;
+    MaterialProcessor &operator=(const MaterialProcessor &) = delete;
 
 public:
     /** @return singleton instance */
