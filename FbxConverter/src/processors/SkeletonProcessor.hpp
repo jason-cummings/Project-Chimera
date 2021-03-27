@@ -9,9 +9,9 @@
 #include <vector>
 
 struct Joint {
-    int parent_index;
+    int parentIndex;
     std::string name;
-    void *bone_pointer = NULL;
+    void *bonePointer = NULL;
 };
 
 // keeps track of the bones affecting a vertex and their weights. Has functionality to limit number of joints that can affect a vertex, and only keeps the 4 highest weights
@@ -39,19 +39,19 @@ struct ControlPointBoneWeights {
     }
 
     void addJointWeight(int index, float weight) {
-        int lowest_i = -1;
-        float lowest_weight = 1.0;
+        int lowestI = -1;
+        float lowestWeight = 1.0;
 
         for (int i = 0; i < 4; i++) {
-            if (weights[i] < lowest_weight) {
-                lowest_i = i;
-                lowest_weight = weights[i];
+            if (weights[i] < lowestWeight) {
+                lowestI = i;
+                lowestWeight = weights[i];
             }
         }
 
-        if (lowest_i != -1) {
-            indexes[lowest_i] = index;
-            weights[lowest_i] = weight;
+        if (lowestI != -1) {
+            indexes[lowestI] = index;
+            weights[lowestI] = weight;
         } else {
             std::cout << "Ignoring this joint weight, weight: " << weight << std::endl;
             std::cout << indexes[0] << ", " << weights[0] << std::endl;
@@ -65,10 +65,10 @@ struct ControlPointBoneWeights {
 //maintains a list of all joints in the scene, and is used to associate joints to vertices in meshes, and export the list of joints to files
 class SkeletonProcessor {
 
-    std::vector<Joint> joint_hierarchy;
+    std::vector<Joint> jointHierarchy;
     void processSkeletonHierarchyRecursive(fbxsdk::FbxNode *node, int depth, int index, int parentIndex);
 
-    void associateJointsAndControlPoints(fbxsdk::FbxCluster *cluster, int joint_index, std::vector<ControlPointBoneWeights> &bone_weights);
+    void associateJointsAndControlPoints(fbxsdk::FbxCluster *cluster, int jointIndex, std::vector<ControlPointBoneWeights> &boneWeights);
     int associateNameToJoint(std::string name);
 
     /** Singleton constructor */

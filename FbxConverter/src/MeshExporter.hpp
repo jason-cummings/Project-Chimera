@@ -51,16 +51,16 @@ struct SkinnedVertex {
     // No longer used, switched to the 22 size weight array for performance optimizations.
     // old code is kept here as it may be reused in the future for non-player skinned meshes
 
-    // int joint_index_0 = 0;
-    // float joint_weight_0 = 0.0f;
-    // int joint_index_1 = 0;
-    // float joint_weight_1 = 0.0f;
-    // int joint_index_2 = 0;
-    // float joint_weight_2 = 0.0f;
-    // int joint_index_3 = 0;
-    // float joint_weight_3 = 0.0f;
+    // int jointIndex_0 = 0;
+    // float jointWeight_0 = 0.0f;
+    // int jointIndex_1 = 0;
+    // float jointWeight_1 = 0.0f;
+    // int jointIndex_2 = 0;
+    // float jointWeight_2 = 0.0f;
+    // int jointIndex_3 = 0;
+    // float jointWeight_3 = 0.0f;
 
-    float weight_array[22];
+    float weightArray[22];
 
     friend bool operator==(const SkinnedVertex &v1, const SkinnedVertex &v2);
     friend std::ostream &operator<<(std::ostream &output, const SkinnedVertex &v) {

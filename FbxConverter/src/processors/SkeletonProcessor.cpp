@@ -6,9 +6,9 @@
 void SkeletonProcessor::processSkeletonHierarchyRecursive(fbxsdk::FbxNode *node, int depth, int index, int parentIndex) {
     if (node->GetNodeAttribute() && node->GetNodeAttribute()->GetAttributeType() && node->GetNodeAttribute()->GetAttributeType() == fbxsdk::FbxNodeAttribute::eSkeleton) {
         Joint j;
-        j.parent_index = parentIndex;
+        j.parentIndex = parentIndex;
         j.name = Util::sanitizeString(node->GetName());
-        joint_hierarchy.push_back(j);
+        jointHierarchy.push_back(j);
 
         // debug
         std::cout << "Joint: " << j.name << ", Depth: " << depth << ", Index: " << index << std::endl;
@@ -16,7 +16,7 @@ void SkeletonProcessor::processSkeletonHierarchyRecursive(fbxsdk::FbxNode *node,
 
     for (int i = 0; i < node->GetChildCount(); i++) {
         fbxsdk::FbxNode *child = node->GetChild(i);
-        processSkeletonHierarchyRecursive(child, depth + 1, joint_hierarchy.size(), index);
+        processSkeletonHierarchyRecursive(child, depth + 1, jointHierarchy.size(), index);
     }
 }
 
@@ -25,28 +25,28 @@ void SkeletonProcessor::processSkeletonHierarchyRecursive(fbxsdk::FbxNode *node,
 void SkeletonProcessor::processSkeletonHierarchy(fbxsdk::FbxNode *node) {
     for (int i = 0; i < node->GetChildCount(); i++) {
         fbxsdk::FbxNode *child = node->GetChild(i);
-        processSkeletonHierarchyRecursive(child, 0, joint_hierarchy.size(), -1);
+        processSkeletonHierarchyRecursive(child, 0, jointHierarchy.size(), -1);
     }
 }
 
-// given a joint, iterates through control points that are affected by this joint and adds the weight to the bone_weights vector
-void SkeletonProcessor::associateJointsAndControlPoints(FbxCluster *cluster, int joint_index, std::vector<ControlPointBoneWeights> &bone_weights) {
+// given a joint, iterates through control points that are affected by this joint and adds the weight to the boneWeights vector
+void SkeletonProcessor::associateJointsAndControlPoints(FbxCluster *cluster, int jointIndex, std::vector<ControlPointBoneWeights> &boneWeights) {
 
-    int num_indices = cluster->GetControlPointIndicesCount();
-    for (int i = 0; i < num_indices; i++) {
-        int control_point_index = (cluster->GetControlPointIndices())[i];
+    int numIndices = cluster->GetControlPointIndicesCount();
+    for (int i = 0; i < numIndices; i++) {
+        int controlPointIndex = (cluster->GetControlPointIndices())[i];
         float weight = (cluster->GetControlPointWeights())[i];
 
-        //std::cout << "Index: " << control_point_index << ", Joint: " << joint_index << ", Weight: " << weight << std::endl;
+        //std::cout << "Index: " << controlPointIndex << ", Joint: " << jointIndex << ", Weight: " << weight << std::endl;
 
-        bone_weights[control_point_index].addJointWeight(joint_index, weight);
+        boneWeights[controlPointIndex].addJointWeight(jointIndex, weight);
     }
 }
 
 // given a string, identifies the index of the joint with the specified name
 int SkeletonProcessor::associateNameToJoint(std::string name) {
-    for (int i = 0; i < joint_hierarchy.size(); i++) {
-        if (joint_hierarchy[i].name.compare(name) == 0) {
+    for (int i = 0; i < jointHierarchy.size(); i++) {
+        if (jointHierarchy[i].name.compare(name) == 0) {
             return i;
         }
     }
@@ -62,55 +62,55 @@ SkeletonProcessor &SkeletonProcessor::getInstance() {
 // process skin deformers for this node - used for skeletal animation
 std::vector<ControlPointBoneWeights> SkeletonProcessor::processDeformers(fbxsdk::FbxNode *node) {
     FbxMesh *mesh = node->GetMesh();
-    int num_deformers = mesh->GetDeformerCount(FbxDeformer::eSkin);
+    int numDeformers = mesh->GetDeformerCount(FbxDeformer::eSkin);
 
-    std::vector<ControlPointBoneWeights> bone_weights;
-    bone_weights.reserve(mesh->GetControlPointsCount());
+    std::vector<ControlPointBoneWeights> boneWeights;
+    boneWeights.reserve(mesh->GetControlPointsCount());
     for (int i = 0; i < mesh->GetControlPointsCount(); i++)
-        bone_weights[i] = ControlPointBoneWeights();
+        boneWeights[i] = ControlPointBoneWeights();
 
     //geometry transform
 
     // go through deformers for this node, if it is a skin deformer, associate all control points of the meshes to the appropriate joints
-    for (int deformer_i = 0; deformer_i < num_deformers; deformer_i++) {
-        FbxSkin *skin = reinterpret_cast<FbxSkin *>(mesh->GetDeformer(deformer_i, FbxDeformer::eSkin));
+    for (int deformerI = 0; deformerI < numDeformers; deformerI++) {
+        FbxSkin *skin = reinterpret_cast<FbxSkin *>(mesh->GetDeformer(deformerI, FbxDeformer::eSkin));
 
         if (skin) {
-            int num_clusters = skin->GetClusterCount();
-            for (int cluster_i = 0; cluster_i < num_clusters; cluster_i++) {
-                FbxCluster *cluster = skin->GetCluster(cluster_i);
-                int joint_index = associateNameToJoint(Util::sanitizeString(cluster->GetLink()->GetName()));
+            int numClusters = skin->GetClusterCount();
+            for (int clusterI = 0; clusterI < numClusters; clusterI++) {
+                FbxCluster *cluster = skin->GetCluster(clusterI);
+                int jointIndex = associateNameToJoint(Util::sanitizeString(cluster->GetLink()->GetName()));
 
-                associateJointsAndControlPoints(cluster, joint_index, bone_weights);
+                associateJointsAndControlPoints(cluster, jointIndex, boneWeights);
             }
         }
     }
 
-    for (int i = 0; i < bone_weights.size(); i++) {
-        bone_weights[i].rebalance();
+    for (int i = 0; i < boneWeights.size(); i++) {
+        boneWeights[i].rebalance();
     }
 
-    return bone_weights;
+    return boneWeights;
 }
 
 // export the list of joints to a directory
 void SkeletonProcessor::exportJointList(std::string directory) {
-    std::ofstream joint_list_size_file(directory + "/JointListSize", std::ios::out | std::ios::binary);
-    int size = joint_hierarchy.size();
-    joint_list_size_file.write((const char *)&size, sizeof(int));
-    joint_list_size_file.close();
+    std::ofstream jointListSizeFile(directory + "/JointListSize", std::ios::out | std::ios::binary);
+    int size = jointHierarchy.size();
+    jointListSizeFile.write((const char *)&size, sizeof(int));
+    jointListSizeFile.close();
 
-    for (int i = 0; i < joint_hierarchy.size(); i++) {
-        std::string index_dir = directory + "/" + std::to_string(i);
-        Util::createFolder(index_dir);
+    for (int i = 0; i < jointHierarchy.size(); i++) {
+        std::string indexDir = directory + "/" + std::to_string(i);
+        Util::createFolder(indexDir);
 
-        std::ofstream name_file;
-        name_file.open(index_dir + "/name");
-        name_file << joint_hierarchy[i].name;
-        name_file.close();
+        std::ofstream nameFile;
+        nameFile.open(indexDir + "/name");
+        nameFile << jointHierarchy[i].name;
+        nameFile.close();
 
-        std::ofstream parent_index_file(index_dir + "/parent", std::ios::out | std::ios::binary);
-        parent_index_file.write((const char *)&(joint_hierarchy[i].parent_index), sizeof(int));
-        parent_index_file.close();
+        std::ofstream parentIndexFile(indexDir + "/parent", std::ios::out | std::ios::binary);
+        parentIndexFile.write((const char *)&(jointHierarchy[i].parentIndex), sizeof(int));
+        parentIndexFile.close();
     }
 }

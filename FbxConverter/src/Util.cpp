@@ -1,20 +1,22 @@
 #include "Util.hpp"
 
-const char *str_match = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_./\\";
+#include "FilesystemWrapper.hpp"
 
-bool is_special_char(char c) {
-    return strchr(str_match, c) == NULL;
+const char *strMatch = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-_./\\";
+
+bool isSpecialChar(char c) {
+    return strchr(strMatch, c) == NULL;
 }
 
 std::string Util::sanitizeString(std::string directory) {
-    std::string::iterator new_end = std::remove_if(directory.begin(), directory.end(), is_special_char);
-    directory.resize(new_end - directory.begin());
+    std::string::iterator newEnd = std::remove_if(directory.begin(), directory.end(), isSpecialChar);
+    directory.resize(newEnd - directory.begin());
     return directory;
 }
 
 void Util::createFolder(std::string directory) {
-    std::string sanitized_directory = sanitizeString(directory);
-    if (!fs::create_directory(fs::path(sanitized_directory))) {
-        std::cout << "Error creating directory: " << sanitized_directory << std::endl;
+    std::string sanitizedDirectory = sanitizeString(directory);
+    if (!fs::create_directory(fs::path(sanitizedDirectory))) {
+        std::cout << "Error creating directory: " << sanitizedDirectory << std::endl;
     }
 }

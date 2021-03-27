@@ -2,6 +2,7 @@
 #define ANIMATIONPROCESSOR_HPP
 
 #include <fbxsdk.h>
+#include <vector>
 
 #include "../DataOptimizer.hpp"
 
@@ -12,20 +13,20 @@ struct Keyframe {
 
 class AnimationProcessor {
 private:
-    DataOptimizer animation_optimizer;
+    DataOptimizer animationOptimizer;
 
     std::vector<fbxsdk::FbxAnimLayer *> animations;
-    std::vector<std::string> animation_directories;
+    std::vector<std::string> animationDirectories;
 
-    AnimationProcessor(std::string base_dir);
+    AnimationProcessor(std::string baseDir);
 
 public:
     static AnimationProcessor &getInstance();
 
     // processes animation data
-    void processAnimationStack(fbxsdk::FbxAnimStack *animation_stack);
+    void processAnimationStack(fbxsdk::FbxAnimStack *animationStack);
     void processNodeForAnimation(fbxsdk::FbxNode *node);
-    void saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *x_curve, fbxsdk::FbxAnimCurve *y_curve, fbxsdk::FbxAnimCurve *z_curve, int animation_index, std::string filename);
+    void saveKeyframes(fbxsdk::FbxNode *node, fbxsdk::FbxAnimCurve *xCurve, fbxsdk::FbxAnimCurve *yCurve, fbxsdk::FbxAnimCurve *zCurve, int animationIndex, std::string filename);
 };
 
 #endif

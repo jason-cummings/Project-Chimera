@@ -4,22 +4,22 @@
 #include <string>
 
 int main(int argc, char **argv) {
-    std::string fbx_filename = "test.fbx";
-    bool for_hitbox = false;
+    std::string fbxFilename = "test.fbx";
+    bool forHitbox = false;
     if (argc > 1 && argv[1][0] != '-') {
-        fbx_filename = std::string(argv[1]);
+        fbxFilename = std::string(argv[1]);
     }
-    FbxParser p = FbxParser(fbx_filename);
+    FbxParser p = FbxParser(fbxFilename);
 
     for (int i = 2; i < argc; i++) {
-        std::string arg_str = std::string(argv[i]);
-        if (arg_str.compare("-h") == 0) {
-            for_hitbox = true;
-        } else if (arg_str.compare("-d") == 0) {
+        std::string argStr = std::string(argv[i]);
+        if (argStr.compare("-h") == 0) {
+            forHitbox = true;
+        } else if (argStr.compare("-d") == 0) {
             Logger::enableLog();
         }
     }
 
-    p.init(for_hitbox);
+    p.init(forHitbox);
     return 0;
 }

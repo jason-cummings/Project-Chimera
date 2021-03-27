@@ -6,14 +6,14 @@
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 namespace fswrapper {
-inline bool is_dir(fs::directory_entry ent) { return is_directory(ent); }
+inline bool isDir(fs::directory_entry ent) { return is_directory(ent); }
 } // namespace fswrapper
 
 #else
 #include <filesystem>
 namespace fs = std::filesystem;
 namespace fswrapper {
-inline bool is_dir(fs::directory_entry ent) { return ent.is_directory(); }
+inline bool isDir(fs::directory_entry ent) { return ent.is_directory(); }
 } // namespace fswrapper
 #endif
 

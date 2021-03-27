@@ -19,17 +19,17 @@
 class DataOptimizer {
 private:
     std::map<void *, int> indexes; // maps pointers to indexes
-    int most_recently_added_index = 0;
+    int mostRecentlyAddedIndex = 0;
 
-    std::string base_directory;
+    std::string baseDirectory;
 
 public:
-    DataOptimizer(std::string base_directory_in) {
-        base_directory = base_directory_in;
+    DataOptimizer(std::string baseDirectoryIn) {
+        baseDirectory = baseDirectoryIn;
     }
 
     DataOptimizer() {
-        base_directory = ".";
+        baseDirectory = ".";
     }
 
     // check if this object has already been processed
@@ -44,15 +44,15 @@ public:
 
     // returns index for this data set and creates a directory to store this data
     int addData(void *pointer) {
-        most_recently_added_index++;
-        std::cout << base_directory << ": " << most_recently_added_index << std::endl;
-        indexes[pointer] = most_recently_added_index;
-        Util::createFolder(base_directory + std::string("/") + std::to_string(most_recently_added_index));
-        return most_recently_added_index;
+        mostRecentlyAddedIndex++;
+        std::cout << baseDirectory << ": " << mostRecentlyAddedIndex << std::endl;
+        indexes[pointer] = mostRecentlyAddedIndex;
+        Util::createFolder(baseDirectory + std::string("/") + std::to_string(mostRecentlyAddedIndex));
+        return mostRecentlyAddedIndex;
     }
 
     std::string getDataDirectory(int index) {
-        return base_directory + std::string("/") + std::to_string(index);
+        return baseDirectory + std::string("/") + std::to_string(index);
     }
 };
 

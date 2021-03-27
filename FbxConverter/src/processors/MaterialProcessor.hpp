@@ -13,10 +13,10 @@ private:
     int getMaterial(fbxsdk::FbxSurfaceMaterial *material);
 
     /** Convenience function to write out the filename of a texture */
-    void writeTextureNameToFile(const char *tex_name, std::string fname);
+    void writeTextureNameToFile(const char *texName, std::string fname);
 
     /** Singleton constructor */
-    MaterialProcessor(std::string base_dir);
+    MaterialProcessor(std::string baseDir);
     MaterialProcessor(const MaterialProcessor &) = delete;
     MaterialProcessor &operator=(const MaterialProcessor &) = delete;
 
@@ -25,7 +25,7 @@ public:
     static MaterialProcessor &getInstance();
 
     /** Processes a material and adds it to the optimizer if it doesn't already exist */
-    void getMaterialsFromNode(fbxsdk::FbxNode *node, std::string node_directory);
+    void getMaterialsFromNode(fbxsdk::FbxNode *node, std::string nodeDirectory);
 };
 
 #endif
